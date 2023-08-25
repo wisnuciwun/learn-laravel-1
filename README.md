@@ -75,3 +75,7 @@ php artisan serve
 npm run dev
 
 add @vite([]) to the blade
+
+how to create controller :
+
+php artisan make:controller PagesController

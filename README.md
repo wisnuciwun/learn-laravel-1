@@ -79,6 +79,30 @@ how to create controller :
 
 php artisan make:controller PagesController
 
+php artisan make:controller PostController --resource
+
+how to create model :
+
+php artisan make:model Post -m
+
+how to migrate :
+
+php artisan migrate
+
+how to use tinker :
+
+php artisan tinker
+
+App\Models\Post::count()
+
+```
+$post->updated_at='12/12/2023
+```
+
+```
+$post->save();
+```
+
 to add bootstrap :
 
 composer require laravel/ui

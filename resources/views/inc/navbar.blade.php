@@ -20,6 +20,9 @@
                 <li class="nav-item active">
                     <a class="nav-link" href="/">Welcome</a>
                 </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/post">Posts</a>
+                </li>
             </ul>
 
             <!-- Right Side Of Navbar -->

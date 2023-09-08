@@ -23,6 +23,9 @@
                 <li class="nav-item active">
                     <a class="nav-link" href="/post">Posts</a>
                 </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/post/create">Create Portofolio</a>
+                </li>
             </ul>
 
             <!-- Right Side Of Navbar -->

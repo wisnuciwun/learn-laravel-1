@@ -67,7 +67,7 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
 # NOTE
 
-to make hot reload :
+## how to make hot reload :
 
 npm install
 php artisan serve
@@ -75,23 +75,27 @@ npm run dev
 
 add @vite([]) to the blade
 
-how to create controller :
+## how to create controller :
 
 php artisan make:controller PagesController
 
 php artisan make:controller PostController --resource
 
-how to create model :
+## how to create model :
 
 php artisan make:model Post -m
 
-how to migrate :
+## how to migrate :
 
 php artisan migrate
 
-how to use tinker :
+## how to use tinker :
 
 php artisan tinker
+
+## how to use laravel collective :
+
+composer require laravelcollective/html
 
 App\Models\Post::count()
 

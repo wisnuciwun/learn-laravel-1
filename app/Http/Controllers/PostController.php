@@ -27,7 +27,7 @@ class PostController extends Controller
      */
     public function create()
     {
-        //
+        return view('posts.create');
     }
 
     /**
@@ -35,7 +35,24 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $this->validate($request, [
+            'folio_name' => 'required',
+            'description' => 'required',
+            'url' => 'required',
+            'image_url' => 'required',
+            'created_at' => 'required'
+        ]);
+
+        $post = new Post;
+        $post->folio_name = $request->input('folio_name');
+        $post->description = $request->input('description');
+        $post->url = $request->input('url');
+        $post->image_url = $request->input('image_url');
+        $post->created_at = $request->input('created_at');
+        $post->save();
+
+        return redirect('/post')->with('success', 'Portofolio Created');
+
     }
 
     /**

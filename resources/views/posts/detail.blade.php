@@ -8,7 +8,8 @@
             <div style="cursor:pointer" class="card-title">
                 {{ $data->folio_name }}</div>
             <div class="card-text">
-                {{ $data->description }}
+                {{-- this is how to parse  html from ckeditor as html code --}}
+                {!! $data->description !!}
             </div>
         </div>
     </div>

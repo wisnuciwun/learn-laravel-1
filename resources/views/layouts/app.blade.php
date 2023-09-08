@@ -3,6 +3,7 @@
 
 <head>
     @vite([])
+    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.2/classic/ckeditor.js"></script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- change the tab title -->
@@ -19,6 +20,7 @@
 <body>
     @include('inc.navbar')
     <div class="container pt-3">
+        @include('inc.messages')
         @yield('content')
     </div>
 </body>

@@ -13,5 +13,16 @@
             </div>
         </div>
     </div>
+    {{-- !! Form::open(['route' => 'post.store', 'method' => 'POST']) !!} --}}
+    {{ Form::open(['route', 'post.destroy', $data->id, 'class' => 'btn btn-danger', 'method' => 'POST']) }}
+    {{ Form::hidden('_method', 'DELETE') }}
+    {{ Form::submit('Delete', ['class' => 'btn btn-danger']) }}
+    {{ Form::close() }}
+    {{-- <button onclick="window.location.replace('/post/{{ $data->id }}/delete')" class="btn btn-danger mt-2">
+        Delete
+    </button> --}}
+    <button onclick="window.location.replace('/post/{{ $data->id }}/edit')" class="btn btn-dark mt-2">
+        Edit
+    </button>
     <button onclick="window.location.replace('/post')" class="btn btn-secondary mt-2">Back</button>
 @endsection

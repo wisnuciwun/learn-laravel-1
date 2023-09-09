@@ -6,6 +6,7 @@ use App\Models\Post;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
@@ -45,9 +46,21 @@ class PostController extends Controller
             'folio_name' => 'required',
             'description' => 'required',
             'url' => 'required',
-            'image_url' => 'required',
+            'image_url' => 'image|nullable|max:1999',
             'created_at' => 'required',
         ]);
+
+        // Handle file uploader
+
+        if ($request->hasFile('image_url')) {
+            $fileNameWithExt = $request->file('image_url')->getClientOriginalName(); // get filename with extension
+            $fileName = pathinfo($fileNameWithExt, PATHINFO_FILENAME); // get just filename
+            $extension = $request->file('image_url')->getClientOriginalExtension(); // get just extension
+            $fileNameToStore = $fileName . '_' . time() . '.' . $extension; // file name to store avoid same name
+            $path = $request->file('image_url')->storeAs('public/cover_images', $fileNameToStore); // save image with directory
+        } else {
+            $fileNameToStore = 'noimage.jpg';
+        }
 
         $user_id = auth()->user()->id;
 
@@ -55,7 +68,7 @@ class PostController extends Controller
         $post->folio_name = $request->input('folio_name');
         $post->description = $request->input('description');
         $post->url = $request->input('url');
-        $post->image_url = $request->input('image_url');
+        $post->image_url = $fileNameToStore;
         $post->created_at = $request->input('created_at');
         $post->user_id = $user_id;
         $post->save();
@@ -97,15 +110,27 @@ class PostController extends Controller
             'folio_name' => 'required',
             'description' => 'required',
             'url' => 'required',
-            'image_url' => 'required',
+            'image_url' => 'image|nullable|max:1999',
             'created_at' => 'required'
         ]);
+
+        // Handle file uploader
+
+        if ($request->hasFile('image_url')) {
+            $fileNameWithExt = $request->file('image_url')->getClientOriginalName(); // get filename with extension
+            $fileName = pathinfo($fileNameWithExt, PATHINFO_FILENAME); // get just filename
+            $extension = $request->file('image_url')->getClientOriginalExtension(); // get just extension
+            $fileNameToStore = $fileName . '_' . time() . '.' . $extension; // file name to store avoid same name
+            $path = $request->file('image_url')->storeAs('public/cover_images', $fileNameToStore); // save image with directory
+        }
 
         $post = Post::find($id);
         $post->folio_name = $request->input('folio_name');
         $post->description = $request->input('description');
         $post->url = $request->input('url');
-        $post->image_url = $request->input('image_url');
+        if ($request->hasFile('image_url')) {
+            $post->image_url = $fileNameToStore;
+        }
         $post->created_at = $request->input('created_at');
         $post->save();
 
@@ -123,6 +148,10 @@ class PostController extends Controller
             return redirect('/post')->with('error', 'Unauthorized Page');
         } else {
             $data->delete();
+
+            if ($data->image_url != 'noimage.jpg' && !str_contains($data->image_url, 'https')) {
+                Storage::delete('public/cover_images/' . $data->image_url); // use . to template literals like in js
+            }
             return redirect('/post')->with('success', 'Portofolio Removed');
         }
     }

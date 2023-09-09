@@ -2,7 +2,8 @@
 
 @section('content')
     <h3>Create portofolio</h3>
-    {!! Form::open(['route' => 'post.store', 'method' => 'POST']) !!}
+    {{-- add 'enctype' => 'multipart/data' to use upload file --}}
+    {!! Form::open(['route' => 'post.store', 'method' => 'POST', 'enctype' => 'multipart/form-data']) !!}
     <div class="form-group mt-3">
         {{-- first folio_name is it's id, and the next is it's value --}}
         {{ Form::label('folio_name', 'Portofolio Name') }}
@@ -16,9 +17,14 @@
         {{ Form::label('url', 'App Url') }}
         {{ Form::text('url', '', ['class' => 'form-control mb-2', 'placeholder' => 'Add your app url (if exist)']) }}
     </div>
-    <div class="form-group">
+    {{-- <div class="form-group">
         {{ Form::label('image_url', 'App Screenshot Url') }}
         {{ Form::text('image_url', '', ['class' => 'form-control mb-2', 'placeholder' => 'Add your app screenshot url']) }}
+    </div> --}}
+    <div class="form-group mb-2">
+        {{ Form::label('image_url', 'App Screenshot Url') }}
+        <br>
+        {{ Form::file('image_url') }}
     </div>
     <div class="form-group">
         {{ Form::label('created_at', 'Created At') }}

@@ -107,7 +107,7 @@ $post->updated_at='12/12/2023
 $post->save();
 ```
 
-to add bootstrap :
+## how to add bootstrap :
 
 composer require laravel/ui
 php artisan ui bootstrap
@@ -117,3 +117,9 @@ php artisan ui bootstrap --auth
 <script src="{{ asset('js/app.js') }}" defer></script>
 <link href="{{ asset('css/app.css') }}" rel="stylesheet" />
 ```
+
+## how to add php artisan make:auth (because it no longer exist on laravel 5.2+)
+
+(add = composer require laravel/ui if you never done before)
+php artisan ui vue --auth
+php artisan migrate

@@ -12,16 +12,10 @@
             <!-- Left Side Of Navbar -->
             <ul class="navbar-nav me-auto nav">
                 <li class="nav-item active">
-                    <a class="nav-link" href="/portofolio">Portofolio</a>
-                </li>
-                <li class="nav-item active">
                     <a class="nav-link" href="/profile">Profile</a>
                 </li>
                 <li class="nav-item active">
-                    <a class="nav-link" href="/">Welcome</a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="/post">Posts</a>
+                    <a class="nav-link" href="/post">Portofolios</a>
                 </li>
                 <li class="nav-item active">
                     <a class="nav-link" href="/post/create">Create Portofolio</a>

@@ -26,7 +26,8 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = RouteServiceProvider::HOME;
+    // protected $redirectTo = RouteServiceProvider::HOME; this is default page direct after click login
+    protected $redirectTo = '/welcome';
 
     /**
      * Create a new controller instance.

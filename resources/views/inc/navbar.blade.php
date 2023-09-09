@@ -12,7 +12,7 @@
             <!-- Left Side Of Navbar -->
             <ul class="navbar-nav me-auto nav">
                 <li class="nav-item active">
-                    <a class="nav-link" href="/profile">Profile</a>
+                    <a class="nav-link" href="/dashboard">Profile</a>
                 </li>
                 <li class="nav-item active">
                     <a class="nav-link" href="/post">Portofolios</a>

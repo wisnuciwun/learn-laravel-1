@@ -123,3 +123,10 @@ php artisan ui bootstrap --auth
 (add = composer require laravel/ui if you never done before)
 php artisan ui vue --auth
 php artisan migrate
+
+## how to create model relationship :
+
+create function as on Post.php and User.php
+check table you want to relate, if user_id doesn't exist yet do a migrate with php artisan make:migration
+add some code in up() like in new_post_table_with_userid.php
+then php artisan migrate

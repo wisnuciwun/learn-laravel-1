@@ -16,16 +16,12 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/portofolio', function () {
+    // return view('pages/portofolio'); or you can use this
     return view('pages.portofolio');
 });
 
 Route::get('/', function () {
     return view('welcome');
-});
-
-Route::get('/profile', function () {
-    // return view('pages.profile'); or you can use this
-    return view('pages/profile');
 });
 
 Route::get('/routing/{id}/{task}', function ($id, $task) {
@@ -35,11 +31,10 @@ Route::get('/routing/{id}/{task}', function ($id, $task) {
 Route::get('/trialcontroller', [PagesController::class, 'index']); // how to call controller
 
 Route::get('/welcome', [PagesController::class, 'welcome']);
-Auth::routes();
-
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+// Auth::routes(); it might be duplicate, but im doubt to delete it
 
 Route::resource('post', PostController::class); // how to call controller without function name
-Auth::routes();
 
-// Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('index');
+
+Auth::routes();

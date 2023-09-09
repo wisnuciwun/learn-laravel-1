@@ -40,8 +40,10 @@ class PostController extends Controller
             'description' => 'required',
             'url' => 'required',
             'image_url' => 'required',
-            'created_at' => 'required'
+            'created_at' => 'required',
         ]);
+
+        $user_id = auth()->user()->id;
 
         $post = new Post;
         $post->folio_name = $request->input('folio_name');
@@ -49,6 +51,7 @@ class PostController extends Controller
         $post->url = $request->input('url');
         $post->image_url = $request->input('image_url');
         $post->created_at = $request->input('created_at');
+        $post->user_id = $user_id;
         $post->save();
 
         return redirect('/post')->with('success', 'Portofolio Created');

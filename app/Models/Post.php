@@ -13,4 +13,10 @@ class Post extends Model
     public $primaryKey = 'id';
     public $timestamps = false;
 
+    // post has a relationship with user
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
 }

@@ -5,9 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth', ['except' => ['index', 'show']]); // block if its not authenticated
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -73,7 +79,13 @@ class PostController extends Controller
     public function edit(string $id)
     {
         $data = Post::find($id);
-        return view('posts.edit', compact('data'));
+        $user_id = auth()->user()->id;
+
+        if (Auth::user()->id !== $data->user_id) {
+            return redirect('/post')->with('error', 'Unauthorized Page');
+        } else {
+            return view('posts.edit', compact('data'));
+        }
     }
 
     /**
@@ -106,7 +118,12 @@ class PostController extends Controller
     public function destroy(string $id)
     {
         $data = POST::find($id);
-        $data->delete();
-        return redirect('/post')->with('success', 'Portofolio Removed');
+
+        if (Auth::user()->id !== $data->user_id) {
+            return redirect('/post')->with('error', 'Unauthorized Page');
+        } else {
+            $data->delete();
+            return redirect('/post')->with('success', 'Portofolio Removed');
+        }
     }
 }

@@ -134,3 +134,25 @@ then php artisan migrate
 ## how to create symlink to access image on public folder :
 
 php artisan storage:link
+
+## FLY.IO
+
+- fly launch : to create fly.toml config file
+- fly deploy : create application to docker
+- fly ssh console
+- flyctl image update
+- fly apps restart [appname]
+- fly apps destroy
+- fly machine destroy
+- flyctl auth login
+
+# PLANETSCALE
+
+- brew install planetscale/tap/pscale : install planet scale
+- pscale auth login
+
+to open db in local, use MYSQL_ATTR_SSL_CA=/etc/ssl/cert.pem
+to open db in production, use MYSQL_ATTR_SSL_CA=/etc/ssl/certs/ca-certificates.crt
+to open db in workbench, disable save migration  (also adjust the host, use general option in planetscale web)
+to connect in local, add config to .env
+to connect in production, add config to fly.toml

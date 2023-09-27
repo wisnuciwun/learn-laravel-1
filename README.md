@@ -133,7 +133,7 @@ then php artisan migrate
 
 ## how to create symlink to access image on public folder :
 
-php artisan storage:link
+php artisan storage:link --> don't forget hit this each time upload to fly
 
 ## FLY.IO
 

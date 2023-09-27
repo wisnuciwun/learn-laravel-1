@@ -55,13 +55,17 @@ class PostController extends Controller
         // Handle file uploader
 
         if ($request->hasFile('image_url')) {
-            $fileNameWithExt = $request->file('image_url')->getClientOriginalName(); // get filename with extension
-            $fileName = pathinfo($fileNameWithExt, PATHINFO_FILENAME); // get just filename
-            $extension = $request->file('image_url')->getClientOriginalExtension(); // get just extension
-            $fileNameToStore = $fileName . '_' . time() . '.' . $extension; // file name to store avoid same name
-            $path = $request->file('image_url')->storeAs('public/cover_images', $fileNameToStore); // save image with directory
+            $image = $request->file('image_url');
+            $fileNameToStore = $image->getClientOriginalName(); // get filename with extension
+            // $fileName = pathinfo($fileNameWithExt, PATHINFO_FILENAME); // get just filename
+            // $extension = $image->getClientOriginalExtension(); // get just extension
+            // $fileNameToStore = $fileName . '_' . time() . '.' . $extension; // file name to store avoid same name
+            $path = $image->storeAs('cover_images', $fileNameToStore, 'public'); // save image with directory
+            $target = 'public/storage/cover_images/' . $fileNameToStore;
+            Storage::disk('public')->append($target, 'storage/' . $path);
+
         } else {
-            $fileNameToStore = 'noimage.jpg';
+            $fileNameToStore = 'https://t4.ftcdn.net/jpg/04/73/25/49/360_F_473254957_bxG9yf4ly7OBO5I0O5KABlN930GwaMQz.jpg';
         }
 
         $user_id = auth()->user()->id;
@@ -121,11 +125,16 @@ class PostController extends Controller
         // Handle file uploader
 
         if ($request->hasFile('image_url')) {
-            $fileNameWithExt = $request->file('image_url')->getClientOriginalName(); // get filename with extension
-            $fileName = pathinfo($fileNameWithExt, PATHINFO_FILENAME); // get just filename
-            $extension = $request->file('image_url')->getClientOriginalExtension(); // get just extension
-            $fileNameToStore = $fileName . '_' . time() . '.' . $extension; // file name to store avoid same name
-            $path = $request->file('image_url')->storeAs('public/cover_images', $fileNameToStore); // save image with directory
+            $image = $request->file('image_url');
+            $fileNameToStore = $image->getClientOriginalName(); // get filename with extension
+            // $fileName = pathinfo($fileNameWithExt, PATHINFO_FILENAME); // get just filename
+            // $extension = $image->getClientOriginalExtension(); // get just extension
+            // $fileNameToStore = $fileName . '_' . time() . '.' . $extension; // file name to store avoid same name
+            $path = $image->storeAs('cover_images', $fileNameToStore, 'public'); // save image with directory
+            $target = 'public/storage/cover_images/' . $fileNameToStore;
+            Storage::disk('public')->append($target, 'storage/' . $path);
+        } else {
+            $fileNameToStore = 'https://t4.ftcdn.net/jpg/04/73/25/49/360_F_473254957_bxG9yf4ly7OBO5I0O5KABlN930GwaMQz.jpg';
         }
 
         $post = Post::find($id);

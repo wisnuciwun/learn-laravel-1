@@ -25,7 +25,7 @@ class PostController extends Controller
         // $data = Post::orderBy('folio_name', 'asc')->get(); // pick all data on the model with order
         // $data = Post::orderBy('folio_name', 'asc')->take(1)->get(); // pick 1 data on the model with order
         // $data = DB::select('SELECT * FROM posts'); // pick all data on the model by query
-        $data = Post::orderBy('folio_name', 'asc')->paginate(2); // pick with perpage 1 data from the model with order
+        $data = Post::orderBy('folio_name', 'asc')->paginate(6); // pick with perpage 1 data from the model with order
         return view('posts.index', compact('data'));
     }
 
@@ -48,6 +48,8 @@ class PostController extends Controller
             'url' => 'required',
             'image_url' => 'image|nullable|max:1999',
             'created_at' => 'required',
+            'short_desc' => 'required',
+            'hashtags' => 'required',
         ]);
 
         // Handle file uploader
@@ -71,6 +73,8 @@ class PostController extends Controller
         $post->image_url = $fileNameToStore;
         $post->created_at = $request->input('created_at');
         $post->user_id = $user_id;
+        $post->short_desc = $request->input('short_desc');
+        $post->hashtags = $request->input('hashtags');
         $post->save();
 
         return redirect('/post')->with('success', 'Portofolio Created');

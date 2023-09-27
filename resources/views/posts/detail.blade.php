@@ -1,8 +1,22 @@
 @extends('layouts.app')
 
 @section('content')
-    <h3>detail</h3>
-    <div class="card w-100">
+    {{-- <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/post">Portofolio</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Detail</li>
+        </ol>
+    </nav> --}}
+    <nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);"
+        aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a style="color: white" href="/">Home</a></li>
+            <li class="breadcrumb-item"><a style="color: white" href="/post">Portofolio</a></li>
+            <li style="color: white" class="breadcrumb-item active" aria-current="page">Detail</li>
+        </ol>
+    </nav>
+    <div class="card text-white bg-dark w-100">
         {{-- <img class="card-img-top w-100" src={{ $data->image_url }} alt="Card image cap"> --}}
         <div class="card-body">
             <div style="cursor:pointer" class="card-title">
@@ -30,5 +44,4 @@
             </button>
         @endif
     @endif
-    <button onclick="window.location.replace('/post')" class="btn btn-secondary mt-2">Back</button>
 @endsection

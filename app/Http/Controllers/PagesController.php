@@ -19,7 +19,7 @@ class PagesController extends Controller
         $connect = 'Or you can visit my LinedIn profile here :';
         $linkedinUrl = 'https://www.linkedin.com/in/wisnu-adi-wardhana-560473163/';
         $data = array(
-            'subTitle' => 'Hi, here is my website for show up my portofolios',
+            // 'subTitle' => 'Hi, here is my website to show up',
             'listPortofolio' => ['E-Pipeline', 'Web Pareto AR', 'Web Todo List', 'Tokodistributor Desktop', 'Scrin', 'SCFS']
         );
 

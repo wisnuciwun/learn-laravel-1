@@ -1,10 +1,13 @@
 @extends('layouts.app')
 
 @section('content')
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item">Profile</a></li>
+        </ol>
+    </nav>
     <div class="d-flex flex-wrap justify-content-start">
-        <h2 class="w-100">
-            Profile
-        </h2>
         <div class="col-6">
             <div>Name</div>
             <div class="mb-2">Wisnu</div>
@@ -37,8 +40,8 @@
                         </tr>
                     @endforeach
                 </table>
-            @else
-                <div>You dont have any portofolio yet, <a href="/post/create" class="btn btn-primary">create one</a></div>
+                {{-- @else
+                <div>You dont have any portofolio yet, <a href="/post/create" class="btn btn-primary">create one</a></div> --}}
             @endif
         </div>
     </div>

@@ -24,11 +24,11 @@ Route::get('/portofolio', function () {
 //     return view('welcome');
 // });
 
-Route::get('/routing/{id}/{task}', function ($id, $task) {
-    return 'Page is about ' . $id . " and he/she still doing " . $task;
-});
+// Route::get('/routing/{id}/{task}', function ($id, $task) {
+//     return 'Page is about ' . $id . " and he/she still doing " . $task;
+// });
 
-Route::get('/trialcontroller', [PagesController::class, 'index']); // how to call controller
+// Route::get('/trialcontroller', [PagesController::class, 'index']); // how to call controller
 
 Route::get('/', [PagesController::class, 'welcome']);
 // Auth::routes(); it might be duplicate, but im doubt to delete it

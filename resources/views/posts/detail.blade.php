@@ -1,13 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-    {{-- <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">Home</a></li>
-            <li class="breadcrumb-item"><a href="/post">Portofolio</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Detail</li>
-        </ol>
-    </nav> --}}
     <nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);"
         aria-label="breadcrumb">
         <ol class="breadcrumb">
@@ -16,32 +9,46 @@
             <li style="color: white" class="breadcrumb-item active" aria-current="page">Detail</li>
         </ol>
     </nav>
-    <div class="card text-white bg-dark w-100">
-        {{-- <img class="card-img-top w-100" src={{ $data->image_url }} alt="Card image cap"> --}}
-        <div class="card-body">
-            <div style="cursor:pointer" class="card-title">
-                {{ $data->folio_name }}</div>
-            <div class="card-text">
-                {{-- this is how to parse  html from ckeditor as html code --}}
-                {!! $data->description !!}
+    <div class="card text-white bg-dark w-100 border-light">
+        <img src="/bg-detail.jpg" class="w-100 position-absolute"
+            style="object-fit: scale-down; z-index: 0; mix-blend-mode:saturation;" alt="">
+        <div style="z-index: 1" class="card-body position-relative">
+            <h1 style="cursor:pointer" class="card-title mb-4">
+                {{ $data->folio_name }}</h1>
+            <div class="d-flex justify-content-between gap-3 align-items-start">
+                <div style="max-width: 50%">
+                    <div style="height: 500px;" class="d-flex justify-content-center align-items-start">
+                        <img style="object-fit: scale-down; max-width: 100%" src="{{ $data->image_url }}" alt="">
+                    </div>
+                    <div class="mt-3 d-flex align-items-center gap-2">
+                        <span class="material-symbols-outlined">
+                            public
+                        </span>
+                        <a href="{{ $data->url }}" class="text-white" style="font-size: 18px;">
+                            {{ $data->url }}
+                        </a>
+                    </div>
+                </div>
+                <div class="card-text">
+                    {{-- this is how to parse  html from ckeditor as html code --}}
+                    {!! $data->description !!}
+                </div>
             </div>
         </div>
     </div>
     {{-- !! Form::open(['route' => 'post.store', 'method' => 'POST']) !!} --}}
     {{-- add !Auth::guest() to hide for guest, but all user can see it --}}
-    @if (!Auth::guest())
-        {{-- add Auth::user()->id to hide securely depend on login user_id --}}
-        @if (Auth::user()->id == $data->user_id)
-            {{ Form::open(['route', 'post.destroy', $data->id, 'class' => 'btn btn-danger', 'method' => 'POST']) }}
-            {{ Form::hidden('_method', 'DELETE') }}
-            {{ Form::submit('Delete', ['class' => 'btn btn-danger']) }}
-            {{ Form::close() }}
-            {{-- <button onclick="window.location.replace('/post/{{ $data->id }}/delete')" class="btn btn-danger mt-2">
-    Delete
-</button> --}}
-            <button onclick="window.location.replace('/post/{{ $data->id }}/edit')" class="btn btn-dark mt-2">
-                Edit
-            </button>
+    <div style="z-index: 9; position: relative" class="mt-3 d-flex align-items-center gap-2">
+        @if (!Auth::guest())
+            {{-- add Auth::user()->id to hide securely depend on login user_id --}}
+            @if (Auth::user()->id == $data->user_id)
+                {{ Form::open(['route' => ['post.destroy', $data->id], 'method' => 'DELETE']) }}
+                {{ Form::submit('Delete', ['class' => 'btn btn-danger']) }}
+                {{ Form::close() }}
+                <a href="/post/{{ $data->id }}/edit" class="btn btn-dark">
+                    Edit
+                </a>
+            @endif
         @endif
-    @endif
+    </div>
 @endsection

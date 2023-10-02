@@ -131,6 +131,10 @@ check table you want to relate, if user_id doesn't exist yet do a migrate with p
 add some code in up() like in new_post_table_with_userid.php
 then php artisan migrate
 
+## how to add table :
+
+php artisan make:migration create_images_table --create=images
+
 ## how to create symlink to access image on public folder :
 
 php artisan storage:link --> don't forget hit this each time upload to fly

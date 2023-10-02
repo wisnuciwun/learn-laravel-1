@@ -46,7 +46,7 @@ class PostController extends Controller
             'folio_name' => 'required',
             'description' => 'required',
             'url' => 'required',
-            'image_url' => 'image|nullable|max:1999',
+            // 'image_url' => 'image|nullable|max:1999',
             'created_at' => 'required',
             'short_desc' => 'required',
             'hashtags' => 'required',
@@ -54,19 +54,19 @@ class PostController extends Controller
 
         // Handle file uploader
 
-        if ($request->hasFile('image_url')) {
-            $image = $request->file('image_url');
-            $fileNameToStore = $image->getClientOriginalName(); // get filename with extension
-            // $fileName = pathinfo($fileNameWithExt, PATHINFO_FILENAME); // get just filename
-            // $extension = $image->getClientOriginalExtension(); // get just extension
-            // $fileNameToStore = $fileName . '_' . time() . '.' . $extension; // file name to store avoid same name
-            $path = $image->storeAs('cover_images', $fileNameToStore, 'public'); // save image with directory
-            $target = 'public/storage/cover_images/' . $fileNameToStore;
-            Storage::disk('public')->append($target, 'storage/' . $path);
+        // if ($request->hasFile('image_url')) {
+        //     $image = $request->file('image_url');
+        //     $fileNameToStore = $image->getClientOriginalName(); // get filename with extension
+        //     // $fileName = pathinfo($fileNameWithExt, PATHINFO_FILENAME); // get just filename
+        //     // $extension = $image->getClientOriginalExtension(); // get just extension
+        //     // $fileNameToStore = $fileName . '_' . time() . '.' . $extension; // file name to store avoid same name
+        //     $path = $image->storeAs('cover_images', $fileNameToStore, 'public'); // save image with directory
+        //     $target = 'public/storage/cover_images/' . $fileNameToStore;
+        //     Storage::disk('public')->append($target, 'storage/' . $path);
 
-        } else {
-            $fileNameToStore = 'https://t4.ftcdn.net/jpg/04/73/25/49/360_F_473254957_bxG9yf4ly7OBO5I0O5KABlN930GwaMQz.jpg';
-        }
+        // } else {
+        //     $fileNameToStore = 'https://t4.ftcdn.net/jpg/04/73/25/49/360_F_473254957_bxG9yf4ly7OBO5I0O5KABlN930GwaMQz.jpg';
+        // }
 
         $user_id = auth()->user()->id;
 
@@ -74,7 +74,8 @@ class PostController extends Controller
         $post->folio_name = $request->input('folio_name');
         $post->description = $request->input('description');
         $post->url = $request->input('url');
-        $post->image_url = $fileNameToStore;
+        $post->image_url = $request->input('image_url');
+        // $post->image_url = $fileNameToStore;
         $post->created_at = $request->input('created_at');
         $post->user_id = $user_id;
         $post->short_desc = $request->input('short_desc');
@@ -118,32 +119,33 @@ class PostController extends Controller
             'folio_name' => 'required',
             'description' => 'required',
             'url' => 'required',
-            'image_url' => 'image|nullable|max:1999',
+            // 'image_url' => 'image|nullable|max:1999',
             'created_at' => 'required'
         ]);
 
         // Handle file uploader
 
-        if ($request->hasFile('image_url')) {
-            $image = $request->file('image_url');
-            $fileNameToStore = $image->getClientOriginalName(); // get filename with extension
-            // $fileName = pathinfo($fileNameWithExt, PATHINFO_FILENAME); // get just filename
-            // $extension = $image->getClientOriginalExtension(); // get just extension
-            // $fileNameToStore = $fileName . '_' . time() . '.' . $extension; // file name to store avoid same name
-            $path = $image->storeAs('cover_images', $fileNameToStore, 'public'); // save image with directory
-            $target = 'public/storage/cover_images/' . $fileNameToStore;
-            Storage::disk('public')->append($target, 'storage/' . $path);
-        } else {
-            $fileNameToStore = 'https://t4.ftcdn.net/jpg/04/73/25/49/360_F_473254957_bxG9yf4ly7OBO5I0O5KABlN930GwaMQz.jpg';
-        }
+        // if ($request->hasFile('image_url')) {
+        //     $image = $request->file('image_url');
+        //     $fileNameToStore = $image->getClientOriginalName(); // get filename with extension
+        //     // $fileName = pathinfo($fileNameWithExt, PATHINFO_FILENAME); // get just filename
+        //     // $extension = $image->getClientOriginalExtension(); // get just extension
+        //     // $fileNameToStore = $fileName . '_' . time() . '.' . $extension; // file name to store avoid same name
+        //     $path = $image->storeAs('cover_images', $fileNameToStore, 'public'); // save image with directory
+        //     $target = 'public/storage/cover_images/' . $fileNameToStore;
+        //     Storage::disk('public')->append($target, 'storage/' . $path);
+        // } else {
+        //     $fileNameToStore = 'https://t4.ftcdn.net/jpg/04/73/25/49/360_F_473254957_bxG9yf4ly7OBO5I0O5KABlN930GwaMQz.jpg';
+        // }
 
         $post = Post::find($id);
         $post->folio_name = $request->input('folio_name');
         $post->description = $request->input('description');
         $post->url = $request->input('url');
-        if ($request->hasFile('image_url')) {
-            $post->image_url = $fileNameToStore;
-        }
+        $post->image_url = $request->input('image_url');
+        // if ($request->hasFile('image_url')) {
+        //     $post->image_url = $fileNameToStore;
+        // }
         $post->created_at = $request->input('created_at');
         $post->save();
 

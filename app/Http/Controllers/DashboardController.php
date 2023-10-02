@@ -14,7 +14,7 @@ class DashboardController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
+        // $this->middleware('auth');
     }
 
     /**
@@ -24,7 +24,7 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        $user_id = auth()->user()->id; // Replace 1 with the user's ID
+        $user_id = 2; // Replace 1 with the user's ID
         $post = User::find($user_id); // This will give you a collection of posts associated with the user.
 
         return view('pages.profile')->with('data', $post->findPortofolio);

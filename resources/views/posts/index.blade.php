@@ -11,14 +11,21 @@
     <div class="d-flex flex-wrap gap-4 text-light">
         @if (count($data) > 0)
             @foreach ($data as $item)
-                <div class="card text-white bg-dark" style="height: 400px; width: 32%; overflow: hidden">
-                    @if (str_contains($item->image_url, 'https'))
-                        <img style="height: 200px; object-fit: cover;" class="card-img-top w-100"
-                            src="{{ $item->image_url }}" alt="Card image cap">
-                    @else
-                        <img style="height: 200px; object-fit: cover;" class="card-img-top w-100"
-                            src="/storage/cover_images/{{ $item->image_url }}" alt="">
-                    @endif
+                <div onclick="window.location.replace('/post/{{ $item->id }}')"
+                    class="card text-white bg-dark border-light"
+                    style="height: 430px; width: 32%; overflow: hidden; cursor: pointer">
+                    <div class="position-relative">
+                        @if (str_contains($item->image_url, 'https'))
+                            <img style="height: 200px; object-fit: cover;" class="card-img-top w-100"
+                                src="{{ $item->image_url }}" alt="Card image cap">
+                        @else
+                            <img style="height: 200px; object-fit: cover;" class="card-img-top w-100"
+                                src="/storage/cover_images/{{ $item->image_url }}" alt="">
+                        @endif
+                        <span
+                            style="background-color: black; color: white; bottom: 0; right: 0; margin-bottom: 5px; margin-right: 5px"
+                            class="badge badge-danger position-absolute">Release at {{ $item->created_at }}</span>
+                    </div>
                     {{-- <img class="card-img-top w-100" this is how to use if else inside src
                         src="@php if (str_contains($item->image_url, 'https')) {
                             echo asset($item->image_url);
@@ -29,18 +36,17 @@
                         alt="Card image cap"> --}}
                     <div class="card-body h-100 d-flex flex-wrap">
                         <div class="w-100">
-                            <div onclick="window.location.replace('/post/{{ $item->id }}')" style="cursor:pointer"
-                                class="card-title">
+                            <div class="card-title">
                                 <h3>{{ $item->folio_name }}</h3>
                             </div>
-                            <div class="card-text w-100">
+                            <div class="card-text w-100 text-overflow-three">
                                 {{ $item->short_desc }}
                             </div>
                         </div>
-                        <div class="d-flex gap-1 justify-content-start align-self-end">
+                        <div class="d-flex gap-1 justify-content-start align-self-end flex-wrap">
                             @foreach (explode('#', str_replace(' ', '', $item->hashtags)) as $item)
                                 <span style="background-color: #B4B4B4; color: black"
-                                    class="badge badge-danger">{{ $item }}</span>
+                                    class="badge">{{ $item }}</span>
                             @endforeach
                         </div>
                     </div>
@@ -50,7 +56,7 @@
             <p>No portofolio found</p>
         @endif
     </div>
-    <div class="d-flex mt-3">
+    <div class="d-flex justify-content-center mt-3">
         {{-- add inside links() to use any style or bootstrap --}}
         {{ $data->links('pagination::bootstrap-4') }}
     </div>

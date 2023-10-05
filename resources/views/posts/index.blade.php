@@ -5,14 +5,44 @@
         aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a style="color: white" href="/">Home</a></li>
-            <li style="color: white" class="breadcrumb-item active" aria-current="page">Portofolio</li>
+            <li class="breadcrumb-item"><a style="color: white" href="/post">Portofolio</a></li>
         </ol>
     </nav>
     <div class="d-flex flex-wrap gap-4 text-light">
+        <form class="w-100 mb-3" method="GET" action="{{ route('post.index') }}">
+            <div class="d-flex gap-2">
+                {{-- @csrf --}}
+                <div class="input-group">
+                    <input value="{{ isset($_GET['keyword']) ? $_GET['keyword'] : '' }}" name='keyword' type="text"
+                        class="form-control bg-dark text-light" placeholder="Search project"
+                        aria-describedby="basic-addon2">
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-outline-light text-light"
+                            style="margin-left: 0px; border-radius: 0px 5px 5px 0px" type="button">Cari</button>
+                    </div>
+                </div>
+                <select onchange="this.form.submit()" name="framework" class="form-select w-25 bg-dark text-light">
+                    <option selected value="">Framework</option>
+                    <option value="react">React JS</option>
+                    <option value="next">Next JS</option>
+                    <option value="vue">Vue JS</option>
+                    <option value="net">.Net</option>
+                    <option value="node">Node JS</option>
+                    <option value="laravel">Laravel</option>
+                </select>
+                <select onchange="this.form.submit()" name="scope" class="form-select bg-dark text-light w-25">
+                    <option selected value="">Project Scope</option>
+                    <option value="fulltime">Fulltime</option>
+                    <option value="freelance">Freelance</option>
+                    <option value="learning">Learning/Course</option>
+                    <option value="lib">Library/Component</option>
+                </select>
+            </div>
+        </form>
         @if (count($data) > 0)
             @foreach ($data as $item)
                 <div onclick="window.location.replace('/post/{{ $item->id }}')"
-                    class="card text-white bg-dark border-light"
+                    class="d-lg-block d-none card text-white bg-dark border-light"
                     style="height: 430px; width: 32%; overflow: hidden; cursor: pointer">
                     <div class="position-relative">
                         @if (str_contains($item->image_url, 'https'))
@@ -44,9 +74,49 @@
                             </div>
                         </div>
                         <div class="d-flex gap-1 justify-content-start align-self-end flex-wrap">
-                            @foreach (explode('#', str_replace(' ', '', $item->hashtags)) as $item)
+                            @foreach (explode('#', str_replace(' ', '', $item->hashtags)) as $val)
                                 <span style="background-color: #B4B4B4; color: black"
-                                    class="badge">{{ $item }}</span>
+                                    class="badge">{{ $val }}</span>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+                <div onclick="window.location.replace('/post/{{ $item->id }}')"
+                    class="d-lg-none card text-white bg-dark border-light"
+                    style="height: 430px; width: 100%; overflow: hidden; cursor: pointer">
+                    <div class="position-relative">
+                        @if (str_contains($item->image_url, 'https'))
+                            <img style="height: 200px; object-fit: cover;" class="card-img-top w-100"
+                                src="{{ $item->image_url }}" alt="Card image cap">
+                        @else
+                            <img style="height: 200px; object-fit: cover;" class="card-img-top w-100"
+                                src="/storage/cover_images/{{ $item->image_url }}" alt="">
+                        @endif
+                        <span
+                            style="background-color: black; color: white; bottom: 0; right: 0; margin-bottom: 5px; margin-right: 5px"
+                            class="badge badge-danger position-absolute">Release at {{ $item->created_at }}</span>
+                    </div>
+                    {{-- <img class="card-img-top w-100" this is how to use if else inside src
+                        src="@php if (str_contains($item->image_url, 'https')) {
+                            echo asset($item->image_url);
+                        }
+                        else {
+                            echo "/storage/cover_images/{{ $item->image_url }}";
+                        } @endphp"
+                        alt="Card image cap"> --}}
+                    <div class="card-body h-100 d-flex flex-wrap">
+                        <div class="w-100">
+                            <div class="card-title">
+                                <h3>{{ $item->folio_name }}</h3>
+                            </div>
+                            <div class="card-text w-100 text-overflow-three">
+                                {{ $item->short_desc }}
+                            </div>
+                        </div>
+                        <div class="d-flex gap-1 justify-content-start align-self-end flex-wrap">
+                            @foreach (explode('#', str_replace(' ', '', $item->hashtags)) as $val)
+                                <span style="background-color: #B4B4B4; color: black"
+                                    class="badge">{{ $val }}</span>
                             @endforeach
                         </div>
                     </div>

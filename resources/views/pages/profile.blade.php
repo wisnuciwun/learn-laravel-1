@@ -9,7 +9,7 @@
                 <li style="color: white" class="breadcrumb-item active" aria-current="page">Profile</li>
             </ol>
         </nav>
-        <div class="d-flex flex-wrap gap-2 justify-content-start text-white mt-4">
+        <div class="d-flex flex-wrap gap-2 justify-content-start text-white mt-4 w-100">
             <div class="d-lg-none col-12">
                 <div class="d-flex jusitfy-content-between gap-2">
                     <img src="https://i.ibb.co/PND5cR4/new-profil.png" style="border-radius: 5px" class="img-profile mb-4"
@@ -74,40 +74,61 @@
                         Open to work
                     </span>
                 </h3>
+                <h5 class="mb-0">Phone</h5>
+                <h5 class="mb-2 d-flex gap-2 align-items-center">
+                    <a target="_blank" rel="noopener noreferrer"
+                        href="https://api.whatsapp.com/send?phone=6281298698252">+6281298698252</a>
+                    <button class="btn btn-sm btn-outline-dark text-light d-flex align-items-center" id="copyBtnWa"
+                        data-text="6281298698252">
+                        <span id='copy_wa' style="font-size: 18px" class="material-symbols-outlined">
+                            content_copy
+                        </span>
+                    </button>
+                </h5>
                 <h5 class="mb-0">Email</h5>
-                <h5 class="mb-2">adiwardhanawisnu@gmail.com</h5>
+                <h5 class="mb-2 d-flex align-items-center gap-2">
+                    <a target="_blank" rel="noopener noreferrer"
+                        href="mailto:adiwardhanawisnu@gmail.com">adiwardhanawisnu@gmail.com</a>
+
+                    <button class="btn btn-sm btn-outline-dark text-light d-flex align-items-center" id="copyBtnEmail"
+                        data-text="adiwardhanawisnu@gmail.com">
+                        <span id="copy_email" style="font-size: 18px" class="material-symbols-outlined">
+                            content_copy
+                        </span>
+                    </button>
+                </h5>
                 <h5 class="mb-0">LinkedIn</h5>
                 <h5 class="mb-2">
                     <a target="_blank" rel="noopener noreferrer"
                         href="https://www.linkedin.com/in/wisnu-adi-wardhana-560473163">https://www.linkedin.com/in/wisnu-adi-wardhana-560473163
                     </a>
                 </h5>
-                <h5 class="mb-0">Github</h5>
+                <h5 class="mb-0 mt-3">Github</h5>
                 <h5 class="mb-2">
                     <a target="_blank" rel="noopener noreferrer"
                         href="https://github.com/wisnuciwun">https://github.com/wisnuciwun
                     </a>
                 </h5>
-                <h5 class="mb-0">Hackerrank</h5>
+                <h5 class="mb-0 mt-3">Hackerrank</h5>
                 <h5 class="mb-2">
-                    <a target="_blank" rel="noopener noreferrer"
+                    <a target="_blank" rel="noopener noreferrer" style="word-wrap: break-word"
                         href="https://www.hackerrank.com/adiwardhanawisnu">https://www.hackerrank.com/adiwardhanawisnu
                     </a>
 
                 </h5>
-                <h5 class="mb-0">Exercism</h5>
+                <h5 class="mb-0 mt-3">Exercism</h5>
                 <h5 class="mb-2">
                     <a target="_blank" rel="noopener noreferrer"
                         href="https://exercism.org/profiles/wisnuciwun">https://exercism.org/profiles/wisnuciwun
                     </a>
                 </h5>
-                <h5 class="mb-0">LeetCode</h5>
+                <h5 class="mb-0 mt-3">LeetCode</h5>
                 <h5 class="mb-2">
                     <a target="_blank" rel="noopener noreferrer"
                         href="https://leetcode.com/adiwardhanawisnu">https://leetcode.com/adiwardhanawisnu
                     </a>
                 </h5>
-                <h5 class="mb-0">Address</h5>
+                <h5 class="mb-0 mt-3">Address</h5>
                 <h5 class="mb-2">Prima Swarga Residence Blok B5 No. 21, Bandung, West Java, Indonesia</h3>
                     <iframe
                         src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3959.7741548959116!2d107.60891487499754!3d-7.035809092966137!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zN8KwMDInMDguOSJTIDEwN8KwMzYnNDEuNCJF!5e0!3m2!1sid!2sid!4v1696234236761!5m2!1sid!2sid"
@@ -155,8 +176,8 @@
             </div>
             <div class="d-none d-lg-block col-5">
                 <div class="d-flex jusitfy-content-between gap-2">
-                    <img src="https://i.ibb.co/PND5cR4/new-profil.png" style="border-radius: 5px" class="img-profile mb-4"
-                        alt="">
+                    <img src="https://i.ibb.co/PND5cR4/new-profil.png" style="border-radius: 5px"
+                        class="img-profile mb-4" alt="">
                     <div>
                         <div>Programming Languages :</div>
                         <div class="badge bg-secondary">
@@ -217,40 +238,61 @@
                         Open to work
                     </span>
                 </h3>
+                <h5 class="mb-0">Phone</h5>
+                <h5 class="mb-2 d-flex gap-2 align-items-center">
+                    <a target="_blank" rel="noopener noreferrer"
+                        href="https://api.whatsapp.com/send?phone=6281298698252">+6281298698252</a>
+                    <button class="btn btn-sm btn-outline-dark text-light d-flex align-items-center" id="copyBtnWa"
+                        data-text="6281298698252">
+                        <span id='copy_wa' style="font-size: 18px" class="material-symbols-outlined">
+                            content_copy
+                        </span>
+                    </button>
+                </h5>
                 <h5 class="mb-0">Email</h5>
-                <h5 class="mb-2">adiwardhanawisnu@gmail.com</h5>
+                <h5 class="mb-2 d-flex align-items-center gap-2">
+                    <a target="_blank" rel="noopener noreferrer"
+                        href="mailto:adiwardhanawisnu@gmail.com">adiwardhanawisnu@gmail.com</a>
+
+                    <button class="btn btn-sm btn-outline-dark text-light d-flex align-items-center" id="copyBtnEmail"
+                        data-text="adiwardhanawisnu@gmail.com">
+                        <span id="copy_email" style="font-size: 18px" class="material-symbols-outlined">
+                            content_copy
+                        </span>
+                    </button>
+                </h5>
                 <h5 class="mb-0">LinkedIn</h5>
                 <h5 class="mb-2">
                     <a target="_blank" rel="noopener noreferrer"
                         href="https://www.linkedin.com/in/wisnu-adi-wardhana-560473163">https://www.linkedin.com/in/wisnu-adi-wardhana-560473163
                     </a>
                 </h5>
-                <h5 class="mb-0">Github</h5>
+                <h5 class="mb-0 mt-3">Github</h5>
                 <h5 class="mb-2">
                     <a target="_blank" rel="noopener noreferrer"
                         href="https://github.com/wisnuciwun">https://github.com/wisnuciwun
                     </a>
                 </h5>
-                <h5 class="mb-0">Hackerrank</h5>
+                <h5 class="mb-0 mt-3">Hackerrank</h5>
                 <h5 class="mb-2">
                     <a target="_blank" rel="noopener noreferrer"
                         href="https://www.hackerrank.com/adiwardhanawisnu">https://www.hackerrank.com/adiwardhanawisnu
                     </a>
 
                 </h5>
-                <h5 class="mb-0">Exercism</h5>
+                <h5 class="mb-0 mt-3">Exercism</h5>
                 <h5 class="mb-2">
                     <a target="_blank" rel="noopener noreferrer"
                         href="https://exercism.org/profiles/wisnuciwun">https://exercism.org/profiles/wisnuciwun
                     </a>
                 </h5>
-                <h5 class="mb-0">LeetCode</h5>
+                <h5 class="mb-0 mt-3">LeetCode</h5>
                 <h5 class="mb-2">
                     <a target="_blank" rel="noopener noreferrer"
                         href="https://leetcode.com/adiwardhanawisnu">https://leetcode.com/adiwardhanawisnu
                     </a>
                 </h5>
-                <h5 class="mb-0">Address</h5>
+                <h5 class="mb-0 mt-3">Address</h5>
                 <h5 class="mb-2">Prima Swarga Residence Blok B5 No. 21, Bandung, West Java, Indonesia</h3>
                     <iframe
                         src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3959.7741548959116!2d107.60891487499754!3d-7.035809092966137!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zN8KwMDInMDguOSJTIDEwN8KwMzYnNDEuNCJF!5e0!3m2!1sid!2sid!4v1696234236761!5m2!1sid!2sid"
@@ -298,4 +340,35 @@
             </div>
         </div>
     </section>
+    <script>
+        const copyBtnWa = document.querySelector('#copyBtnWa');
+        const copyBtnEmail = document.querySelector('#copyBtnEmail');
+        const copyWa = document.querySelector('#copy_wa')
+        const copyEmail = document.querySelector('#copy_email')
+
+        copyBtnWa.addEventListener('click', e => {
+            const input = document.createElement('input');
+            input.value = copyBtnWa.dataset.text;
+            document.body.appendChild(input);
+            input.select();
+            if (document.execCommand('copy')) {
+                copyWa.classList.remove('material-symbols-outlined');
+                document.body.removeChild(input);
+                copyWa.textContent = 'copied!'
+                copyWa.class = ''
+            }
+        });
+
+        copyBtnEmail.addEventListener('click', e => {
+            const input = document.createElement('input');
+            input.value = copyBtnEmail.dataset.text;
+            document.body.appendChild(input);
+            input.select();
+            if (document.execCommand('copy')) {
+                copyEmail.classList.remove('material-symbols-outlined');
+                document.body.removeChild(input);
+                copyEmail.textContent = 'copied!'
+            }
+        });
+    </script>
 @endsection

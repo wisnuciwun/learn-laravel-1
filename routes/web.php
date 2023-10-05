@@ -37,4 +37,6 @@ Route::resource('post', PostController::class); // how to call controller withou
 
 Route::get('/profile', [App\Http\Controllers\DashboardController::class, 'index'])->name('index');
 
+// Route::get('/search', [PostController::class, 'search'])->name('search');
+
 Auth::routes();

@@ -18,15 +18,23 @@ class PostController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         // $data = Post::all(); // pick all data on the model
         // $data = Post::where('folio_name', 'E-Pipeline')->get(); // pick by certain key
         // $data = Post::orderBy('folio_name', 'asc')->get(); // pick all data on the model with order
         // $data = Post::orderBy('folio_name', 'asc')->take(1)->get(); // pick 1 data on the model with order
         // $data = DB::select('SELECT * FROM posts'); // pick all data on the model by query
-        $data = Post::orderBy('folio_name', 'asc')->paginate(6); // pick with perpage 1 data from the model with order
+        // $data = Post::orderBy('folio_name', 'asc')->paginate(6); // pick with perpage 1 data from the model with order
+        $data = Post::orderBy('folio_name', 'asc')
+            ->select('*')
+            ->where('posts.folio_name', 'like', '%' . $request->input('keyword') . '%')
+            ->where('posts.hashtags', 'like', '%' . $request->input('framework') . '%')
+            ->where('posts.hashtags', 'like', '%' . $request->input('scope') . '%')
+            ->paginate(10);
+
         return view('posts.index', compact('data'));
+        // return view('posts.index', compact('data'));
     }
 
     /**
@@ -93,6 +101,17 @@ class PostController extends Controller
     {
         $data = Post::find($id);
         return view('posts.detail', compact('data'));
+    }
+    public function search(Request $request)
+    {
+        $data = Post::all()
+            ->select('*')
+            ->where('posts.folio_name', 'ilike', '%' . $request->input('keyword') . '%')
+            ->where('posts.hashtags', 'ilike', '%' . $request->input('framework') . '%')
+            ->where('cars.hashtags', 'ilike', '%' . $request->input('scope') . '%')
+            ->get();
+
+        return view('posts.index', compact('data'));
     }
 
     /**

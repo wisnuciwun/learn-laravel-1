@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <section class="pb-5">
+    <section class="pb-5 fade-in">
         <nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);"
             aria-label="breadcrumb">
             <ol class="breadcrumb">
@@ -83,26 +83,26 @@
                     </div>
                 </div>
                 <h5 class="mb-2 d-flex gap-2 align-items-center">
-                    <img width="48" height="48" src="https://img.icons8.com/color/48/whatsapp--v5.png"
-                        alt="whatsapp--v5" />
+                    <img width="39" height="39" style="filter: invert(100%); margin-right: 8px"
+                        src="https://www.svgrepo.com/show/510342/whatsapp.svg" alt="whatsapp--v5" />
                     <a target="_blank" rel="noopener noreferrer" class="text-white"
                         href="https://api.whatsapp.com/send?phone=6281298698252">+6281298698252</a>
-                    <button class="btn btn-sm btn-outline-dark text-light d-flex align-items-center" id="copyBtnWa2"
+                    <button class="btn btn-sm btn-outline-dark text-light d-flex align-items-center" id="copyBtnWa"
                         data-text="6281298698252">
-                        <span id='copy_wa2' style="font-size: 18px" class="material-symbols-outlined">
+                        <span id='copy_wa' style="font-size: 18px" class="material-symbols-outlined">
                             content_copy
                         </span>
                     </button>
                 </h5>
                 <h5 class="mb-2 d-flex align-items-center gap-2">
-                    <img width="44" height="44" src="https://img.icons8.com/fluency/48/secure-mail.png"
-                        alt="secure-mail" />
+                    <img width="39" height="39" style="filter: invert(100%); margin-right: 8px"
+                        src="https://www.svgrepo.com/show/502648/email.svg" alt="secure-mail" />
                     <a target="_blank" rel="noopener noreferrer" class="text-white"
                         href="mailto:adiwardhanawisnu@gmail.com">adiwardhanawisnu@gmail.com</a>
 
-                    <button class="btn btn-sm btn-outline-dark text-light d-flex align-items-center" id="copyBtnEmail2"
+                    <button class="btn btn-sm btn-outline-dark text-light d-flex align-items-center" id="copyBtnEmail"
                         data-text="adiwardhanawisnu@gmail.com">
-                        <span id="copy_email2" style="font-size: 18px" class="material-symbols-outlined">
+                        <span id="copy_email" style="font-size: 18px" class="material-symbols-outlined">
                             content_copy
                         </span>
                     </button>
@@ -251,8 +251,8 @@
                     </div>
                 </div>
                 <h5 class="mb-2 d-flex gap-2 align-items-center">
-                    <img width="48" height="48" src="https://img.icons8.com/color/48/whatsapp--v5.png"
-                        alt="whatsapp--v5" />
+                    <img width="39" height="39" style="filter: invert(100%); margin-right: 8px"
+                        src="https://www.svgrepo.com/show/510342/whatsapp.svg" alt="whatsapp--v5" />
                     <a target="_blank" rel="noopener noreferrer" class="text-white"
                         href="https://api.whatsapp.com/send?phone=6281298698252">+6281298698252</a>
                     <button class="btn btn-sm btn-outline-dark text-light d-flex align-items-center" id="copyBtnWa"
@@ -263,8 +263,8 @@
                     </button>
                 </h5>
                 <h5 class="mb-2 d-flex align-items-center gap-2">
-                    <img width="44" height="44" src="https://img.icons8.com/fluency/48/secure-mail.png"
-                        alt="secure-mail" />
+                    <img width="39" height="39" style="filter: invert(100%); margin-right: 8px"
+                        src="https://www.svgrepo.com/show/502648/email.svg" alt="secure-mail" />
                     <a target="_blank" rel="noopener noreferrer" class="text-white"
                         href="mailto:adiwardhanawisnu@gmail.com">adiwardhanawisnu@gmail.com</a>
 
@@ -276,23 +276,23 @@
                     </button>
                 </h5>
                 <h5 class="mb-2">
-                    <img width="48" height="48" src="https://img.icons8.com/color/48/linkedin.png"
-                        alt="linkedin" />
+                    <img width="39" height="39" style="filter: invert(100%); margin-right: 8px"
+                        src="https://www.svgrepo.com/show/510342/whatsapp.svg" alt="linkedin" />
                     <a target="_blank" rel="noopener noreferrer" class="text-white"
                         href="https://www.linkedin.com/in/wisnu-adi-wardhana-560473163">https://www.linkedin.com/in/wisnu-adi-wardhana-560473163
                     </a>
                 </h5>
                 <h5 class="mb-2">
-                    <img width="48" height="48" src="https://img.icons8.com/color/48/github--v1.png"
-                        alt="github--v1" />
+                    <img width="39" height="39" style="filter: invert(100%); margin-right: 8px"
+                        src="https://www.svgrepo.com/show/512317/github-142.svg" alt="github--v1" />
 
                     <a target="_blank" rel="noopener noreferrer" class="text-white"
                         href="https://github.com/wisnuciwun">https://github.com/wisnuciwun
                     </a>
                 </h5>
                 <h5 class="mb-2">
-                    <img width="48" height="48" src="https://cdn.worldvectorlogo.com/logos/hackerrank.svg"
-                        alt="hackerrank--v1" />
+                    <img width="39" height="39" style="filter: invert(100%); margin-right: 8px"
+                        src="https://www.svgrepo.com/show/314107/hackerrank.svg" alt="hackerrank--v1" />
                     <a target="_blank" rel="noopener noreferrer" class="text-white"
                         href="https://www.hackerrank.com/adiwardhanawisnu">https://www.hackerrank.com/adiwardhanawisnu
                     </a>

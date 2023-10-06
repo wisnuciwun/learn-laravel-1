@@ -30,16 +30,13 @@
         {{ Form::label('created_at', 'Created At') }}
         {{ Form::text('created_at', $data->created_at, ['class' => 'form-control mb-2', 'placeholder' => 'When you create that app?']) }}
     </div>
-    {{-- add this HIDDENLY because post.update only support PUT or PATCH --}}
-    {{ Form::hidden('_method', 'PUT') }}
-    {{-- <textarea name="content" id="editor"></textarea> --}}
     <div class="form-group">
         {{ Form::label('short_desc', 'Short Description', ['class' => 'text-white']) }}
-        {{ Form::text('short_desc', '', ['class' => 'form-control mb-2', 'placeholder' => 'You will see this in portofolio home']) }}
+        {{ Form::text('short_desc', $data->short_desc, ['class' => 'form-control mb-2', 'placeholder' => 'You will see this in portofolio home']) }}
     </div>
     <div class="form-group">
         {{ Form::label('hashtags', 'Hashtags', ['class' => 'text-white']) }}
-        {{ Form::text('hashtags', '', ['class' => 'form-control mb-2', 'placeholder' => 'Tags for your project']) }}
+        {{ Form::text('hashtags', $data->hashtags, ['class' => 'form-control mb-2', 'placeholder' => 'Tags for your project']) }}
     </div>
 
     <script>
@@ -49,7 +46,9 @@
                 console.error(error);
             });
     </script>
-
+    {{-- add this HIDDENLY because post.update only support PUT or PATCH --}}
+    {{ Form::hidden('_method', 'PUT') }}
+    {{-- <textarea name="content" id="editor"></textarea> --}}
     {{ Form::submit('Submit', ['class' => 'btn btn-secondary mt-4']) }}
     {!! Form::close() !!}
 @endsection

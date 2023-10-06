@@ -9,7 +9,7 @@
                 <li class="breadcrumb-item"><a style="color: white" href="/post">Portofolio</a></li>
             </ol>
         </nav>
-        <div class="d-flex flex-wrap gap-4 text-light">
+        <div class="text-light">
             <form class="w-100 mb-3" method="GET" action="{{ route('post.index') }}">
                 <div class="d-flex gap-2">
                     {{-- @csrf --}}
@@ -40,92 +40,96 @@
                     </select>
                 </div>
             </form>
-            @if (count($data) > 0)
-                @foreach ($data as $item)
-                    <div onclick="window.location.replace('/post/{{ $item->id }}')"
-                        class="d-lg-block d-none card text-white bg-dark border-light"
-                        style="height: 430px; width: 32%; overflow: hidden; cursor: pointer">
-                        <div class="position-relative">
-                            @if (str_contains($item->image_url, 'https'))
-                                <img style="height: 200px; object-fit: cover;" class="card-img-top w-100"
-                                    src="{{ $item->image_url }}" alt="Card image cap">
-                            @else
-                                <img style="height: 200px; object-fit: cover;" class="card-img-top w-100"
-                                    src="/storage/cover_images/{{ $item->image_url }}" alt="">
-                            @endif
-                            <span
-                                style="background-color: black; color: white; bottom: 0; right: 0; margin-bottom: 5px; margin-right: 5px"
-                                class="badge badge-danger position-absolute">Release at {{ $item->created_at }}</span>
-                        </div>
-                        {{-- <img class="card-img-top w-100" this is how to use if else inside src
-                        src="@php if (str_contains($item->image_url, 'https')) {
-                            echo asset($item->image_url);
-                        }
-                        else {
-                            echo "/storage/cover_images/{{ $item->image_url }}";
-                        } @endphp"
-                        alt="Card image cap"> --}}
-                        <div class="card-body h-100 d-flex flex-wrap">
-                            <div class="w-100">
-                                <div class="card-title">
-                                    <h3>{{ $item->folio_name }}</h3>
-                                </div>
-                                <div class="card-text w-100 text-overflow-three">
-                                    {{ $item->short_desc }}
-                                </div>
+            <div class="d-lg-flex d-none flex-wrap gap-4">
+                @if (count($data) > 0)
+                    @foreach ($data as $item)
+                        <div class="card text-white bg-dark border-light card-portofolio-lg">
+                            <div class="position-relative">
+                                @if (str_contains($item->image_url, 'https'))
+                                    <img style="height: 200px; object-fit: cover;" class="card-img-top w-100"
+                                        src="{{ $item->image_url }}" alt="Card image cap">
+                                @else
+                                    <img style="height: 200px; object-fit: cover;" class="card-img-top w-100"
+                                        src="/storage/cover_images/{{ $item->image_url }}" alt="">
+                                @endif
+                                <span
+                                    style="background-color: black; color: white; bottom: 0; right: 0; margin-bottom: 5px; margin-right: 5px"
+                                    class="badge badge-danger position-absolute">Release at {{ $item->created_at }}</span>
                             </div>
-                            <div class="d-flex gap-1 justify-content-start align-self-end flex-wrap">
-                                @foreach (explode('#', str_replace(' ', '', $item->hashtags)) as $val)
-                                    <span style="background-color: #B4B4B4; color: black"
-                                        class="badge">{{ $val }}</span>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
-                    <div onclick="window.location.replace('/post/{{ $item->id }}')"
-                        class="d-lg-none card text-white bg-dark border-light"
-                        style="height: 430px; width: 100%; overflow: hidden; cursor: pointer">
-                        <div class="position-relative">
-                            @if (str_contains($item->image_url, 'https'))
-                                <img style="height: 200px; object-fit: cover;" class="card-img-top w-100"
-                                    src="{{ $item->image_url }}" alt="Card image cap">
-                            @else
-                                <img style="height: 200px; object-fit: cover;" class="card-img-top w-100"
-                                    src="/storage/cover_images/{{ $item->image_url }}" alt="">
-                            @endif
-                            <span
-                                style="background-color: black; color: white; bottom: 0; right: 0; margin-bottom: 5px; margin-right: 5px"
-                                class="badge badge-danger position-absolute">Release at {{ $item->created_at }}</span>
-                        </div>
-                        {{-- <img class="card-img-top w-100" this is how to use if else inside src
-                        src="@php if (str_contains($item->image_url, 'https')) {
-                            echo asset($item->image_url);
-                        }
-                        else {
-                            echo "/storage/cover_images/{{ $item->image_url }}";
-                        } @endphp"
-                        alt="Card image cap"> --}}
-                        <div class="card-body h-100 d-flex flex-wrap">
-                            <div class="w-100">
-                                <div class="card-title">
-                                    <h3>{{ $item->folio_name }}</h3>
+
+                            {{-- <img class="card-img-top w-100" this is how to use if else inside src
+                            src="@php if (str_contains($item->image_url, 'https')) {
+                                echo asset($item->image_url);
+                            }
+                            else {
+                                echo "/storage/cover_images/{{ $item->image_url }}";
+                            } @endphp"
+                            alt="Card image cap"> --}}
+                            <div class="card-body h-100 d-flex flex-wrap">
+                                <div class="w-100">
+                                    <div onclick="window.location.replace('/post/{{ $item->id }}')"
+                                        style="cursor:pointer" class="card-title">
+                                        <h3>{{ $item->folio_name }}</h3>
+                                    </div>
+                                    <div class="card-text w-100 text-overflow-three">
+                                        {{ $item->short_desc }}
+                                    </div>
                                 </div>
-                                <div class="card-text w-100 text-overflow-three">
-                                    {{ $item->short_desc }}
+                                <div style="overflow-y: auto" class="d-flex gap-1 justify-content-start align-self-end">
+                                    @foreach (explode('#', str_replace(' ', '', $item->hashtags)) as $item)
+                                        <span style="background-color: #B4B4B4; color: black"
+                                            class="badge badge-danger">{{ $item }}</span>
+                                    @endforeach
                                 </div>
                             </div>
-                            <div class="d-flex gap-1 justify-content-start align-self-end flex-wrap">
-                                @foreach (explode('#', str_replace(' ', '', $item->hashtags)) as $val)
-                                    <span style="background-color: #B4B4B4; color: black"
-                                        class="badge">{{ $val }}</span>
-                                @endforeach
+                        </div>
+                    @endforeach
+                @else
+                    <p>No portofolio found</p>
+                @endif
+            </div>
+
+            <div class="d-lg-none d-flex flex-wrap gap-4">
+                @if (count($data) > 0)
+                    @foreach ($data as $item)
+                        <div class="card text-white bg-dark border-light"
+                            style="height: 400px; width: 100%; overflow: hidden">
+                            <div class="position-relative">
+                                @if (str_contains($item->image_url, 'https'))
+                                    <img style="height: 200px; object-fit: cover;" class="card-img-top w-100"
+                                        src="{{ $item->image_url }}" alt="Card image cap">
+                                @else
+                                    <img style="height: 200px; object-fit: cover;" class="card-img-top w-100"
+                                        src="/storage/cover_images/{{ $item->image_url }}" alt="">
+                                @endif
+                                <span
+                                    style="background-color: black; color: white; bottom: 0; right: 0; margin-bottom: 5px; margin-right: 5px"
+                                    class="badge badge-danger position-absolute">Release at {{ $item->created_at }}</span>
+                            </div>
+                            <div class="card-body h-100 d-flex flex-wrap">
+                                <div class="w-100">
+                                    <div onclick="window.location.replace('/post/{{ $item->id }}')"
+                                        style="cursor:pointer" class="card-title">
+                                        <h3>{{ $item->folio_name }}</h3>
+                                    </div>
+                                    <div class="card-text w-100 text-overflow-three">
+                                        {{ $item->short_desc }}
+                                    </div>
+                                </div>
+                                <div style="overflow-y: auto" class="d-flex gap-1 justify-content-start align-self-end">
+                                    @foreach (explode('#', str_replace(' ', '', $item->hashtags)) as $item)
+                                        <span style="background-color: #B4B4B4; color: black"
+                                            class="badge badge-danger">{{ $item }}</span>
+                                    @endforeach
+                                </div>
                             </div>
                         </div>
-                    </div>
-                @endforeach
-            @else
-                <p>No portofolio found</p>
-            @endif
+                    @endforeach
+                @else
+                    <p>No portofolio found</p>
+                @endif
+            </div>
+
         </div>
         <div class="d-flex justify-content-center mt-3">
             {{-- add inside links() to use any style or bootstrap --}}

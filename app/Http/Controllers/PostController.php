@@ -139,7 +139,9 @@ class PostController extends Controller
             'description' => 'required',
             'url' => 'required',
             // 'image_url' => 'image|nullable|max:1999',
-            'created_at' => 'required'
+            'created_at' => 'required',
+            'short_desc' => 'required',
+            'hashtags' => 'required',
         ]);
 
         // Handle file uploader
@@ -162,6 +164,8 @@ class PostController extends Controller
         $post->description = $request->input('description');
         $post->url = $request->input('url');
         $post->image_url = $request->input('image_url');
+        $post->short_desc = $request->input('short_desc');
+        $post->hashtags = $request->input('hashtags');
         // if ($request->hasFile('image_url')) {
         //     $post->image_url = $fileNameToStore;
         // }

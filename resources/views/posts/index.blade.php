@@ -43,7 +43,8 @@
             <div class="d-lg-flex d-none flex-wrap gap-4">
                 @if (count($data) > 0)
                     @foreach ($data as $item)
-                        <div class="card text-white bg-dark border-light card-portofolio-lg">
+                        <a href="{{ route('post.show', $item->id) }}"
+                            class="card text-white bg-dark border-light card-portofolio-lg text-decoration-none">
                             <div class="position-relative">
                                 @if (str_contains($item->image_url, 'https'))
                                     <img style="height: 200px; object-fit: cover;" class="card-img-top w-100"
@@ -67,8 +68,7 @@
                             alt="Card image cap"> --}}
                             <div class="card-body h-100 d-flex flex-wrap">
                                 <div class="w-100">
-                                    <div onclick="window.location.replace('/post/{{ $item->id }}')"
-                                        style="cursor:pointer" class="card-title">
+                                    <div style="cursor:pointer" class="card-title">
                                         <h3>{{ $item->folio_name }}</h3>
                                     </div>
                                     <div class="card-text w-100 text-overflow-three">
@@ -82,7 +82,7 @@
                                     @endforeach
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     @endforeach
                 @else
                     <p>No portofolio found</p>

@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/portofolio', function () {
     // return view('pages/portofolio'); or you can use this
     return view('pages.portofolio');
-});
+})->name('postingan');
 
 // Route::get('/', function () {
 //     return view('welcome');

@@ -13,10 +13,10 @@
             <div>
                 <div style="text-align: center">
                     <div class="d-flex justify-content-center">
-                        <div onclick="window.location.replace('/profile')" class="fade-in profile-container mb-2"
+                        <a href="{{ route('index') }}" class="fade-in profile-container mb-2"
                             style="border-radius: 50%; overflow: hidden; height: 150px; width: 150px">
                             <img src="https://i.ibb.co/PND5cR4/new-profil.png" class="img-profile appear" alt="">
-                        </div>
+                        </a>
                     </div>
                 </div>
                 <div class="w-100 text-center mb-4 text-white" style="font-size: 10px">
@@ -24,13 +24,23 @@
                 </div>
                 <div class="w-100 text-center mb-3">
                     <h1 class="fade-in" style="color: black; font-size: 30px; font-weight: bold">
-                        Welcome to my <button onclick="window.location.replace('/post')"
-                            class="btn btn-outline-light">Portofolio</button>
+                        Welcome to my <a href="{{ route('post.index') }}" class="btn btn-outline-light">Portofolio</a>
                         website
                     </h1>
                 </div>
                 <div class="w-100 d-flex justify-content-center">
-                    <div class="w-50 text-center text-white">
+                    <div class="d-lg-block d-none w-50 text-center text-white">
+                        Hi everyone, i am <b style="font-size: 18px">Wisnu</b>. I'm a programmer who focussed as
+                        a web front-end
+                        developer. Specializing in <b style="font-size: 18px">React.js, Vue.js,
+                            Next.js, and Laravel</b>. I'm equally
+                        comfortable developing mobile apps with <b style="font-size: 18px">Kotlin</b> and <b
+                            style="font-size: 18px">Flutter</b>. I'm known for my fast learning ability
+                        and
+                        adaptability to different frameworks and languages, which keeps me at the forefront of technology
+                        trends.
+                    </div>
+                    <div class="d-lg-none w-100 text-center text-white">
                         Hi everyone, i am <b style="font-size: 18px">Wisnu</b>. I'm a programmer who focussed as
                         a web front-end
                         developer. Specializing in <b style="font-size: 18px">React.js, Vue.js,

@@ -12,8 +12,8 @@
         <div class="d-flex flex-wrap justify-content-start text-white mt-4 w-100">
             <div class="d-lg-none col-12">
                 <div class="position-relative mb-3">
-                    <img src="https://i.ibb.co/PND5cR4/new-profil.png" style="border-radius: 4px;" class="w-100"
-                        alt="">
+                    <img src="https://i.ibb.co/xSp2ShV/Whats-App-Image-2023-10-17-at-6-27-58-PM.jpg"
+                        style="border-radius: 4px;" class="w-100" alt="">
                     <h2 style="background-color: green; color: white; position: absolute; bottom: 0; right: 0; margin-right: 6px; margin-bottom: 6px; font-size: 18px"
                         class="badge position-absolute">
                         #OPENTOWORK
@@ -114,14 +114,22 @@
                         width="100%" height="250" style="border:0;" allowfullscreen="" loading="lazy" class="mb-3"
                         referrerpolicy="no-referrer-when-downgrade"></iframe>
                     <b>Education</b>
-                    <h5 class="mb-3">
-                        <div class="mt-2">Diploma IV (2015 - 2019)</div>
+                    <h5 class="mb-3 d-flex justify-content-between">
                         <div>
-                            State Polytechnic of Malang
+                            <img style="width: 80px; height: auto; margin-left: -18px"
+                                src="https://1.bp.blogspot.com/-PpH7CcrJIvE/X5WGsZUp6LI/AAAAAAAADRE/VIw1_NyjUC4HUnijuO1r2WBG4tfjpJGbgCLcBGAsYHQ/s320/Logo%2BPolinema%2B%2528Politeknik%2BNegeri%2BMalang%2529.png"
+                                alt="">
                         </div>
-                        <div style="font-size: 14px">Electrical Engineer - Digital Telecommunication Network Program Study
+                        <div>
+                            <div class="mt-2">Diploma IV (2015 - 2019)</div>
+                            <div>
+                                State Polytechnic of Malang
+                            </div>
+                            <div style="font-size: 14px">Electrical Engineer - Digital Telecommunication Network Program
+                                Study
+                            </div>
+                            <div style="font-size: 14px">GPA / IPK 3.55</div>
                         </div>
-                        <div style="font-size: 14px">GPA / IPK 3.55</div>
                     </h5>
                     <b>Work Experiences</b>
                     <div class="mb-3">
@@ -177,8 +185,8 @@
                 <div class="row col-md-12 mb-3">
                     <div class="col-md-6">
                         <div class="position-relative">
-                            <img src="https://i.ibb.co/PND5cR4/new-profil.png" style="border-radius: 4px;" class="w-100"
-                                alt="">
+                            <img src="https://i.ibb.co/xSp2ShV/Whats-App-Image-2023-10-17-at-6-27-58-PM.jpg"
+                                style="border-radius: 4px;" class="w-100" alt="">
                             <h2 style="background-color: green; color: white; position: absolute; bottom: 0; right: 0; margin-right: 6px; margin-bottom: 6px; font-size: 18px"
                                 class="badge position-absolute">
                                 #OPENTOWORK
@@ -321,11 +329,18 @@
             </div>
             <div class="d-none d-lg-block col-6" style="padding-left: 50px">
                 <b>Education</b>
-                <h5 class="mb-3">
-                    <div class="mt-2"> State Polytechnic of Malang (2015 - 2019) : Diploma IV</div>
-                    <div style="font-size: 14px">Electrical Engineer - Digital Telecommunication Network Program Study
+                <h5 class="mb-3 d-flex gap-1">
+                    <div>
+                        <img style="width: 100px; height: auto; margin-left: -18px"
+                            src="https://1.bp.blogspot.com/-PpH7CcrJIvE/X5WGsZUp6LI/AAAAAAAADRE/VIw1_NyjUC4HUnijuO1r2WBG4tfjpJGbgCLcBGAsYHQ/s320/Logo%2BPolinema%2B%2528Politeknik%2BNegeri%2BMalang%2529.png"
+                            alt="">
                     </div>
-                    <div style="font-size: 14px">GPA / IPK 3.55</div>
+                    <div>
+                        <div class="mt-2"> State Polytechnic of Malang (2015 - 2019) : Diploma IV</div>
+                        <div style="font-size: 14px">Electrical Engineer - Digital Telecommunication Network Program Study
+                        </div>
+                        <div style="font-size: 14px">GPA / IPK 3.55</div>
+                    </div>
                 </h5>
                 <b>Work Experiences</b>
                 <div class="mb-3">

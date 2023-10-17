@@ -7,6 +7,8 @@
     <script src="https://cdn.ckeditor.com/ckeditor5/39.0.2/classic/ckeditor.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" href="https://i.ibb.co/42k0sxg/47764316.png" />
+    <meta name="description" content="Hi everyone ! Visit my website to see profile and my interesting projects.">
+    <meta property="og:image" content="https://i.ibb.co/42k0sxg/47764316.png">
     <!-- change the tab title -->
     <title>{{ config('Wisnu', 'Wisnu Adi Wardhana') }}</title>
     <!-- Fonts -->

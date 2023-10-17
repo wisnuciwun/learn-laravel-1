@@ -13,24 +13,23 @@
         <div class="card text-white bg-dark w-100 border-light">
             <img src="/bg-detail.jpg" class="w-100 position-absolute"
                 style="object-fit: cover; z-index: 0; mix-blend-mode:saturation; height: 100%" alt="">
-
             <div style="z-index: 1" class="card-body position-relative">
-                <h1 style="cursor:pointer" class="card-title mb-4">
-                    {{ $data->folio_name }}</h1>
-
+                <h1 style="cursor:pointer" class="card-title mb-2">
+                    {{ $data->folio_name }}
+                </h1>
+                <div class="mb-3 d-flex align-items-center gap-2">
+                    <span class="material-symbols-outlined">
+                        public
+                    </span>
+                    <a href="{{ $data->url }}" target="_blank" rel="noopener noreferrer" class="text-white"
+                        style="font-size: 18px;">
+                        {{ $data->url }}
+                    </a>
+                </div>
                 <div class="d-lg-flex d-none justify-content-between gap-3 align-items-start">
                     <div class="w-50">
                         <div style="min-height: 500px;" class="d-flex justify-content-center align-items-start">
                             <img style="object-fit: scale-down; width: 100%;" src="{{ $data->image_url }}" alt="">
-                        </div>
-                        <div class="mt-3 d-flex align-items-center gap-2">
-                            <span class="material-symbols-outlined">
-                                public
-                            </span>
-                            <a href="{{ $data->url }}" target="_blank" rel="noopener noreferrer" class="text-white"
-                                style="font-size: 18px;">
-                                {{ $data->url }}
-                            </a>
                         </div>
                     </div>
                     <div class="w-50" class="card-text">
@@ -45,17 +44,8 @@
                             <img style="object-fit: scale-down; width: 100%; height: auto" src="{{ $data->image_url }}"
                                 alt="">
                         </div>
-                        <div class="mt-3 mb-3 d-flex align-items-center gap-2">
-                            <span class="material-symbols-outlined">
-                                public
-                            </span>
-                            <a href="{{ $data->url }}" target="_blank" rel="noopener noreferrer" class="text-white"
-                                style="font-size: 18px;">
-                                {{ $data->url }}
-                            </a>
-                        </div>
                     </div>
-                    <div class="w-100" class="card-text">
+                    <div class="w-100 mt-4" class="card-text">
                         {{-- this is how to parse  html from ckeditor as html code --}}
                         {!! $data->description !!}
                     </div>

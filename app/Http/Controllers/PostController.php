@@ -31,7 +31,7 @@ class PostController extends Controller
             ->where('posts.folio_name', 'like', '%' . $request->input('keyword') . '%')
             ->where('posts.hashtags', 'like', '%' . $request->input('framework') . '%')
             ->where('posts.hashtags', 'like', '%' . $request->input('scope') . '%')
-            ->paginate(10);
+            ->paginate(9);
 
         return view('posts.index', compact('data'));
         // return view('posts.index', compact('data'));
@@ -102,6 +102,7 @@ class PostController extends Controller
         $data = Post::find($id);
         return view('posts.detail', compact('data'));
     }
+
     public function search(Request $request)
     {
         $data = Post::all()

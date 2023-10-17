@@ -131,7 +131,7 @@
             </div>
 
         </div>
-        <div class="d-flex justify-content-center mt-3">
+        <div class="d-flex justify-content-center mt-5">
             {{-- add inside links() to use any style or bootstrap --}}
             {{ $data->links('pagination::bootstrap-4') }}
         </div>

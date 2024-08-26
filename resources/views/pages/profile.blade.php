@@ -12,11 +12,11 @@
         <div class="d-flex flex-wrap justify-content-start text-white mt-4 w-100">
             <div class="d-lg-none col-12">
                 <div class="position-relative mb-3">
-                    <img src="https://i.ibb.co/xSp2ShV/Whats-App-Image-2023-10-17-at-6-27-58-PM.jpg"
+                    <img src="https://i.ibb.co.com/Qnxw86P/Whats-App-Image-2023-10-17-at-6-27-58-PM.webp"
                         style="border-radius: 4px;" class="w-100" alt="">
-                    <h2 style="background-color: green; color: white; position: absolute; bottom: 0; right: 0; margin-right: 6px; margin-bottom: 6px; font-size: 18px"
+                    <h2 style="background-color: yellow; color: black; position: absolute; bottom: 0; right: 0; margin-right: 6px; margin-bottom: 6px; font-size: 18px"
                         class="badge position-absolute">
-                        #OPENTOWORK
+                        #OPENTOPROJECTS
                     </h2>
                 </div>
                 <h5 class="mb-0">Name</h5>
@@ -136,7 +136,11 @@
                         <h5 class="mb-0 mt-2">PT. Global Service Indonesia</h5>
                         <div class="mb-2">IT Developer</div>
                         <h5 class="mb-0">PT. Distributor Indonesia Unggul</h5>
-                        <div>Frontend Developer</div>
+                        <div class="mb-2">Frontend Developer</div>
+                        <h5 class="mb-0">PT. Trisco Tailored Apparel Manufacturing</h5>
+                        <div class="mb-2">Fullstack Developer</div>
+                        <h5 class="mb-0">PT. Kaya Raya Turun Temurun</h5>
+                        <div>Mobile Developer</div>
                     </div>
                     <b class="mb-2">List Portofolio</b>
                     @if (count($data) > 0)
@@ -185,11 +189,11 @@
                 <div class="row col-md-12 mb-3">
                     <div class="col-md-6">
                         <div class="position-relative">
-                            <img src="https://i.ibb.co/xSp2ShV/Whats-App-Image-2023-10-17-at-6-27-58-PM.jpg"
+                            <img src="https://i.ibb.co.com/Qnxw86P/Whats-App-Image-2023-10-17-at-6-27-58-PM.webp"
                                 style="border-radius: 4px;" class="w-100" alt="">
-                            <h2 style="background-color: green; color: white; position: absolute; bottom: 0; right: 0; margin-right: 6px; margin-bottom: 6px; font-size: 18px"
+                            <h2 style="background-color: yellow; color: black; position: absolute; bottom: 0; right: 0; margin-right: 6px; margin-bottom: 6px; font-size: 18px"
                                 class="badge position-absolute">
-                                #OPENTOWORK
+                                #OPENTOPROJECTS
                             </h2>
                         </div>
                     </div>
@@ -344,10 +348,14 @@
                 </h5>
                 <b>Work Experiences</b>
                 <div class="mb-3">
-                    <h5 class="mb-0 mt-2">PT. Global Service Indonesia (2019-2022)</h5>
-                    <div class="mb-2">IT Developer</div>
-                    <h5 class="mb-0">PT. Distributor Indonesia Unggul (2022-Present)</h5>
-                    <div>Frontend Developer</div>
+                        <h5 class="mb-0 mt-2">PT. Global Service Indonesia</h5>
+                        <div class="mb-2">IT Developer</div>
+                        <h5 class="mb-0">PT. Distributor Indonesia Unggul</h5>
+                        <div class="mb-2">Frontend Developer</div>
+                        <h5 class="mb-0">PT. Trisco Tailored Apparel Manufacturing</h5>
+                        <div class="mb-2">Fullstack Developer</div>
+                        <h5 class="mb-0">PT. Kaya Raya Turun Temurun</h5>
+                        <div>Mobile Developer</div>
                 </div>
 
                 <b class="mb-2">List Portofolio</b>

@@ -19,7 +19,7 @@
                             aria-describedby="basic-addon2">
                         <div class="input-group-append">
                             <button type="submit" class="btn btn-outline-light text-light"
-                                style="margin-left: 0px; border-radius: 0px 5px 5px 0px" type="button">Cari</button>
+                                style="margin-left: 0px; border-radius: 0px 5px 5px 0px" type="button">Search</button>
                         </div>
                     </div>
                     <select onchange="this.form.submit()" name="framework" class="form-select w-25 bg-dark text-light">

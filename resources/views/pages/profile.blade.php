@@ -22,7 +22,7 @@
                 <h5 class="mb-0">Name</h5>
                 <h3 class="mb-2"><u>Wisnu Adi Wardhana</u></h3>
                 <h5 class="mb-0">Age</h5>
-                <h3 class="mb-2"><u>26 y/o</u></h3>
+                <h3 class="mb-2"><u>27 y/o</u></h3>
                 <h5 class="mb-0">Work status</h5>
                 <h3 class="mb-2">
                     <u>Employeed</u>
@@ -201,7 +201,7 @@
                         <h5 class="mb-0">Name</h5>
                         <h3 class="mb-2"><u>Wisnu Adi Wardhana</u></h3>
                         <h5 class="mb-0">Age</h5>
-                        <h3 class="mb-2"><u>26 y/o</u></h3>
+                        <h3 class="mb-2"><u>27 y/o</u></h3>
                         <h5 class="mb-0">Work status</h5>
                         <h3 class="mb-2">
                             <u>Employeed</u>

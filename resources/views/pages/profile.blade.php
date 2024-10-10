@@ -12,7 +12,7 @@
         <div class="d-flex flex-wrap justify-content-start text-white mt-4 w-100">
             <div class="d-lg-none col-12">
                 <div class="position-relative mb-3">
-                    <img src="https://i.ibb.co.com/Qnxw86P/Whats-App-Image-2023-10-17-at-6-27-58-PM.webp"
+                    <img src="https://i.ibb.co.com/d5dg2SY/Whats-App-Image-2023-10-17-at-6-27-58-PM.webp"
                         style="border-radius: 4px;" class="w-100" alt="">
                     <h2 style="background-color: yellow; color: black; position: absolute; bottom: 0; right: 0; margin-right: 6px; margin-bottom: 6px; font-size: 18px"
                         class="badge position-absolute">
@@ -189,7 +189,7 @@
                 <div class="row col-md-12 mb-3">
                     <div class="col-md-6">
                         <div class="position-relative">
-                            <img src="https://i.ibb.co.com/Qnxw86P/Whats-App-Image-2023-10-17-at-6-27-58-PM.webp"
+                            <img src="https://i.ibb.co.com/d5dg2SY/Whats-App-Image-2023-10-17-at-6-27-58-PM.webp"
                                 style="border-radius: 4px;" class="w-100" alt="">
                             <h2 style="background-color: yellow; color: black; position: absolute; bottom: 0; right: 0; margin-right: 6px; margin-bottom: 6px; font-size: 18px"
                                 class="badge position-absolute">
@@ -348,14 +348,14 @@
                 </h5>
                 <b>Work Experiences</b>
                 <div class="mb-3">
-                        <h5 class="mb-0 mt-2">PT. Global Service Indonesia</h5>
-                        <div class="mb-2">IT Developer</div>
-                        <h5 class="mb-0">PT. Distributor Indonesia Unggul</h5>
-                        <div class="mb-2">Frontend Developer</div>
-                        <h5 class="mb-0">PT. Trisco Tailored Apparel Manufacturing</h5>
-                        <div class="mb-2">Fullstack Developer</div>
-                        <h5 class="mb-0">PT. Kaya Raya Turun Temurun</h5>
-                        <div>Mobile Developer</div>
+                    <h5 class="mb-0 mt-2">PT. Global Service Indonesia</h5>
+                    <div class="mb-2">IT Developer</div>
+                    <h5 class="mb-0">PT. Distributor Indonesia Unggul</h5>
+                    <div class="mb-2">Frontend Developer</div>
+                    <h5 class="mb-0">PT. Trisco Tailored Apparel Manufacturing</h5>
+                    <div class="mb-2">Fullstack Developer</div>
+                    <h5 class="mb-0">PT. Kaya Raya Turun Temurun</h5>
+                    <div>Mobile Developer</div>
                 </div>
 
                 <b class="mb-2">List Portofolio</b>

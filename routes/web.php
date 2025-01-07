@@ -37,6 +37,8 @@ Route::resource('post', PostController::class); // how to call controller withou
 
 Route::get('/profile', [App\Http\Controllers\DashboardController::class, 'index'])->name('index');
 
+Route::get('/psr/all-news', [PagesController::class, 'getAllNews']);
+Route::get('/psr/news/{id}', [PagesController::class, 'getDetailNews']);
 // Route::get('/search', [PostController::class, 'search'])->name('search');
 
 Auth::routes();

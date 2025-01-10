@@ -48,6 +48,9 @@ Route::get('/profile', [App\Http\Controllers\DashboardController::class, 'index'
 
 Route::get('/psr/all-news', [PagesController::class, 'getAllNews']);
 Route::get('/psr/news/{id}', [PagesController::class, 'getDetailNews']);
+Route::get('/psr/all-stores', [PagesController::class, 'getAllStores']);
+Route::get('/psr/store/{slug}', [PagesController::class, 'getStoreDetail']);
+Route::post('/psr/save-store', [PagesController::class, 'postNewStore']);
 // Route::get('/search', [PostController::class, 'search'])->name('search');
 
 Auth::routes();

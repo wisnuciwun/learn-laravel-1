@@ -85,7 +85,7 @@ class PagesController extends Controller
             $stores = PsrFoods::select('id', 'store_name', 'owner', 'address', 'phone', 'product_images_url', 'description', 'tags', 'slug')
                 ->orderBy('created_at', 'desc')
                 ->when($request->keyword, function ($query, $searchKeyword) {
-                    $query->where('store_name', 'like', "%$searchKeyword%")->orWhere('tags', 'like', "%$searchKeyword%")->orWhere('store_name', 'like', "%$searchKeyword%");
+                    $query->where('store_name', 'like', "%$searchKeyword%")->orWhere('tags', 'like', "%$searchKeyword%")->orWhere('owner', 'like', "%$searchKeyword%");
                 })
                 ->get();
 

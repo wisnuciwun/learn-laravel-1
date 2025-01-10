@@ -51,6 +51,12 @@ Route::get('/psr/news/{id}', [PagesController::class, 'getDetailNews']);
 Route::get('/psr/all-stores', [PagesController::class, 'getAllStores']);
 Route::get('/psr/store/{slug}', [PagesController::class, 'getStoreDetail']);
 Route::post('/psr/save-store', [PagesController::class, 'postNewStore']);
+
+// In web.php
+Route::get('/csrf-token', function () {
+    return response()->json(['token' => csrf_token()]);
+});
+
 // Route::get('/search', [PostController::class, 'search'])->name('search');
 
 Auth::routes();

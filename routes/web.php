@@ -53,7 +53,7 @@ Route::get('/psr/store/{slug}', [PagesController::class, 'getStoreDetail']);
 Route::post('/psr/save-store', [PagesController::class, 'postNewStore']);
 
 // In web.php
-Route::get('/csrf-token', function () {
+Route::options('/csrf-token', function () {
     return response()->json(['token' => csrf_token()]);
 });
 

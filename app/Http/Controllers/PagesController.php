@@ -82,7 +82,7 @@ class PagesController extends Controller
     public function getAllStores(Request $request)
     {
         try {
-            $news = PsrFoods::select('id', 'store_name', 'owner', 'address', 'phone', 'product_images_url', 'description', 'tags', 'slug')
+            $stores = PsrFoods::select('id', 'store_name', 'owner', 'address', 'phone', 'product_images_url', 'description', 'tags', 'slug')
                 ->orderBy('created_at', 'desc')
                 ->when($request->keyword, function ($query, $searchKeyword) {
                     $query->where('store_name', 'like', "%$searchKeyword%")->orWhere('tags', 'like', "%$searchKeyword%")->orWhere('store_name', 'like', "%$searchKeyword%");
@@ -91,12 +91,12 @@ class PagesController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $news,
+                'data' => $stores,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve stores.',
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -120,7 +120,7 @@ class PagesController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve store details.',
+                'message' => $e->getMessage(),
             ], 500);
         }
     }

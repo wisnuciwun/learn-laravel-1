@@ -145,7 +145,8 @@ class PagesController extends Controller
         if ($request->hasFile('product_images')) {
             foreach ($request->file('product_images') as $image) {
                 // Save each image to the 'assets/images' directory
-                $path = $image->store('assets/images', 'public');
+                // $path = $image->store('assets/images', 'public');
+                $path = $image->store('public/images');
                 $imagePaths[] = $path; // Collect image paths
             }
         }

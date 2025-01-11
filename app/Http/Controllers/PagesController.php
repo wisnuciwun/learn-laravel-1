@@ -135,24 +135,21 @@ class PagesController extends Controller
             'owner' => 'required|string|max:100',
             'address' => 'required|string|max:5',
             'phone' => 'required|string|max:16',
-            'product_images' => 'nullable|array', // Validate as an array
-            'product_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate each file
+            'product_images' => 'nullable|array',
+            'product_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'description' => 'nullable|string',
             'tags' => 'nullable|string|max:150',
         ]);
 
-        // Handle image upload
         $imagePaths = [];
         if ($request->hasFile('product_images')) {
             foreach ($request->file('product_images') as $image) {
-                // Save each image to the 'assets/images' directory
-                // $path = $image->store('assets/images', 'public');
                 $path = $image->store('public/images');
-                $imagePaths[] = $path; // Collect image paths
+                $imagePaths[] = $path;
             }
         }
 
-        $validatedData['product_images_url'] = implode(',', $imagePaths); // Store as a comma-separated string
+        $validatedData['product_images_url'] = implode(',', $imagePaths);
 
         $slug = Str::slug($validatedData['store_name'], '-');
         $originalSlug = $slug;
@@ -185,15 +182,10 @@ class PagesController extends Controller
 
     public function showImg($imageName)
     {
-        // Construct the full path to the image within the storage directory
         $path = storage_path("app/public/images/{$imageName}");
-
-        // Check if the image exists; if not, return a 404 response
         if (!Storage::exists("public/images/{$imageName}")) {
             abort(404);
         }
-
-        // Return the image as a response
         return response()->file($path);
     }
 

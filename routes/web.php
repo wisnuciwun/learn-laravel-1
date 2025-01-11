@@ -51,7 +51,7 @@ Route::get('/psr/news/{id}', [PagesController::class, 'getDetailNews']);
 Route::get('/psr/all-stores', [PagesController::class, 'getAllStores']);
 Route::get('/psr/store/{slug}', [PagesController::class, 'getStoreDetail']);
 Route::post('/psr/save-store', [PagesController::class, 'postNewStore']);
-Route::post('/img/{imageName}', [PagesController::class, 'showImg']);
+Route::get('/psr/img/{imageName}', [PagesController::class, 'showImg']);
 
 // Route::get('/search', [PostController::class, 'search'])->name('search');
 

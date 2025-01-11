@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\PsrNews;
 use App\Models\PsrFoods;
 use Carbon\Carbon;
+use DB;
 use Illuminate\Http\Request;
 use Str;
 
@@ -105,7 +106,7 @@ class PagesController extends Controller
     public function getStoreDetail($slug)
     {
         try {
-            $store = PsrFoods::where('slug', $slug);
+            $store = PsrFoods::where('slug', $slug)->first();
 
             if (!$store) {
                 return response()->json([
@@ -150,9 +151,18 @@ class PagesController extends Controller
         }
 
         $validatedData['product_images_url'] = implode(',', $imagePaths); // Store as a comma-separated string
-        $validatedData['slug'] = Str::slug($validatedData['store_name'], '-');
+
+        $slug = Str::slug($validatedData['store_name'], '-');
+        $originalSlug = $slug;
+        $counter = 1;
+        while (DB::table('psr_foods')->where('slug', $slug)->exists()) {
+            $slug = $originalSlug . '-' . $counter;
+            $counter++;
+        }
+
+        $validatedData['slug'] = $slug;
         $validatedData['phone'] = $this->phone_format62($request->phone);
-        $validatedData['created_at'] = Carbon::today();
+        $validatedData['created_at'] = Carbon::now();
 
         try {
             $store = PsrFoods::create($validatedData);

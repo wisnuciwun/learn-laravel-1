@@ -7,6 +7,7 @@ use App\Models\PsrFoods;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
+use Storage;
 use Str;
 
 class PagesController extends Controller
@@ -180,6 +181,20 @@ class PagesController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function showImg($imageName)
+    {
+        // Construct the full path to the image within the storage directory
+        $path = storage_path("app/public/images/{$imageName}");
+
+        // Check if the image exists; if not, return a 404 response
+        if (!Storage::exists("public/images/{$imageName}")) {
+            abort(404);
+        }
+
+        // Return the image as a response
+        return response()->file($path);
     }
 
     public function phone_format62($num)

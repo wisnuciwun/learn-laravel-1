@@ -21,5 +21,6 @@ class PsrFoods extends Model
           'tags',
           'product_images_url',
           'slug',
+          'created_at'
      ];
 }

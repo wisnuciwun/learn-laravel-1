@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PsrNews;
 use App\Models\PsrFoods;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Str;
 
@@ -151,6 +152,7 @@ class PagesController extends Controller
         $validatedData['product_images_url'] = implode(',', $imagePaths); // Store as a comma-separated string
         $validatedData['slug'] = Str::slug($validatedData['store_name'], '-');
         $validatedData['phone'] = $this->phone_format62($request->phone);
+        $validatedData['created_at'] = Carbon::today();
 
         try {
             $store = PsrFoods::create($validatedData);

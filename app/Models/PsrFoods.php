@@ -12,4 +12,14 @@ class PsrFoods extends Model
      // pk
      public $primaryKey = 'id';
      public $timestamps = false;
+     protected $fillable = [
+          'store_name',
+          'owner',
+          'address',
+          'phone',
+          'description',
+          'tags',
+          'product_images_url',
+          'slug',
+     ];
 }

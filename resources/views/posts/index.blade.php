@@ -40,7 +40,7 @@
                     </select>
                 </div>
             </form>
-            <div class="d-lg-flex d-none flex-wrap gap-4 justify-content-between">
+            <div class="d-lg-flex d-none flex-wrap gap-4 justify-content-center">
                 @if (count($data) > 0)
                     @foreach ($data as $item)
                         <a href="{{ route('post.show', $item->id) }}"

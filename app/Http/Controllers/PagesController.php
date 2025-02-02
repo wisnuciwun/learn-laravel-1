@@ -34,11 +34,6 @@ class PagesController extends Controller
         return view('pages.index', compact('connect', 'data', 'linkedinUrl')); // you can add any other value like this
     }
 
-    public function postNews()
-    {
-
-    }
-
     public function getAllNews()
     {
         try {
@@ -300,6 +295,39 @@ class PagesController extends Controller
         }
     }
 
+    public function postNews(Request $request)
+    {
+        // Validate incoming data
+        $validatedData = $request->validate([
+            'title' => 'required|string|max:255',
+            'body' => 'required|string|max:10000',
+            'author' => 'required|string|max:255',
+        ]);
+
+        // Create the news record in the database
+        try {
+            $news = PsrNews::create([
+                'title' => $validatedData['title'],
+                'body' => $validatedData['body'],
+                'author' => $validatedData['author'],
+            ]);
+
+            // Return success response
+            return response()->json([
+                'success' => true,
+                'message' => 'News created successfully.',
+                'data' => $news,
+            ], 201);
+
+        } catch (\Exception $e) {
+            // Return error response if something goes wrong
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while creating the news.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 
     public function showImg($imageName)
     {

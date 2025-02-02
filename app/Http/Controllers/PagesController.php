@@ -180,6 +180,127 @@ class PagesController extends Controller
         }
     }
 
+    public function editStore(Request $request, $id)
+    {
+        $store = PsrFoods::find($id);
+
+        if (!$store) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Store not found.',
+            ], 404);
+        }
+
+        $validatedData = $request->validate([
+            'store_name' => 'required|string|max:255',
+            'owner' => 'required|string|max:100',
+            'address' => 'required|string|max:5',
+            'phone' => 'required|string|max:16',
+            'product_images' => 'nullable|array',
+            'product_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'description' => 'nullable|string',
+            'tags' => 'nullable|string|max:150',
+        ]);
+
+        $imagePaths = [];
+        if ($request->hasFile('product_images')) {
+            foreach ($request->file('product_images') as $image) {
+                $path = $image->store('public/images');
+                $imagePaths[] = $path;
+            }
+            $validatedData['product_images_url'] = implode(',', $imagePaths);
+        } else {
+            $validatedData['product_images_url'] = $store->product_images_url;
+        }
+
+        if ($request->has('store_name') && $store->store_name !== $request->store_name) {
+            $slug = Str::slug($validatedData['store_name'], '-');
+            $originalSlug = $slug;
+            $counter = 1;
+            while (DB::table('psr_foods')->where('slug', $slug)->exists()) {
+                $slug = $originalSlug . '-' . $counter;
+                $counter++;
+            }
+
+            $validatedData['slug'] = $slug;
+        }
+
+        $validatedData['phone'] = $this->phone_format62($request->phone);
+
+        try {
+            $store->update($validatedData);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Store updated successfully.',
+                'data' => $store,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while updating the store.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function deleteStore($slug)
+    {
+        $store = PsrFoods::where('slug', $slug)->first();
+
+        if (!$store) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Store not found.',
+            ], 404);
+        }
+
+        try {
+            $store->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Store deleted successfully.',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while deleting the store.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function checkKeypass(Request $request)
+    {
+        $validatedData = $request->validate([
+            'slug' => 'required|string|max:255',  // Validate slug
+            'keypass' => 'required|string|max:255',  // Validate keypass
+        ]);
+
+        $store = PsrFoods::where('slug', $validatedData['slug'])->first();
+
+        if (!$store) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Store not found.',
+            ], 404);
+        }
+
+        if ($store->keypass === $validatedData['keypass']) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Keypass is correct.',
+            ], 200);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Incorrect keypass.',
+            ], 401); // Unauthorized
+        }
+    }
+
+
     public function showImg($imageName)
     {
         $path = storage_path("app/public/images/{$imageName}");

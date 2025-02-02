@@ -52,6 +52,9 @@ Route::get('/psr/all-stores', [PagesController::class, 'getAllStores']);
 Route::get('/psr/store/{slug}', [PagesController::class, 'getStoreDetail']);
 Route::post('/psr/save-store', [PagesController::class, 'postNewStore']);
 Route::get('/psr/img/{imageName}', [PagesController::class, 'showImg']);
+Route::post('/psr/store/check-keypass', [PagesController::class, 'checkKeypass']);
+Route::get('/psr/store/delete/{slug}', [PagesController::class, 'deleteStore']);
+Route::post('/psr/store/edit', [PagesController::class, 'editStore']);
 
 // Route::get('/search', [PostController::class, 'search'])->name('search');
 

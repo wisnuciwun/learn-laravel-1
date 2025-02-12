@@ -13,5 +13,8 @@ class VerifyCsrfToken extends Middleware
      */
     protected $except = [
         '/psr/save-store',
+        '/psr/store/check-keypass',
+        '/psr/store/edit',
+        '/psr/save-news',
     ];
 }

@@ -201,6 +201,10 @@ class PagesController extends Controller
             'keypass' => 'nullable|string|max:150',
         ]);
 
+        if(empty($request->keypass)){
+            $validatedData['keypass'] = $store->keypass;
+        }
+
         $imagePaths = [];
         if ($request->hasFile('product_images')) {
             foreach ($request->file('product_images') as $image) {

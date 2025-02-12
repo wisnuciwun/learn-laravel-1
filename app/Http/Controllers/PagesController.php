@@ -177,9 +177,9 @@ class PagesController extends Controller
         }
     }
 
-    public function editStore(Request $request, $id)
+    public function editStore(Request $request, $slug)
     {
-        $store = PsrFoods::find($id);
+        $store = PsrFoods::where('slug', $slug);
 
         if (!$store) {
             return response()->json([

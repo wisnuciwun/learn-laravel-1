@@ -180,7 +180,7 @@ class PagesController extends Controller
     public function editStore(Request $request)
     {
         $slug = $request->slug;
-        $store = PsrFoods::where('slug', $slug);
+        $store = PsrFoods::where('slug', $slug)->first();
 
         if (!$store) {
             return response()->json([

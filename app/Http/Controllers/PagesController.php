@@ -135,6 +135,7 @@ class PagesController extends Controller
             'product_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'description' => 'nullable|string',
             'tags' => 'nullable|string|max:150',
+            'keypass' => 'nullable|string|max:150',
         ]);
 
         $imagePaths = [];

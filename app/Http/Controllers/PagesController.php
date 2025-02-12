@@ -103,6 +103,7 @@ class PagesController extends Controller
     {
         try {
             $store = PsrFoods::where('slug', $slug)->first();
+            $store->keypass = isset($store->keypass) ? true : false;
 
             if (!$store) {
                 return response()->json([

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\KKIdentity;
 use App\Models\PsrNews;
 use App\Models\PsrFoods;
 use Carbon\Carbon;
@@ -201,7 +202,7 @@ class PagesController extends Controller
             'keypass' => 'nullable|string|max:150',
         ]);
 
-        if(empty($request->keypass)){
+        if (empty($request->keypass)) {
             $validatedData['keypass'] = $store->keypass;
         }
 
@@ -335,6 +336,63 @@ class PagesController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function uploadKK(Request $request)
+    {
+        // Validate incoming data
+        $validatedData = $request->validate([
+            'nama' => 'required|string|max:255',
+            'blok' => 'required|string|max:10000',
+            'fotoKK' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        // Create the news record in the database
+        try {
+            if ($request->hasFile('fotoKK')) {
+                $path = $request->file('fotoKK')->store('public/images/01kk');
+            }
+
+            $validatedData['kk_path'] = $path;
+
+            $data = KKIdentity::create([
+                'nama' => $validatedData['nama'],
+                'blok' => $validatedData['blok'],
+                'kk_path' => $validatedData['kk_path'],
+            ]);
+
+            // Return success response
+            return response()->json([
+                'success' => true,
+                'message' => 'News created successfully.',
+                'data' => $data,
+            ], 201);
+
+        } catch (\Exception $e) {
+            // Return error response if something goes wrong
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while creating the news.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function searchKK(Request $request)
+    {
+        $query = KKIdentity::query();
+
+        if ($request->has('keyword')) {
+            $query->where('name', 'like', '%' . $request->keyword . '%');
+        }
+
+        if ($request->has('blok')) {
+            $query->where('blok', 'like', '%' . $request->blok . '%');
+        }
+
+        $results = $query->get();
+
+        return response()->json($results);
     }
 
     public function showImg($imageName)

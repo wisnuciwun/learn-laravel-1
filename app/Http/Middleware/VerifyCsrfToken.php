@@ -16,5 +16,6 @@ class VerifyCsrfToken extends Middleware
         '/psr/store/check-keypass',
         '/psr/store/edit',
         '/psr/save-news',
+        '/psr/upload-kk',
     ];
 }

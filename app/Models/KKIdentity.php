@@ -12,4 +12,10 @@ class KKIdentity extends Model
      // pk
      public $primaryKey = 'blok';
      public $timestamps = false;
+
+     protected $fillable = [
+          'nama',
+          'blok',
+          'kk_path',
+     ];
 }

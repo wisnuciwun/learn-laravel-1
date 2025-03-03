@@ -409,4 +409,13 @@ class PagesController extends Controller
         $result = preg_replace('/[^0-9]/', '', $num);
         return $result[0] === "0" ? "62" . substr($result, 1) : $result;
     }
+
+    public function showImgKK($imageName)
+    {
+        $path = storage_path("app/public/images/01kk/{$imageName}");
+        if (!Storage::exists("public/images/01kk/{$imageName}")) {
+            abort(404);
+        }
+        return response()->file($path);
+    }
 }

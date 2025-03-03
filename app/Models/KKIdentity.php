@@ -11,6 +11,10 @@ class KKIdentity extends Model
      protected $table = 'kk_identity';
      // pk
      public $primaryKey = 'blok';
+     protected $casts = [
+          'blok' => 'string',
+     ];
+
      public $timestamps = false;
 
      protected $fillable = [

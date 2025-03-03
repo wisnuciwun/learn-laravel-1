@@ -383,7 +383,7 @@ class PagesController extends Controller
         $query = KKIdentity::query();
 
         if ($request->has('keyword')) {
-            $query->where('name', 'like', '%' . $request->keyword . '%');
+            $query->where('nama', 'like', '%' . $request->keyword . '%');
         }
 
         if ($request->has('blok')) {

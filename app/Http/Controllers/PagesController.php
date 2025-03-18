@@ -338,6 +338,8 @@ class PagesController extends Controller
         }
     }
 
+    use Illuminate\Support\Facades\Storage;
+
     public function uploadKK(Request $request)
     {
         // Validate incoming data
@@ -347,36 +349,55 @@ class PagesController extends Controller
             'fotoKK' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // Create the news record in the database
         try {
+            // Check if a record with the same 'blok' exists
+            $existingRecord = KKIdentity::where('blok', $validatedData['blok'])->first();
+
             if ($request->hasFile('fotoKK')) {
+                // Upload new image
                 $path = $request->file('fotoKK')->store('public/images/01kk');
+
+                // Delete the old image if it exists
+                if ($existingRecord && $existingRecord->kk_path) {
+                    Storage::delete($existingRecord->kk_path);
+                }
+
+                // If record exists, update it with new image
+                if ($existingRecord) {
+                    $existingRecord->update([
+                        'nama' => $validatedData['nama'],
+                        'kk_path' => $path,
+                    ]);
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'KK updated successfully.',
+                        'data' => $existingRecord,
+                    ], 200);
+                }
             }
 
-            $validatedData['kk_path'] = $path;
-
+            // If no existing record, create a new one
             $data = KKIdentity::create([
                 'nama' => $validatedData['nama'],
                 'blok' => $validatedData['blok'],
-                'kk_path' => $validatedData['kk_path'],
+                'kk_path' => $path,
             ]);
 
-            // Return success response
             return response()->json([
                 'success' => true,
-                'message' => 'News created successfully.',
+                'message' => 'KK created successfully.',
                 'data' => $data,
             ], 201);
 
         } catch (\Exception $e) {
-            // Return error response if something goes wrong
             return response()->json([
                 'success' => false,
-                'message' => 'An error occurred while creating the news.',
+                'message' => 'An error occurred while processing the request.',
                 'error' => $e->getMessage(),
             ], 500);
         }
     }
+
 
     public function searchKK(Request $request)
     {

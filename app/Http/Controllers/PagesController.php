@@ -338,8 +338,6 @@ class PagesController extends Controller
         }
     }
 
-    use Illuminate\Support\Facades\Storage;
-
     public function uploadKK(Request $request)
     {
         // Validate incoming data
@@ -392,12 +390,11 @@ class PagesController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'An error occurred while processing the request.',
+                'message' => 'KK error',
                 'error' => $e->getMessage(),
             ], 500);
         }
     }
-
 
     public function searchKK(Request $request)
     {

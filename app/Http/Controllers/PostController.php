@@ -33,7 +33,7 @@ class PostController extends Controller
             ->where('x_posts.hashtags', 'like', '%' . $request->input('scope') . '%')
             ->paginate(9);
 
-        return view('x_posts.index', compact('data'));
+        return view('posts.index', compact('data'));
         // return view('x_posts.index', compact('data'));
     }
 
@@ -42,7 +42,7 @@ class PostController extends Controller
      */
     public function create()
     {
-        return view('x_posts.create');
+        return view('posts.create');
     }
 
     /**
@@ -100,7 +100,7 @@ class PostController extends Controller
     public function show(string $id)
     {
         $data = Post::find($id);
-        return view('x_posts.detail', compact('data'));
+        return view('posts.detail', compact('data'));
     }
 
     public function search(Request $request)
@@ -112,7 +112,7 @@ class PostController extends Controller
             ->where('cars.hashtags', 'ilike', '%' . $request->input('scope') . '%')
             ->get();
 
-        return view('x_posts.index', compact('data'));
+        return view('posts.index', compact('data'));
     }
 
     /**
@@ -126,7 +126,7 @@ class PostController extends Controller
         if (Auth::user()->id !== $data->user_id) {
             return redirect('/post')->with('error', 'Unauthorized Page');
         } else {
-            return view('x_posts.edit', compact('data'));
+            return view('posts.edit', compact('data'));
         }
     }
 

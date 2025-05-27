@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Post extends Model
 {
     // use HasFactory;
-    protected $table = 'posts';
+    protected $table = 'x_posts';
     // pk
     public $primaryKey = 'id';
     public $timestamps = false;

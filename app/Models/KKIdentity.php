@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class KKIdentity extends Model
 {
      // use HasFactory;
-     protected $table = 'kk_identity';
+     protected $table = 'psr_kk_identity';
      // pk
      public $primaryKey = 'blok';
      protected $casts = [

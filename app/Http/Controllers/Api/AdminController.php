@@ -217,7 +217,7 @@ class AdminController extends Controller
           }
      }
 
-     public function getInstanceTypes(Request $request)
+     public function instanceTypes(Request $request)
      {
           try {
                $res = InstanceTypes::when($request->keyword, function ($q) use ($request) {

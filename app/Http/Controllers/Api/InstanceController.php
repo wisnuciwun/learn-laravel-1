@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Helpers\ItsHelper;
 use App\Models\Fianut\Apps;
+use App\Models\Fianut\InstancePriviledges;
 use App\Models\Fianut\Instances;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -14,7 +15,7 @@ use App\Http\Controllers\Controller;
 
 class InstanceController extends Controller
 {
-     public function instanceDetail(Request $request)
+     public function detail(Request $request)
      {
           try {
                $userData = ItsHelper::verifyToken($request->token);
@@ -28,6 +29,54 @@ class InstanceController extends Controller
                return response()->json([
                     'success' => true,
                     'message' => 'Get instance data successfully',
+                    'data' => $res,
+               ], 200);
+          } catch (\Throwable $th) {
+               return response()->json([
+                    'success' => false,
+                    'errors' => $th->getMessage(),
+               ], 500);
+          }
+     }
+
+     public function users(Request $request)
+     {
+          try {
+               $userData = ItsHelper::verifyToken($request->token);
+               $request->merge([
+                    'instance_id' => $userData->instance->id,
+                    'user_id' => $userData->id,
+               ]);
+
+               $res = User::where('id', $request->instance_id)->first();
+
+               return response()->json([
+                    'success' => true,
+                    'message' => 'Get instance data successfully',
+                    'data' => $res,
+               ], 200);
+          } catch (\Throwable $th) {
+               return response()->json([
+                    'success' => false,
+                    'errors' => $th->getMessage(),
+               ], 500);
+          }
+     }
+
+     public function instancePriviledge(Request $request)
+     {
+          try {
+               $userData = ItsHelper::verifyToken($request->token);
+               $request->merge([
+                    'instance_id' => $userData->instance->id,
+                    'user_id' => $userData->id,
+               ]);
+
+               $res = InstancePriviledges::with(['instances'])->where('id', $request->instance_id)->first();
+
+               return response()->json([
+                    'success' => true,
+                    'message' => 'Get instance priviledge data successfully',
                     'data' => $res,
                ], 200);
           } catch (\Throwable $th) {

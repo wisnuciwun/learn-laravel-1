@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Request;
 
 class InventoryController extends Controller
 {
-     public function inventoryList(Request $request)
+     public function list(Request $request)
      {
           try {
                $instanceId = Instances::where('instance_code', $request->instance_code)->select('id')->first();
@@ -38,7 +38,7 @@ class InventoryController extends Controller
           }
      }
 
-     public function manageInventory(Request $request)
+     public function manage(Request $request)
      {
           $success = true;
           $errors = '';

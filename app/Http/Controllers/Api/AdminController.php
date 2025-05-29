@@ -27,7 +27,14 @@ class AdminController extends Controller
           try {
                $res = Apps::when($request->keyword, function ($q) use ($request) {
                     $q->where('name', 'like', "%{$request->keyword}%");
-               })->get();
+               })
+                    ->when($request->limit, function ($q) use ($request) {
+                         $q->limit($request->limit);
+                    })
+                    ->when($request->sort_by, function ($q) use ($request) {
+                         $q->orderBy($request->sort_by);
+                    })
+                    ->get();
 
                return response()->json([
                     'success' => true,

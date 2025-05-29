@@ -16,8 +16,8 @@ class InventoryController extends Controller
                $res = Inventory::when($request->keyword, function ($q) use ($request) {
                     $q->where('name', 'like', "%{$request->keyword}%");
                })
-                    ->when($request->sort != '', function ($q) use ($request) {
-                         $q->orderBy($request->sort);
+                    ->when($request->sort_by != '', function ($q) use ($request) {
+                         $q->orderBy($request->sort_by);
                     })
                     ->when($request->limit != '', function ($q) use ($request) {
                          $q->limit($request->limit);

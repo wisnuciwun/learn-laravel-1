@@ -52,6 +52,7 @@ class AdminController extends Controller
                'name' => 'required|string|max:255',
                'link' => 'required|string|max:500',
                'description' => 'required',
+               'short_description' => 'required|string|max:150',
                'image' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
           ]);
 
@@ -64,6 +65,7 @@ class AdminController extends Controller
                               'name' => $validatedData['name'],
                               'link' => $validatedData['link'],
                               'description' => $validatedData['description'],
+                              'short_description' => $validatedData['short_description'],
                          ];
 
                          if (!empty($validatedData['image'])) {
@@ -81,6 +83,7 @@ class AdminController extends Controller
                          'name' => $validatedData['name'],
                          'link' => $validatedData['link'],
                          'description' => $validatedData['description'],
+                         'short_description' => $validatedData['short_description'],
                     ];
 
                     if (!empty($validatedData['image'])) {
@@ -115,9 +118,9 @@ class AdminController extends Controller
           $errors = '';
           $validatedData = $request->validate([
                'name' => 'required|string|max:100',
-               'price' => 'required|int',
-               'member_type' => 'required|int',
-               'app_id' => 'required|int',
+               'price' => 'required|integer',
+               'member_type' => 'required|integer',
+               'app_id' => 'required|integer',
           ]);
 
           try {
@@ -495,7 +498,7 @@ class AdminController extends Controller
           $validatedData = $request->validate([
                'transaction_id' => 'required',
                'confirm_payment' => 'required',
-               'amount' => 'required|int'
+               'amount' => 'required|integer'
           ]);
 
           try {

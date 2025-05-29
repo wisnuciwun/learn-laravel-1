@@ -29,8 +29,8 @@ class ProficashController extends Controller
                'instance_id' => 'required',
                'user_id' => 'required',
                'inventory_id' => 'required',
-               'price' => 'required|int',
-               'quantity' => 'required|int',
+               'price' => 'required|integer',
+               'quantity' => 'required|integer',
           ]);
 
           try {

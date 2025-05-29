@@ -62,7 +62,7 @@ class AdminController extends Controller
                'link' => 'required|string|max:500',
                'description' => 'required',
                'short_description' => 'required|string|max:150',
-               'image' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+               'image' => 'image|mimes:jpeg,png,jpg,webp|max:2048',
           ]);
 
           Log::info("msk");

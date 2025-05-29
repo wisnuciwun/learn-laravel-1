@@ -20,9 +20,19 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\Fianut\User;
 use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
+use Storage;
 
 class AdminController extends Controller
 {
+     public function showImg($imageName)
+     {
+          $path = storage_path("app/public/fianut/{$imageName}");
+          if (!Storage::exists("public/fianut/{$imageName}")) {
+               abort(404);
+          }
+          return response()->file($path);
+     }
+
      public function appList(Request $request)
      {
           try {

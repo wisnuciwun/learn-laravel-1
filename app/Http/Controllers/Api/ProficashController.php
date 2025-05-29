@@ -25,6 +25,8 @@ class ProficashController extends Controller
      {
           $success = true;
           $errors = '';
+          $data = [];
+
           $validatedData = $request->validate([
                'instance_id' => 'required',
                'user_id' => 'required',

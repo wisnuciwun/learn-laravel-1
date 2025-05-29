@@ -42,6 +42,8 @@ class InventoryController extends Controller
      {
           $success = true;
           $errors = '';
+          $data = [];
+
           $validatedData = $request->validate([
                'name' => 'required|string|max:255',
                'instance_id' => 'required|string|max:500',

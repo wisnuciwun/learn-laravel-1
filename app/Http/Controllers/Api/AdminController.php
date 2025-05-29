@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Fianut\User;
 use Illuminate\Support\Str;
@@ -52,9 +53,10 @@ class AdminController extends Controller
      public function manageApp(Request $request)
      {
           ItsHelper::verifyAsAdmin($request->token);
-
           $success = true;
           $errors = '';
+          $data = [];
+
           $validatedData = $request->validate([
                'name' => 'required|string|max:255',
                'link' => 'required|string|max:500',
@@ -63,6 +65,7 @@ class AdminController extends Controller
                'image' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
           ]);
 
+          Log::info("msk");
           try {
                if ($request->id) {
                     $data = Apps::where('id', $request->id)->first();
@@ -123,6 +126,8 @@ class AdminController extends Controller
 
           $success = true;
           $errors = '';
+          $data = [];
+
           $validatedData = $request->validate([
                'name' => 'required|string|max:100',
                'price' => 'required|integer',
@@ -176,6 +181,8 @@ class AdminController extends Controller
 
           $success = true;
           $errors = '';
+          $data = [];
+
           $validatedData = $request->validate([
                'app_id' => 'required',
                'instance_id' => 'required',
@@ -253,6 +260,8 @@ class AdminController extends Controller
 
           $success = true;
           $errors = '';
+          $data = [];
+
           $validatedData = $request->validate([
                'name' => 'required|string|max:100'
           ]);
@@ -295,6 +304,8 @@ class AdminController extends Controller
 
           $success = true;
           $errors = '';
+          $data = [];
+
           $validatedData = $request->validate([
                'title' => 'required|string|max:100',
                'name' => 'required|string|max:100'
@@ -347,6 +358,8 @@ class AdminController extends Controller
 
           $success = true;
           $errors = '';
+          $data = [];
+
           $validatedData = $request->validate([
                'user_id' => 'required',
                'instance_id' => 'required',
@@ -407,6 +420,8 @@ class AdminController extends Controller
 
           $success = true;
           $errors = '';
+          $data = [];
+
           $validatedData = $request->validate([
                'user_id' => 'required',
                'instance_id' => 'required',
@@ -502,6 +517,8 @@ class AdminController extends Controller
 
           $success = true;
           $errors = '';
+          $data = [];
+
           $validatedData = $request->validate([
                'transaction_id' => 'required',
                'confirm_payment' => 'required',

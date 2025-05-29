@@ -40,6 +40,8 @@ class HelloController extends Controller
      {
           $success = true;
           $errors = '';
+          $data = [];
+
           $validatedData = $request->validate([
                'id' => 'required',
                'title' => 'required|string|max:100'

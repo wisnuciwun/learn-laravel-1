@@ -26,11 +26,14 @@ class AdminController extends Controller
 {
      public function showImg($imageName)
      {
-          $path = storage_path("app/public/fianut/{$imageName}");
-          if (!Storage::exists("public/fianut/{$imageName}")) {
-               abort(404);
+          $imagePath = ltrim($imageName, '/'); // remove leading slash if present
+          $fullPath = "public/fianut/{$imagePath}";
+
+          if (!Storage::exists($fullPath)) {
+               abort(404, "Image not found");
           }
-          return response()->file($path);
+
+          return response()->file($fullPath);
      }
 
      public function appList(Request $request)

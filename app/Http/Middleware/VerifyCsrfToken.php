@@ -12,6 +12,7 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
+        '/api/*',
         '/psr/save-store',
         '/psr/store/check-keypass',
         '/psr/store/edit',

@@ -91,7 +91,7 @@ class AuthController extends Controller
             'nickname' => explode(' ', trim($request->name))[0],
             'active' => 1,
             'gender' => $request->gender,
-            'referral_code' => InstanceHelper::generateReferralCode($request->name)
+            'referral_code' => ItsHelper::generateReferralCode($request->name)
         ]);
 
         if (!$request->instance_code) {

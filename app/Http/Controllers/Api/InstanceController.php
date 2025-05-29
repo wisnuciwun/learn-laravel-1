@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers\Api;
 
+use App\Helpers\ItsHelper;
 use App\Models\Fianut\Apps;
 use App\Models\Fianut\Instances;
 use Illuminate\Http\Request;
@@ -13,16 +14,20 @@ use App\Http\Controllers\Controller;
 
 class InstanceController extends Controller
 {
-     public function appList(Request $r)
+     public function instanceDetail(Request $request)
      {
           try {
-               $res = Apps::when($r->keyword, function ($q) use ($r) {
-                    $q->where('name', 'like', "%{$r->keyword}%");
-               })->get();
+               $userData = ItsHelper::verifyToken($request->token);
+               $request->merge([
+                    'instance_id' => $userData->instance->id,
+                    'user_id' => $userData->id,
+               ]);
+
+               $res = Instances::where('id', $request->instance_id)->first();
 
                return response()->json([
                     'success' => true,
-                    'message' => 'Get app list successful',
+                    'message' => 'Get instance data successfully',
                     'data' => $res,
                ], 200);
           } catch (\Throwable $th) {
@@ -32,5 +37,4 @@ class InstanceController extends Controller
                ], 500);
           }
      }
-
 }

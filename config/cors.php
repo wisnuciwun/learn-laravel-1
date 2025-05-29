@@ -19,8 +19,6 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:5002', 'https://barayaswarga.com'],
-
     'allowed_origins_patterns' => [],
 
     'allowed_headers' => ['*'],

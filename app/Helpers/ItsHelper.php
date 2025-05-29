@@ -2,10 +2,40 @@
 
 namespace App\Helpers;
 
+use App\Models\Fianut\Images;
 use App\Models\Fianut\User;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class ItsHelper
 {
+     public static function verifyToken(string $token)
+     {
+          $verified = User::with(['instance'])->where('token', $token)->first();
+
+          if (!$verified) {
+               abort(401, 'Hi, I need token please');
+          }
+
+          return $verified;
+     }
+
+     public static function verifyAsAdmin(string $token): void
+     {
+          $verified = User::where('token', $token)->where('name', '8uset9w4dmin')->first();
+
+          if (!$verified) {
+               abort(401, 'Hi, I need token please');
+          }
+     }
+
+     public static function generateTransactionCode(string $instanceCode): string
+     {
+          $date = Carbon::now()->format('Ymd'); // e.g. 20240529
+          $baseCode = "{$date}-{$instanceCode}";
+          return $baseCode;
+     }
+
      public static function generateInstanceCode(string $instanceName): string
      {
           $firstLetter = strtoupper(substr(trim($instanceName), 0, 1));
@@ -46,5 +76,26 @@ class ItsHelper
           }
 
           return $referralCode;
+     }
+
+     public static function saveImage(string $type, bool $replace, $existing_img_path, $req = null)
+     {
+          if ($req->hasFile('image')) {
+               // Upload new image
+               if ($type == 'system') {
+                    $path = $req->file('image')->store('public/fianut/system');
+               } else if ($type == 'client') {
+                    $path = $req->file('image')->store('public/fianut/client');
+               } else {
+                    $path = $req->file('image')->store('public/fianut/other');
+               }
+
+               // Delete the old image if it exists
+               if ($replace) {
+                    Storage::delete($existing_img_path);
+               }
+
+               return $path;
+          }
      }
 }

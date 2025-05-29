@@ -583,27 +583,4 @@ class AdminController extends Controller
                ], 500);
           }
      }
-
-     public function priviledgeApps(Request $request)
-     {
-          ItsHelper::verifyToken($request->token);
-
-          try {
-               $res = Apps::with(['priviledges:id,app_id,expired_at,instance_id'])
-                    ->when($request->keyword, function ($q) use ($request) {
-                         $q->where('name', 'like', "%{$request->keyword}%");
-                    })->get();
-
-               return response()->json([
-                    'success' => true,
-                    'message' => 'Get priviledge apps list successfully',
-                    'data' => $res,
-               ], 200);
-          } catch (\Throwable $th) {
-               return response()->json([
-                    'success' => false,
-                    'errors' => $th->getMessage(),
-               ], 500);
-          }
-     }
 }

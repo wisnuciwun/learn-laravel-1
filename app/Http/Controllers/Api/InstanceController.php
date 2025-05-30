@@ -27,13 +27,16 @@ class InstanceController extends Controller
                //      'userPriviledge' => fn($q) => $q->where('user_id', $userId),
                // ])->when($request->keyword, fn($q) => $q->where('name', 'like', "%{$request->keyword}%"))->get();
 
-               $res = Apps::when($request->keyword, fn($q) => $q->where('name', 'like', "%{$request->keyword}%"))
+               $res = Apps::with([
+                    'instancePriviledge' => function ($query) use ($instanceId) {
+                         $query->where('instance_id', $instanceId);
+                    },
+                    'userPriviledge' => function ($query) use ($userId) {
+                         $query->where('user_id', $userId);
+                    }
+               ])->when($request->keyword, fn($q) => $q->where('name', 'like', "%{$request->keyword}%"))
                     ->get();
 
-               foreach ($res as $app) {
-                    // Manually load the instancePriviledge relationship with the instance ID
-                    $app->setRelation('instancePriviledge', $app->instancePriviledge($instanceId)->first());
-               }
 
                return response()->json([
                     'success' => true,

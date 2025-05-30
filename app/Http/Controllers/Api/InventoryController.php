@@ -40,6 +40,11 @@ class InventoryController extends Controller
 
      public function manage(Request $request)
      {
+          $userData = ItsHelper::verifyToken($request->token);
+          $request->merge([
+               'instance_id' => $userData->instance->id,
+          ]);
+
           $success = true;
           $errors = '';
           $data = [];

@@ -165,8 +165,8 @@ class AdminController extends Controller
           try {
                $dataToSave = [
                     'name' => $validatedData['name'],
-                    'price' => $validatedData['link'],
-                    'member_type' => $validatedData['description'],
+                    'price' => $validatedData['price'],
+                    'member_type' => $validatedData['member_type'],
                     'app_id' => $validatedData['app_id'],
                ];
 

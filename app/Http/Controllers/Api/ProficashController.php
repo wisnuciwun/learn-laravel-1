@@ -23,6 +23,12 @@ class ProficashController extends Controller
 {
      public function addTransactionIn(Request $request)
      {
+          $userData = ItsHelper::verifyToken($request->token);
+          $request->merge([
+               'instance_id' => $userData->instance->id,
+               'user_id' => $userData->id,
+          ]);
+
           $success = true;
           $errors = '';
           $data = [];

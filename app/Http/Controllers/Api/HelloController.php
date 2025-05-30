@@ -38,18 +38,23 @@ class HelloController extends Controller
 
      public function manageLandingPage(Request $request)
      {
+          $userData = ItsHelper::verifyToken($request->token);
+          $request->merge([
+               'instance_id' => $userData->instance->id,
+          ]);
+
           $success = true;
           $errors = '';
           $data = [];
 
           $validatedData = $request->validate([
-               'id' => 'required',
+               'instance_id' => 'required',
                'title' => 'required|string|max:100'
           ]);
 
           try {
                $dataToSave = [
-                    'name' => $validatedData['name'],
+                    'title' => $validatedData['title'],
                     'slogan' => $request->slogan,
                     'promotion' => $request->promotion,
                     'third_party_links' => $request->third_party_links,

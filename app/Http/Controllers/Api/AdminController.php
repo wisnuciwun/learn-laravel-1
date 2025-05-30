@@ -494,22 +494,25 @@ class AdminController extends Controller
                }
 
                $now = Carbon::now();
-               $expiredAt = Carbon::parse($priv->expired_at);
-               $daysDiff = $now->diffInDays($expiredAt, false); // negative if expired
 
-               // Step 2: Enforce time window
-               if ($daysDiff > 7) {
-                    return response()->json([
-                         'success' => false,
-                         'errors' => 'Too early to re-subscribe. Try again within 7 days before expiry.',
-                    ], 403);
-               }
+               if (isset($priv->expired_at)) {
+                    $expiredAt = Carbon::parse($priv->expired_at);
+                    $daysDiff = $now->diffInDays($expiredAt, false); // negative if expired
 
-               if ($daysDiff < -7) {
-                    return response()->json([
-                         'success' => false,
-                         'errors' => 'Subscription has expired too long ago. Please contact support.',
-                    ], 403);
+                    // Step 2: Enforce time window
+                    if ($daysDiff > 7) {
+                         return response()->json([
+                              'success' => false,
+                              'errors' => 'Too early to re-subscribe. Try again within 7 days before expiry.',
+                         ], 403);
+                    }
+
+                    if ($daysDiff < -7) {
+                         return response()->json([
+                              'success' => false,
+                              'errors' => 'Subscription has expired too long ago. Please contact support.',
+                         ], 403);
+                    }
                }
 
                // Step 3: Prevent duplicate pending payments

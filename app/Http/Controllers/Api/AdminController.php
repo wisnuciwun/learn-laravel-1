@@ -78,6 +78,24 @@ class AdminController extends Controller
           }
      }
 
+     public function appPricings(Request $request)
+     {
+          try {
+               $data = Apps::with(['appPricing'])->where('id', $request->app_id)->get();
+
+               return response()->json([
+                    'success' => true,
+                    'message' => 'Get app pricing successfully',
+                    'data' => $data,
+               ], 200);
+          } catch (\Throwable $th) {
+               return response()->json([
+                    'success' => false,
+                    'errors' => $th->getMessage(),
+               ], 500);
+          }
+     }
+
      public function manageApp(Request $request)
      {
           ItsHelper::verifyAsAdmin($request->token);
@@ -181,7 +199,7 @@ class AdminController extends Controller
                          $errors = 'App data or pricing not found';
                     }
                } else {
-                    $data = Apps::create($dataToSave)->save();
+                    $data = AppPricings::create($dataToSave)->save();
                }
 
                return response()->json([

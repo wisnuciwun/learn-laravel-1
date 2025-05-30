@@ -81,7 +81,7 @@ class AdminController extends Controller
      public function appPricings(Request $request)
      {
           try {
-               $data = AppPricings::where('id', $request->app_id)->get();
+               $data = AppPricings::where('app_id', $request->app_id)->get();
 
                return response()->json([
                     'success' => true,

@@ -17,13 +17,15 @@ class InstanceController extends Controller
 {
      public function appList(Request $request)
      {
-          ItsHelper::verifyToken($request->token);
+          $userData = ItsHelper::verifyToken($request->token);
+          $instanceId = $userData->instance_id;
+          $userId = $userData->id;
 
           try {
-               $res = Apps::with(['priviledges:id,app_id,expired_at,instance_id'])
-                    ->when($request->keyword, function ($q) use ($request) {
-                         $q->where('name', 'like', "%{$request->keyword}%");
-                    })->get();
+               $res = Apps::with([
+                    'instancePriviledge' => fn($q) => $q->where('instance_id', $instanceId),
+                    'userPriviledge' => fn($q) => $q->where('user_id', $userId),
+               ])->when($request->keyword, fn($q) => $q->where('name', 'like', "%{$request->keyword}%"))->get();
 
                return response()->json([
                     'success' => true,

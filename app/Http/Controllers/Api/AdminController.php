@@ -24,16 +24,31 @@ use Storage;
 
 class AdminController extends Controller
 {
-     public function showImg($imageName)
+     public function showImgSystem($imageName)
      {
-          $imagePath = ltrim($imageName, '/'); // remove leading slash if present
-          $fullPath = "public/fianut/{$imagePath}";
-
-          if (!Storage::exists($fullPath)) {
+          $path = storage_path("app/public/fianut/system/{$imageName}");
+          if (!Storage::exists("public/fianut/system/{$imageName}")) {
                abort(404, "Image not found");
           }
+          return response()->file($path);
+     }
 
-          return response()->file($fullPath);
+     public function showImgClient($imageName)
+     {
+          $path = storage_path("app/public/fianut/client/{$imageName}");
+          if (!Storage::exists("public/fianut/client/{$imageName}")) {
+               abort(404, "Image not found");
+          }
+          return response()->file($path);
+     }
+
+     public function showImgOther($imageName)
+     {
+          $path = storage_path("app/public/fianut/other/{$imageName}");
+          if (!Storage::exists("public/fianut/other/{$imageName}")) {
+               abort(404, "Image not found");
+          }
+          return response()->file($path);
      }
 
      public function appList(Request $request)
@@ -78,7 +93,6 @@ class AdminController extends Controller
                'image' => 'image|mimes:jpeg,png,jpg,webp|max:2048',
           ]);
 
-          Log::info("msk");
           try {
                if ($request->id) {
                     $data = Apps::where('id', $request->id)->first();

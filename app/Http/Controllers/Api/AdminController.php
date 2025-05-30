@@ -530,7 +530,7 @@ class AdminController extends Controller
                }
 
                // Step 4: Generate unique transaction_id
-               $instanceCode = $dataInstance->instance_code ?? 'GEN'; // fallback if instance_code is missing
+               $instanceCode = $request->instance_id ?? 'GEN'; // fallback if instance_code is missing
                $transactionId = ItsHelper::generateTransactionCode($instanceCode);
 
                // Step 5: Save payment request

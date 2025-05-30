@@ -28,15 +28,10 @@ class InstanceController extends Controller
                // ])->when($request->keyword, fn($q) => $q->where('name', 'like', "%{$request->keyword}%"))->get();
 
                $res = Apps::with([
-                    'instancePriviledge' => function ($query) use ($instanceId) {
-                         $query->where('instance_id', $instanceId);
-                    },
-                    'userPriviledge' => function ($query) use ($userId) {
-                         $query->where('user_id', $userId);
-                    }
+                    'instancePriviledge' => fn($q) => $q->where('instance_id', $instanceId),
+                    'userPriviledge' => fn($q) => $q->where('user_id', $userId),
                ])->when($request->keyword, fn($q) => $q->where('name', 'like', "%{$request->keyword}%"))
                     ->get();
-
 
                return response()->json([
                     'success' => true,

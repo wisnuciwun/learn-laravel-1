@@ -18,13 +18,30 @@ class InstanceController extends Controller
      public function appList(Request $request)
      {
           $userData = ItsHelper::verifyToken($request->token);
-          $instanceId = $userData->instance_id;
+          $instanceId = $userData->instance->id;
           $userId = $userData->id;
 
           try {
+               // $res = Apps::with([
+               //      'instancePriviledge',
+               //      'userPriviledge'
+               // ])->when($request->keyword, fn($q) => $q->where('name', 'like', "%{$request->keyword}%"))->get();
+
+               // foreach ($res as $app) {
+               //      $filteredInstancePriv = $app->instancePriviledge()
+               //           ->where('instance_id', $instanceId)
+               //           ->first();
+
+               //      $app->setRelation('instancePriviledge', $filteredInstancePriv);
+               // }
+
                $res = Apps::with([
-                    'instancePriviledge',
-                    'userPriviledge'
+                    'instancePriviledge' => function ($query) use ($instanceId) {
+                         $query->where('instance_id', $instanceId);
+                    },
+                    'userPriviledge' => function ($query) use ($userId) {
+                         $query->where('user_id', $userId);
+                    }
                ])->when($request->keyword, fn($q) => $q->where('name', 'like', "%{$request->keyword}%"))->get();
 
 

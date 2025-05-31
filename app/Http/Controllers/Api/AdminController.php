@@ -575,9 +575,9 @@ class AdminController extends Controller
           ]);
 
           try {
-               $dataTransaction = AppPayments::with(['appPricing:id,name,price'])
+               $dataTransaction = AppPayments::with(['appPricing'])
                     ->where('transaction_id', $request->transaction_id)
-                    ->first();
+                    ->latest();
                $dataUsers = User::where('instance_code')
                     ->where('is_owner', '!=', 1)
                     ->select('id', 'name'); // TODO: we have to check unactive user
@@ -631,9 +631,9 @@ class AdminController extends Controller
                          $errors = 'Transaction ID data not found';
                     }
                } else {
-                    $userNames = $dataUsers->pluck('name')->toArray();
+                    // $userNames = $dataUsers->pluck('name')->toArray();
                     $success = false;
-                    $errors = "Insufficient amount, active users: $userNames you must pay $shouldPay";
+                    $errors = "Insufficient amount, active users is more than 1. You must pay $shouldPay";
                }
 
                return response()->json([

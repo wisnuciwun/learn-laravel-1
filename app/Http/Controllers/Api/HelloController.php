@@ -16,6 +16,28 @@ use App\Http\Controllers\Controller;
 
 class HelloController extends Controller
 {
+     public function showcase(Request $request)
+     {
+          try {
+               $dataInstance = Instances::with(['instanceSetting'])->where('instance_code', $request->instance_code)->first();
+               $res = Texts::where('name', 'app_hello_template')->where('id', $dataInstance->instanceSetting->hello_template_id)->get();
+
+               return response()->json([
+                    'success' => true,
+                    'message' => 'Get hello template list successful',
+                    'data' => [
+                         'template_html' => $res->data,
+                         'instance_data' => $dataInstance
+                    ],
+               ], 200);
+          } catch (\Throwable $th) {
+               return response()->json([
+                    'success' => false,
+                    'errors' => $th->getMessage(),
+               ], 500);
+          }
+     }
+
      public function templateList(Request $request)
      {
           try {

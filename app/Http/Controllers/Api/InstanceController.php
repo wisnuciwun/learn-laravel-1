@@ -15,18 +15,46 @@ use App\Http\Controllers\Controller;
 
 class InstanceController extends Controller
 {
+     public function employees(Request $request)
+     {
+          $userData = ItsHelper::verifyToken($request->token);
+          $userId = $userData->id;
+          $instanceCode = $userData->instance_code;
+
+          try {
+               $res = User::where('id', $userId)->where('instance_code', $instanceCode)->where('is_owner', '!=', 1)->get();
+
+               return response()->json([
+                    'success' => true,
+                    'message' => 'Get employees successfully',
+                    'data' => $res,
+               ], 200);
+          } catch (\Throwable $th) {
+               return response()->json([
+                    'success' => false,
+                    'errors' => $th->getMessage(),
+               ], 500);
+          }
+     }
+
      public function profile(Request $request)
      {
           $userData = ItsHelper::verifyToken($request->token);
           $userId = $userData->id;
+          $instanceId = $userData->instance->id;
 
           try {
-               $res = User::where('id', $userId)->get();
+               $resUser = User::where('id', $userId)->get();
+               $resInstance = Instances::where('id', $instanceId)->get();
 
                return response()->json([
                     'success' => true,
                     'message' => 'Get profile successfully',
-                    'data' => $res,
+                    'data' => [
+                         'user' => $resUser,
+                         'instance' => $resInstance,
+
+                    ],
                ], 200);
           } catch (\Throwable $th) {
                return response()->json([
@@ -75,30 +103,6 @@ class InstanceController extends Controller
                ]);
 
                $res = Instances::where('id', $request->instance_id)->first();
-
-               return response()->json([
-                    'success' => true,
-                    'message' => 'Get instance data successfully',
-                    'data' => $res,
-               ], 200);
-          } catch (\Throwable $th) {
-               return response()->json([
-                    'success' => false,
-                    'errors' => $th->getMessage(),
-               ], 500);
-          }
-     }
-
-     public function users(Request $request)
-     {
-          try {
-               $userData = ItsHelper::verifyToken($request->token);
-               $request->merge([
-                    'instance_id' => $userData->instance->id,
-                    'user_id' => $userData->id,
-               ]);
-
-               $res = User::where('id', $request->instance_id)->first();
 
                return response()->json([
                     'success' => true,

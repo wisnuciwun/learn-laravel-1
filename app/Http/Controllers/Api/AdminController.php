@@ -610,7 +610,7 @@ class AdminController extends Controller
                               if (!$isAlreadyPriviledged) {
                                    $dataNewPriviledge = [
                                         'user_id' => $dataTransaction->user_id,
-                                        'role_id' => $idRoleAppAdmin,
+                                        'role_id' => $idRoleAppAdmin->id,
                                         'instance_id' => $dataTransaction->instance_id,
                                         'app_id' => $dataTransaction->app_id,
                                    ];

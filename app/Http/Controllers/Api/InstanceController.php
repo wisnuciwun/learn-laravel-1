@@ -44,8 +44,8 @@ class InstanceController extends Controller
           $instanceId = $userData->instance->id;
 
           try {
-               $resUser = User::where('id', $userId)->get();
-               $resInstance = Instances::where('id', $instanceId)->get();
+               $resUser = User::where('id', $userId)->first();
+               $resInstance = Instances::where('id', $instanceId)->first();
 
                return response()->json([
                     'success' => true,

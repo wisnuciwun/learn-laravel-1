@@ -605,8 +605,7 @@ class AdminController extends Controller
                               $dataTransaction->update($dataToSave);
 
                               $isAlreadyPriviledged = UserPriviledges::where('user_id', $dataTransaction->user_id)->first();
-                              $dataOwner = User::where('instance_code')
-                                   ->where('is_owner', '==', 1)
+                              $dataOwner = User::where('is_owner', '==', 1)
                                    ->where('id', $dataTransaction->user_id)
                                    ->first();
                               $idRoleAppAdmin = Roles::where('name', 'app_admin')->first();
@@ -640,6 +639,58 @@ class AdminController extends Controller
                return response()->json([
                     'success' => $success,
                     'message' => $errors ? '' : "Successfully confirm payment",
+                    'data' => $data,
+                    'errors' => $errors
+               ], 200);
+          } catch (\Throwable $th) {
+               return response()->json([
+                    'success' => false,
+                    'errors' => $th->getMessage(),
+               ], 500);
+          }
+
+     }
+
+     public function manageRole(Request $request)
+     {
+          $userData = ItsHelper::verifyToken($request->token);
+          $request->merge([
+               'instance_id' => $userData->instance->id,
+               'user_id' => $userData->id,
+          ]);
+
+          $success = true;
+          $errors = '';
+          $data = [];
+
+          $validatedData = $request->validate([
+               'name' => 'required|string|max:100',
+          ]);
+
+          try {
+               $dataToSave = [
+                    'instance_id' => $request->instance_id,
+                    'tabs' => $request->tabs,
+                    'description' => $request->description,
+                    'name' => $validatedData['name']
+               ];
+
+               if ($request->id) {
+                    $data = Roles::where('id', $request->id)->first();
+
+                    if ($data) {
+                         $data->update($dataToSave);
+                    } else {
+                         $success = false;
+                         $errors = 'Role data not found';
+                    }
+               } else {
+                    $data = Roles::create($dataToSave)->save();
+               }
+
+               return response()->json([
+                    'success' => $success,
+                    'message' => $errors ? '' : "Successfully saved role changes",
                     'data' => $data,
                     'errors' => $errors
                ], 200);

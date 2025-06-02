@@ -593,41 +593,39 @@ class AdminController extends Controller
 
                if ($request->amount == $shouldPay) {
                     if ($dataTransaction) {
-                         $dataInstancePriviledges = InstancePriviledges::
-                              where('id', $dataTransaction->instance_id)
-                              ->where('app_id', $dataTransaction->app_id)
-                              ->first();
+                         if ($validatedData['confirm_payment'] == 1) {
+                              $dataInstancePriviledgesToSave = [
+                                   'expired_at' => Carbon::parse($dataInstancePriviledges->expired_at ?? now())->addDays(30)
+                              ];
+                              $dataInstancePriviledges = InstancePriviledges::
+                                   where('instance_id', $dataTransaction->instance_id)
+                                   ->where('app_id', $dataTransaction->app_id)
+                                   ->first();
+                              $dataInstancePriviledges->update($dataInstancePriviledgesToSave);
+                              $dataTransaction->update($dataToSave);
 
-                         if ($dataInstancePriviledges) {
-                              $dataToSave['expired_at'] = Carbon::parse($dataInstancePriviledges->expired_at ?? now())->addDays(30);
-                              $dataInstancePriviledges->update($dataToSave);
-                         } else {
-                              $dataToSave['app_id'] = $dataTransaction->app_id;
-                              $dataToSave['instance_id'] = $dataTransaction->instance_id;
-                              $dataToSave['user_id'] = $dataTransaction->user_id;
-                              $dataToSave['app_pricings_id'] = $dataTransaction->app_pricings_id;
-                              $dataToSave['expired_at'] = Carbon::now()->addDays(30);
-                              $data = InstancePriviledges::create($dataToSave)->save();
-
+                              $isAlreadyPriviledged = UserPriviledges::where('user_id', $dataTransaction->user_id)->first();
                               $dataOwner = User::where('instance_code')
                                    ->where('is_owner', '==', 1)
                                    ->where('id', $dataTransaction->user_id)
-                                   ->count();
+                                   ->first();
                               $idRoleAppAdmin = Roles::where('name', 'app_admin')->first();
 
-                              if ($dataOwner) {
+                              if (!$isAlreadyPriviledged && $dataOwner) {
                                    $dataNewPriviledge = [
                                         'user_id' => $dataTransaction->user_id,
                                         'role_id' => $idRoleAppAdmin,
                                         'instance_id' => $dataTransaction->instance_id,
                                         'app_id' => $dataTransaction->app_id,
-                                        'confirm_payment' => $validatedData['confirm_payment'],
                                    ];
 
                                    UserPriviledges::create(
                                         $dataNewPriviledge
                                    );
                               }
+                         } else {
+                              $success = true;
+                              $errors = 'Transaction has been canceled';
                          }
                     } else {
                          $success = false;

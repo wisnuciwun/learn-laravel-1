@@ -577,7 +577,9 @@ class AdminController extends Controller
           try {
                $dataTransaction = AppPayments::with(['appPricing'])
                     ->where('transaction_id', $request->transaction_id)
-                    ->latest();
+                    ->latest()
+                    ->first();
+
                $dataUsers = User::where('instance_code')
                     ->where('is_owner', '!=', 1)
                     ->select('id', 'name'); // TODO: we have to check unactive user

@@ -22,19 +22,6 @@ class InstanceController extends Controller
           $userId = $userData->id;
 
           try {
-               // $res = Apps::with([
-               //      'instancePriviledge',
-               //      'userPriviledge'
-               // ])->when($request->keyword, fn($q) => $q->where('name', 'like', "%{$request->keyword}%"))->get();
-
-               // foreach ($res as $app) {
-               //      $filteredInstancePriv = $app->instancePriviledge()
-               //           ->where('instance_id', $instanceId)
-               //           ->first();
-
-               //      $app->setRelation('instancePriviledge', $filteredInstancePriv);
-               // }
-
                $res = Apps::with([
                     'instancePriviledge' => function ($query) use ($instanceId) {
                          $query->where('instance_id', $instanceId);
@@ -43,7 +30,6 @@ class InstanceController extends Controller
                          $query->where('user_id', $userId);
                     }
                ])->when($request->keyword, fn($q) => $q->where('name', 'like', "%{$request->keyword}%"))->get();
-
 
                return response()->json([
                     'success' => true,

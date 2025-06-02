@@ -40,6 +40,8 @@ class HelloController extends Controller
 
      public function templateList(Request $request)
      {
+          ItsHelper::verifyToken($request->token);
+
           try {
                $res = Texts::where('app_id', 1)->when($request->keyword, function ($q) use ($request) {
                     $q->where('name', 'like', "%{$request->keyword}%");

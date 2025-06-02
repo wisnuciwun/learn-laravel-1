@@ -15,6 +15,27 @@ use App\Http\Controllers\Controller;
 
 class InstanceController extends Controller
 {
+     public function profile(Request $request)
+     {
+          $userData = ItsHelper::verifyToken($request->token);
+          $userId = $userData->id;
+
+          try {
+               $res = User::where('id', $userId)->get();
+
+               return response()->json([
+                    'success' => true,
+                    'message' => 'Get profile successfully',
+                    'data' => $res,
+               ], 200);
+          } catch (\Throwable $th) {
+               return response()->json([
+                    'success' => false,
+                    'errors' => $th->getMessage(),
+               ], 500);
+          }
+     }
+
      public function appList(Request $request)
      {
           $userData = ItsHelper::verifyToken($request->token);

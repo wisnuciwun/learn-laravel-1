@@ -577,7 +577,7 @@ class AdminController extends Controller
           try {
                $dataTransaction = AppPayments::with(['appPricing'])
                     ->where('transaction_id', $request->transaction_id)
-                    ->where('confirm_payment', 0)
+                    ->whereNull('confirm_payment')
                     ->latest()
                     ->first();
 

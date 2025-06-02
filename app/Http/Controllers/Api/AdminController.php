@@ -608,7 +608,7 @@ class AdminController extends Controller
                               $dataOwner = User::where('is_owner', '==', 1)
                                    ->where('id', $dataTransaction->user_id)
                                    ->first();
-                              $idRoleAppAdmin = Roles::where('name', 'app_admin')->first();
+                              $idRoleAppAdmin = Roles::where('name', 'App Admin')->first();
 
                               if (!$isAlreadyPriviledged && $dataOwner) {
                                    $dataNewPriviledge = [

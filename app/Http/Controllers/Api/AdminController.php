@@ -577,6 +577,7 @@ class AdminController extends Controller
           try {
                $dataTransaction = AppPayments::with(['appPricing'])
                     ->where('transaction_id', $request->transaction_id)
+                    ->where('confirm_payment', 0)
                     ->latest()
                     ->first();
 
@@ -630,7 +631,7 @@ class AdminController extends Controller
                          }
                     } else {
                          $success = false;
-                         $errors = 'Transaction ID data not found';
+                         $errors = 'Transaction ID data not found or has been confirmed';
                     }
                } else {
                     // $userNames = $dataUsers->pluck('name')->toArray();

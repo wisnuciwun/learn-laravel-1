@@ -653,11 +653,7 @@ class AdminController extends Controller
 
      public function manageRole(Request $request)
      {
-          $userData = ItsHelper::verifyToken($request->token);
-          $request->merge([
-               'instance_id' => $userData->instance->id,
-               'user_id' => $userData->id,
-          ]);
+          ItsHelper::verifyToken($request->token);
 
           $success = true;
           $errors = '';

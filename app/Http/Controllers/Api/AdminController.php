@@ -588,7 +588,7 @@ class AdminController extends Controller
                ];
                $userCount = (clone $dataUsers)->count();
                $price = optional($dataTransaction->appPricing)->price ?? 0;
-               $shouldPay = $price * $userCount;
+               $shouldPay = $price * $userCount != 0 ? $userCount : 1;
 
                if ($request->amount == $shouldPay) {
                     if ($dataTransaction) {

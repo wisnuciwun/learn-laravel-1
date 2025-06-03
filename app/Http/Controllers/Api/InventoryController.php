@@ -60,11 +60,11 @@ class InventoryController extends Controller
                     'description' => $request->description,
                     'price' => $request->price,
                     'base_price' => $request->base_price,
-                    'sku' => $request->base_price,
-                    'stock' => $request->base_price,
-                    'minimum_stock' => $request->base_price,
-                    'dummy_stock' => $request->base_price,
-                    'promotion_id' => $request->base_price,
+                    'sku' => $request->sku,
+                    'stock' => $request->stock,
+                    'minimum_stock' => $request->minimum_stock,
+                    'dummy_stock' => $request->dummy_stock,
+                    'promotion_id' => $request->promotion_id,
                ];
 
                if ($request->id) {

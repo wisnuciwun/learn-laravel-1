@@ -42,6 +42,7 @@ class InventoryController extends Controller
      {
           $userData = ItsHelper::verifyToken($request->token);
           $request->merge([
+               'instance_code' => $userData->instance->instance_code,
                'instance_id' => $userData->instance->id,
           ]);
 
@@ -51,12 +52,15 @@ class InventoryController extends Controller
 
           $validatedData = $request->validate([
                'name' => 'required|string|max:255',
-               'instance_id' => 'required|string|max:500',
+               'instance_code' => 'required',
+               'instance_id' => 'required',
           ]);
 
           try {
                $dataToSave = [
                     'name' => $validatedData['name'],
+                    'instance_code' => $validatedData['instance_code'],
+                    'instance_id' => $validatedData['instance_id'],
                     'description' => $request->description,
                     'price' => $request->price,
                     'base_price' => $request->base_price,

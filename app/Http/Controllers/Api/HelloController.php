@@ -5,6 +5,7 @@ use App\Helpers\InstanceHelper;
 use App\Helpers\ItsHelper;
 use App\Models\Fianut\Apps;
 use App\Models\Fianut\Instances;
+use App\Models\Fianut\InstanceSettings;
 use App\Models\Fianut\Texts;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -64,7 +65,7 @@ class HelloController extends Controller
      {
           $userData = ItsHelper::verifyToken($request->token);
           $request->merge([
-               'instance_id' => $userData->instance->id,
+               'instance_code' => $userData->instance->instance_code,
           ]);
 
           $success = true;
@@ -72,8 +73,9 @@ class HelloController extends Controller
           $data = [];
 
           $validatedData = $request->validate([
-               'instance_id' => 'required',
-               'title' => 'required|string|max:100'
+               'instance_code' => 'required',
+               'title' => 'required|string|max:100',
+               'hello_template_id' => 'required'
           ]);
 
           try {
@@ -82,20 +84,27 @@ class HelloController extends Controller
                     'slogan' => $request->slogan,
                     'promotion' => $request->promotion,
                     'third_party_links' => $request->third_party_links,
+                    'hello_template_id' => $validatedData['hello_template_id'],
                     // 'sort_by' => $request->img_heading,
                ];
 
-               $data = Instances::where('id', $request->id)->first();
+               $data = InstanceSettings::where('instance_code', $request->instance_code)->first();
 
-               if ($data->img_heading) {
-                    $image = ItsHelper::saveImage('client', true, $data->image, $request);
-                    $dataToSave['img_heading'] = $image;
-               } else {
-                    $image = ItsHelper::saveImage('client', false, null, $request);
-                    $dataToSave['img_heading'] = $image;
+               if (!empty($request->img_heading)) {
+                    if ($data->img_heading) {
+                         $image = ItsHelper::saveImage('client', true, $data->image, $request);
+                         $dataToSave['img_heading'] = $image;
+                    } else {
+                         $image = ItsHelper::saveImage('client', false, null, $request);
+                         $dataToSave['img_heading'] = $image;
+                    }
                }
 
-               $data->update($dataToSave);
+               if ($data) {
+                    $data->update($dataToSave);
+               } else {
+                    $data = InstanceSettings::create($dataToSave)->save();
+               }
 
                return response()->json([
                     'success' => $success,

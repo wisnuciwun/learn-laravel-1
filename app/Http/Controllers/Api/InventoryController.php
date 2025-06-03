@@ -71,7 +71,7 @@ class InventoryController extends Controller
                     $data = Inventory::where('id', $request->id)->first();
 
                     if ($data) {
-                         if (!empty($validatedData['image'])) {
+                         if (!empty($request->image)) {
                               $image = ItsHelper::saveImage('client', true, $data->image, $request);
                               $dataToSave['image'] = $image;
                          }
@@ -82,7 +82,7 @@ class InventoryController extends Controller
                          $errors = 'Inventory data not found';
                     }
                } else {
-                    if (!empty($validatedData['image'])) {
+                    if (!empty($request->image)) {
                          $image = ItsHelper::saveImage('client', false, null, $request);
                          $dataToSave['image'] = $image;
                     }

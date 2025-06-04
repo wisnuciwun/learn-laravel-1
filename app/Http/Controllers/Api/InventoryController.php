@@ -11,11 +11,6 @@ class InventoryController extends Controller
 {
      public function list(Request $request)
      {
-          $userData = ItsHelper::verifyToken($request->token);
-          $request->merge([
-               'instance_code' => $userData->instance->instance_code,
-          ]);
-
           try {
                $res = Inventory::when($request->keyword, function ($q) use ($request) {
                     $q->where('name', 'like', "%{$request->keyword}%");

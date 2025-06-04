@@ -20,7 +20,7 @@ class HelloController extends Controller
      public function showcase(Request $request)
      {
           try {
-               $dataInstance = Instances::with(['instanceSetting'])->where('instance_code', $request->instance_code)->first();
+               $dataInstance = InstanceSettings::where('instance_code', $request->instance_code)->first();
                $res = Texts::where('name', 'app_hello_template')->where('id', $dataInstance->instanceSetting->hello_template_id)->get();
 
                return response()->json([

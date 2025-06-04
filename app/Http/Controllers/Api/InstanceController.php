@@ -23,7 +23,7 @@ class InstanceController extends Controller
           $instanceCode = $userData->instance_code;
 
           try {
-               $res = User::where('id', $userId)->where('instance_code', $instanceCode)->where('is_owner', '!=', 1)->get();
+               $res = User::where('id', $userId)->select('name', 'gender', 'is_owner', 'email', 'address', 'instance_code', 'active', 'nickname')->where('instance_code', $instanceCode)->where('is_owner', '!=', 1)->get();
 
                return response()->json([
                     'success' => true,
@@ -46,9 +46,9 @@ class InstanceController extends Controller
           $instanceCode = $userData->instance->instance_code;
 
           try {
-               $resUser = User::where('id', $userId)->first();
-               $resInstance = Instances::where('id', $instanceId)->get();
-               $resInstanceSettings = InstanceSettings::where('instance_code', $instanceCode)->first();
+               $resUser = User::where('id', $userId)->select('name', 'gender', 'referral_code', 'email', 'address', 'income', 'outcome', 'target_per_month', 'saving', 'active', 'is_owner')->first();
+               $resInstance = Instances::where('id', $instanceId)->select('name', 'instance_code')->get();
+               $resInstanceSettings = InstanceSettings::where('instance_code', $instanceCode)->select('hello_template_id', 'instance_code', 'title', 'slogan', 'promotion', 'third_party_links', 'img_heading')->first();
 
                return response()->json([
                     'success' => true,

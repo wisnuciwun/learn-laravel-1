@@ -4,7 +4,8 @@ use App\Helpers\ItsHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Fianut\Instances;
 use App\Models\Fianut\Inventory;
-use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Request;
 
 class InventoryController extends Controller
 {

@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Helpers\ItsHelper;
 use App\Models\Fianut\Instances;
+use App\Models\Fianut\InstanceSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
@@ -100,7 +101,12 @@ class AuthController extends Controller
                 'instance_type' => $request->instance_id,
                 'instance_code' => $instance_code,
                 'user_id' => $user->id
-            ]);
+            ])->save();
+
+            InstanceSettings::create([
+                'title' => $request->instance_name,
+                'instance_code' => $instance_code,
+            ])->save();
         }
 
         return response()->json([

@@ -28,7 +28,7 @@ class HelloController extends Controller
                     'message' => 'Get hello template list successful',
                     'data' => [
                          'template_html' => $res->data,
-                         'instance_setting' => $dataInstanceSetting
+                         'instance_settings' => $dataInstanceSetting
                     ],
                ], 200);
           } catch (\Throwable $th) {

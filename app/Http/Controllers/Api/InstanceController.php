@@ -5,6 +5,7 @@ use App\Helpers\ItsHelper;
 use App\Models\Fianut\Apps;
 use App\Models\Fianut\InstancePriviledges;
 use App\Models\Fianut\Instances;
+use App\Models\Fianut\InstanceSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
@@ -42,10 +43,12 @@ class InstanceController extends Controller
           $userData = ItsHelper::verifyToken($request->token);
           $userId = $userData->id;
           $instanceId = $userData->instance->id;
+          $instanceCode = $userData->instance->instance_code;
 
           try {
                $resUser = User::where('id', $userId)->first();
-               $resInstance = Instances::where('id', $instanceId)->first();
+               $resInstance = Instances::where('id', $instanceId)->get();
+               $resInstanceSettings = InstanceSettings::where('instance_code', $instanceCode)->first();
 
                return response()->json([
                     'success' => true,
@@ -53,7 +56,7 @@ class InstanceController extends Controller
                     'data' => [
                          'user' => $resUser,
                          'instance' => $resInstance,
-
+                         'instance_settings' => $resInstanceSettings,
                     ],
                ], 200);
           } catch (\Throwable $th) {

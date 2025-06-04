@@ -92,7 +92,7 @@ class HelloController extends Controller
                $data = InstanceSettings::where('instance_code', $request->instance_code)->first();
 
                if (!empty($request->img_heading)) {
-                    if (isset($data->img_heading)) {
+                    if (!empty($data->img_heading)) {
                          $image = ItsHelper::saveImage('client', true, $data->img_heading, $request, 'img_heading');
                          $dataToSave['img_heading'] = $image;
                     } else {

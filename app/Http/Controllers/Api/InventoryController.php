@@ -17,8 +17,6 @@ class InventoryController extends Controller
           ]);
 
           try {
-               $instanceId = Instances::where('instance_code', $request->instance_code)->select('id')->first();
-
                $res = Inventory::when($request->keyword, function ($q) use ($request) {
                     $q->where('name', 'like', "%{$request->keyword}%");
                })
@@ -28,7 +26,7 @@ class InventoryController extends Controller
                     ->when($request->limit != '', function ($q) use ($request) {
                          $q->limit($request->limit);
                     })
-                    ->where('instance_code', $instanceId)
+                    ->where('instance_code', $request->instance_code)
                     ->get();
 
                return response()->json([

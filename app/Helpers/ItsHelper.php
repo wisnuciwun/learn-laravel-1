@@ -78,16 +78,16 @@ class ItsHelper
           return $referralCode;
      }
 
-     public static function saveImage(string $type, bool $replace, $existing_img_path, $req = null)
+     public static function saveImage(string $type, bool $replace, $existing_img_path, $req = null, $image_name = 'image')
      {
-          if ($req->hasFile('image')) {
+          if ($req->hasFile($image_name)) {
                // Upload new image
                if ($type == 'system') {
-                    $path = $req->file('image')->store('public/fianut/system');
+                    $path = $req->file($image_name)->store('public/fianut/system');
                } else if ($type == 'client') {
-                    $path = $req->file('image')->store('public/fianut/client');
+                    $path = $req->file($image_name)->store('public/fianut/client');
                } else {
-                    $path = $req->file('image')->store('public/fianut/other');
+                    $path = $req->file($image_name)->store('public/fianut/other');
                }
 
                // Delete the old image if it exists

@@ -85,6 +85,7 @@ class HelloController extends Controller
                     'promotion' => $request->promotion,
                     'third_party_links' => $request->third_party_links,
                     'hello_template_id' => $validatedData['hello_template_id'],
+                    'instance_code' => $validatedData['instance_code'],
                     // 'sort_by' => $request->img_heading,
                ];
 
@@ -92,10 +93,10 @@ class HelloController extends Controller
 
                if (!empty($request->img_heading)) {
                     if (isset($data->img_heading)) {
-                         $image = ItsHelper::saveImage('client', true, $data->image, $request);
+                         $image = ItsHelper::saveImage('client', true, $data->image, $request, 'img_heading');
                          $dataToSave['img_heading'] = $image;
                     } else {
-                         $image = ItsHelper::saveImage('client', false, null, $request);
+                         $image = ItsHelper::saveImage('client', false, null, $request, 'img_heading');
                          $dataToSave['img_heading'] = $image;
                     }
                }

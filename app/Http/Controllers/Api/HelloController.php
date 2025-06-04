@@ -20,15 +20,15 @@ class HelloController extends Controller
      public function showcase(Request $request)
      {
           try {
-               $dataInstance = InstanceSettings::where('instance_code', $request->instance_code)->first();
-               $res = Texts::where('name', 'app_hello_template')->where('id', $dataInstance->instanceSetting->hello_template_id)->get();
+               $dataInstanceSetting = InstanceSettings::where('instance_code', $request->instance_code)->select('instance_code', 'hello_template_id', 'title', 'slogan', 'promotion', 'third_party_links', 'img_heading')->first();
+               $res = Texts::where('name', 'app_hello_template')->where('id', $dataInstanceSetting->hello_template_id)->get();
 
                return response()->json([
                     'success' => true,
                     'message' => 'Get hello template list successful',
                     'data' => [
                          'template_html' => $res->data,
-                         'instance_data' => $dataInstance
+                         'instance_setting' => $dataInstanceSetting
                     ],
                ], 200);
           } catch (\Throwable $th) {

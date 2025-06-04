@@ -94,12 +94,13 @@ class HelloController extends Controller
                if (!empty($request->img_heading)) {
                     if (!empty($data->img_heading)) {
                          $image = ItsHelper::saveImage('client', true, $data->img_heading, $request, 'img_heading');
-                         $dataToSave['img_heading'] = $image;
                     } else {
-                         $image = ItsHelper::saveImage('client', false, null, $data->img_heading, 'img_heading');
-                         $dataToSave['img_heading'] = $image;
+                         $image = ItsHelper::saveImage('client', false, null, $request, 'img_heading');
                     }
+
+                    $dataToSave['img_heading'] = $image;
                }
+
 
                if ($data) {
                     $data->update($dataToSave);

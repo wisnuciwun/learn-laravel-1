@@ -21,7 +21,7 @@ class HelloController extends Controller
      {
           try {
                $dataInstanceSetting = InstanceSettings::where('instance_code', $request->instance_code)->select('instance_code', 'hello_template_id', 'title', 'slogan', 'promotion', 'third_party_links', 'img_heading')->first();
-               $res = Texts::where('name', 'app_hello_template')->where('id', $dataInstanceSetting->hello_template_id)->get();
+               $res = Texts::where('name', 'app_hello_template')->where('id', $dataInstanceSetting->hello_template_id)->first();
 
                return response()->json([
                     'success' => true,

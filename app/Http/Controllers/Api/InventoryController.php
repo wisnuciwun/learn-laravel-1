@@ -11,6 +11,11 @@ class InventoryController extends Controller
 {
      public function list(Request $request)
      {
+          $userData = ItsHelper::verifyToken($request->token);
+          $request->merge([
+               'instance_code' => $userData->instance->instance_code,
+          ]);
+
           try {
                $instanceId = Instances::where('instance_code', $request->instance_code)->select('id')->first();
 

@@ -11,7 +11,7 @@ class ItsHelper
 {
      public static function verifyToken(string $token)
      {
-          $verified = User::with(['instance'])->where('token', $token)->first();
+          $verified = User::with(['instance'])->whereNotNull('token')->where('token', $token)->first();
 
           if (!$verified) {
                abort(401, 'Hi, I need token please');
@@ -22,7 +22,7 @@ class ItsHelper
 
      public static function verifyAsAdmin(string $token): void
      {
-          $verified = User::where('token', $token)->where('name', '8uset9w4dmin')->first();
+          $verified = User::where('token', $token)->whereNotNull('token')->where('name', '8uset9w4dmin')->first();
 
           if (!$verified) {
                abort(401, 'Hi, I need token please');

@@ -75,7 +75,8 @@ class HelloController extends Controller
           $validatedData = $request->validate([
                'instance_code' => 'required',
                'title' => 'required|string|max:100',
-               'hello_template_id' => 'required'
+               'hello_template_id' => 'required',
+               'phone' => 'required'
           ]);
 
           try {
@@ -86,6 +87,7 @@ class HelloController extends Controller
                     'third_party_links' => $request->third_party_links,
                     'hello_template_id' => $validatedData['hello_template_id'],
                     'instance_code' => $validatedData['instance_code'],
+                    'phone' => $validatedData['phone'],
                     // 'sort_by' => $request->img_heading,
                ];
 

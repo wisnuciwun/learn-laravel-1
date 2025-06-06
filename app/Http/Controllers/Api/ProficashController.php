@@ -21,7 +21,7 @@ use App\Http\Controllers\Controller;
 
 class ProficashController extends Controller
 {
-     public function getTransactions(Request $request)
+     public function transactions(Request $request)
      {
           $userData = ItsHelper::verifyToken($request->token);
           $request->merge([

@@ -68,10 +68,12 @@ class ProficashController extends Controller
                     'message' => $errors ? '' : "Successfully saved transaction",
                     'data' => [
                          'transactions' => $data,
-                         'total_sales' => $totalSales,
-                         'total_base_price' => $totalBasePrice,
-                         'employee_sallary' => 0,
-                         'additional_cost' => 0
+                         'highlight' => [
+                              'total_sales' => $totalSales,
+                              'total_base_price' => $totalBasePrice,
+                              'employee_sallary' => 0,
+                              'additional_cost' => 0
+                         ]
                     ],
                     'errors' => $errors
                ], 200);

@@ -34,7 +34,7 @@ class ProficashController extends Controller
           $data = [];
 
           try {
-               $data = TransactionsIn::with('inventory:name,image,price,base_price')
+               $data = TransactionsIn::with('inventory:id,name,image,price,base_price')
                     ->where('instance_id', $request->instance_id)
                     ->when($request->start_date != '' && $request->end_date != '', function ($q) use ($request) {
                          $q->whereBetween('created_at', [$request->start_date . " 00:00:00", $request->end_date . ' 23:59:59']);

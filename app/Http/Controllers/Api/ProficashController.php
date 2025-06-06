@@ -79,40 +79,39 @@ class ProficashController extends Controller
      public function addTransactionIn(Request $request)
      {
           $userData = ItsHelper::verifyToken($request->token);
-          $request->merge([
-               'instance_id' => $userData->instance->id,
-               'user_id' => $userData->id,
-          ]);
 
           $success = true;
           $errors = '';
           $data = [];
 
-          $validatedData = $request->validate([
-               'instance_id' => 'required',
-               'user_id' => 'required',
-               'inventory_id' => 'required',
-               'price' => 'required|integer',
-               'quantity' => 'required|integer',
+          $validated = $request->validate([
+               'transactions' => 'required|array',
+               'transactions.*.inventory_id' => 'required|integer',
+               'transactions.*.price' => 'required|integer',
+               'transactions.*.quantity' => 'required|integer',
           ]);
+
+          $dataToInsert = collect($validated['transactions'])->map(function ($item) use ($userData) {
+               return [
+                    'instance_id' => $userData->instance->id,
+                    'user_id' => $userData->id,
+                    'inventory_id' => $item['inventory_id'],
+                    'price' => $item['price'],
+                    'quantity' => $item['quantity'],
+                    'created_at' => now(),
+                    'updated_at' => now(),
+               ];
+          })->toArray();
 
           try {
                $dataToCreate = [
-                    'instance_id' => $validatedData['instance_id'],
-                    'price' => $validatedData['price'],
-                    'quantity' => $validatedData['quantity'],
-                    'user_id' => $validatedData['user_id'],
-                    'inventory_id' => $validatedData['inventory_id']
+                    'instance_id' => $dataToInsert['instance_id'],
+                    'price' => $dataToInsert['price'],
+                    'quantity' => $dataToInsert['quantity'],
+                    'user_id' => $dataToInsert['user_id'],
+                    'inventory_id' => $dataToInsert['inventory_id']
                ];
-               $dataInstance = Instances::where('id', $request->instance_id)->first();
-               $dataInventory = Inventory::where('id', $request->inventory_id)->first();
-
-               if ($dataInstance && $dataInventory) {
-                    $data = TransactionsIn::insert($dataToCreate);
-               } else {
-                    $success = false;
-                    $errors = 'Required data not found';
-               }
+               $data = TransactionsIn::insert($dataToCreate);
 
                return response()->json([
                     'success' => $success,

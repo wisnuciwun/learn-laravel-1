@@ -93,22 +93,18 @@ class ProficashController extends Controller
 
           $dataToInsert = collect($validated['transactions'])->map(function ($item) use ($userData) {
                return [
-                    'instance_id' => $userData->instance->id,
-                    'user_id' => $userData->id,
                     'inventory_id' => $item['inventory_id'],
                     'price' => $item['price'],
                     'quantity' => $item['quantity'],
-                    'created_at' => now(),
-                    'updated_at' => now(),
                ];
           })->toArray();
 
           try {
                $dataToCreate = [
-                    'instance_id' => $dataToInsert['instance_id'],
+                    'instance_id' => $userData->instance->id,
+                    'user_id' => $userData->id,
                     'price' => $dataToInsert['price'],
                     'quantity' => $dataToInsert['quantity'],
-                    'user_id' => $dataToInsert['user_id'],
                     'inventory_id' => $dataToInsert['inventory_id']
                ];
                $data = TransactionsIn::insert($dataToCreate);

@@ -80,10 +80,6 @@ class ProficashController extends Controller
      {
           $userData = ItsHelper::verifyToken($request->token);
 
-          $success = true;
-          $errors = '';
-          $data = [];
-
           $validated = $request->validate([
                'transactions' => 'required|array',
                'transactions.*.inventory_id' => 'required|integer',
@@ -93,27 +89,24 @@ class ProficashController extends Controller
 
           $dataToInsert = collect($validated['transactions'])->map(function ($item) use ($userData) {
                return [
+                    'instance_id' => $userData->instance->id,
+                    'user_id' => $userData->id,
                     'inventory_id' => $item['inventory_id'],
                     'price' => $item['price'],
                     'quantity' => $item['quantity'],
+                    'created_at' => now(),
+                    'updated_at' => now(),
                ];
           })->toArray();
 
           try {
-               $dataToCreate = [
-                    'instance_id' => $userData->instance->id,
-                    'user_id' => $userData->id,
-                    'price' => $dataToInsert['price'],
-                    'quantity' => $dataToInsert['quantity'],
-                    'inventory_id' => $dataToInsert['inventory_id']
-               ];
-               $data = TransactionsIn::insert($dataToCreate);
+               TransactionsIn::insert($dataToInsert);
 
                return response()->json([
-                    'success' => $success,
-                    'message' => $errors ? '' : "Successfully saved transaction",
-                    'data' => $data,
-                    'errors' => $errors
+                    'success' => true,
+                    'message' => 'Successfully saved transaction(s)',
+                    'data' => $dataToInsert,
+                    'errors' => null,
                ], 200);
           } catch (\Exception $th) {
                return response()->json([
@@ -122,5 +115,4 @@ class ProficashController extends Controller
                ], 500);
           }
      }
-
 }

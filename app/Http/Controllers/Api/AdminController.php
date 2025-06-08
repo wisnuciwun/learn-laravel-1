@@ -52,6 +52,41 @@ class AdminController extends Controller
           return response()->file($path);
      }
 
+     public function roles(Request $request)
+     {
+          ItsHelper::verifyToken($request->token);
+
+          $success = true;
+          $errors = '';
+          $data = [];
+
+          try {
+               $data = Roles::when($request->keyword, function ($q) use ($request) {
+                    $q->where('name', 'like', "%{$request->keyword}%");
+               })
+                    ->when($request->limit, function ($q) use ($request) {
+                         $q->limit($request->limit);
+                    })
+                    ->when($request->sort_by, function ($q) use ($request) {
+                         $q->orderBy($request->sort_by);
+                    })
+                    ->orWhereNull('instance_id') // universal roles
+                    ->get();
+
+               return response()->json([
+                    'success' => $success,
+                    'message' => 'Get settings list successfully',
+                    'data' => $data,
+                    'errors' => $errors
+               ], 200);
+          } catch (\Throwable $th) {
+               return response()->json([
+                    'success' => false,
+                    'errors' => $th->getMessage(),
+               ], 500);
+          }
+     }
+
      public function settings(Request $request)
      {
           ItsHelper::verifyToken($request->token);
@@ -681,7 +716,7 @@ class AdminController extends Controller
                               $dataTransaction->update($dataToSave);
 
                               $isAlreadyPriviledged = UserPriviledges::where('user_id', $dataTransaction->user_id)->where('app_id', $dataTransaction->app_id)->first();
-                              $idRoleAppAdmin = Roles::where('name', 'App Admin')->first();
+                              $idRoleAppAdmin = Roles::where('name', 'app_admin')->first();
 
                               if (!$isAlreadyPriviledged) {
                                    $dataNewPriviledge = [

@@ -519,7 +519,6 @@ class AdminController extends Controller
           $userData = ItsHelper::verifyToken($request->token);
           $request->merge([
                'instance_id' => $userData->instance->id,
-               'user_id' => $userData->id,
           ]);
 
           $success = true;

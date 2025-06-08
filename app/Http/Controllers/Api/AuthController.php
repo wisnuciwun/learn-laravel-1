@@ -29,12 +29,10 @@ class AuthController extends Controller
         }
 
         // Load user with priviledges for that app
-        $user = User::with('checkUserPriviledge')
-            ->where('id', $userData->id)
-            ->first();
+        $user = User::with('userPriviledges')->where('id', $userData->id)->first();
 
         // Filter userPriviledges to find matching app_id
-        $hasPriviledge = $user->checkUserPriviledge->firstWhere('app_id', $app->id);
+        $hasPriviledge = $user->userPriviledges->firstWhere('app_id', $app->id);
 
         if ($hasPriviledge) {
             return response()->json([

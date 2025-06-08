@@ -75,7 +75,7 @@ class AdminController extends Controller
 
                return response()->json([
                     'success' => $success,
-                    'message' => 'Get settings list successfully',
+                    'message' => 'Get roles list successfully',
                     'data' => $data,
                     'errors' => $errors
                ], 200);
@@ -106,7 +106,7 @@ class AdminController extends Controller
                     ->when($request->app_id, function ($q) use ($request) {
                          $q->where('app_id', '=', $request->app_id);
                     })
-                    ->latest()->first();
+                    ->get();
 
                return response()->json([
                     'success' => $success,

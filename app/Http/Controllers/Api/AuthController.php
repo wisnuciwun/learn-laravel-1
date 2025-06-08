@@ -155,4 +155,26 @@ class AuthController extends Controller
         ]);
     }
 
+    public function logout(Request $request)
+    {
+        ItsHelper::verifyToken($request->token);
+        $user = User::where('token', $request->token)->first();
+
+        if ($user) {
+            $user->update([
+                'token' => ''
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Logout successful',
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Logout fail',
+            ]);
+        }
+    }
+
 }

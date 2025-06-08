@@ -9,6 +9,7 @@ use App\Models\Fianut\InstancePriviledges;
 use App\Models\Fianut\Instances;
 use App\Models\Fianut\InstanceTypes;
 use App\Models\Fianut\Roles;
+use App\Models\Fianut\Settings;
 use App\Models\Fianut\Texts;
 use App\Models\Fianut\UserPriviledges;
 use Illuminate\Http\Request;
@@ -382,6 +383,56 @@ class AdminController extends Controller
                return response()->json([
                     'success' => $success,
                     'message' => $errors ? '' : "Successfully saved texts changes",
+                    'data' => $data,
+                    'errors' => $errors
+               ], 200);
+          } catch (\Throwable $th) {
+               return response()->json([
+                    'success' => false,
+                    'errors' => $th->getMessage(),
+               ], 500);
+          }
+     }
+
+     public function manageSettings(Request $request)
+     {
+          ItsHelper::verifyToken($request->token);
+
+          $success = true;
+          $errors = '';
+          $data = [];
+
+          $validatedData = $request->validate([
+               'name' => 'required|string|max:255'
+          ]);
+
+          try {
+               $dataToSave = [
+                    'name' => $validatedData['name'],
+                    'value' => $request->value,
+                    'type' => $request->type,
+                    'instance_code' => $request->instance_code,
+                    'instance_id' => $request->instance_id,
+                    'app_id' => $request->app_id,
+                    'user_id' => $request->user_id,
+               ];
+
+               if ($request->id) {
+                    $data = Settings::where('id', $request->id)->first();
+
+                    if ($data) {
+                         $data->update($dataToSave);
+                    } else {
+                         $success = false;
+                         $errors = 'Settings data not found';
+                    }
+               } else {
+                    $data = Settings::create($dataToSave)->save();
+               }
+
+               return response()->json([
+                    'success' => $success,
+                    'message' => $errors ? '' : "Successfully saved settings changes",
                     'data' => $data,
                     'errors' => $errors
                ], 200);

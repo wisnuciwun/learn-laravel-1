@@ -52,6 +52,31 @@ class AdminController extends Controller
           return response()->file($path);
      }
 
+     public function settings(Request $request)
+     {
+          ItsHelper::verifyToken($request->token);
+
+          $success = true;
+          $errors = '';
+          $data = [];
+
+          try {
+               $data = Settings::where('name', '=', $request->keyword)->latest()->first();
+
+               return response()->json([
+                    'success' => $success,
+                    'message' => 'Get settings list successfully',
+                    'data' => $data,
+                    'errors' => $errors
+               ], 200);
+          } catch (\Throwable $th) {
+               return response()->json([
+                    'success' => false,
+                    'errors' => $th->getMessage(),
+               ], 500);
+          }
+     }
+
      public function appList(Request $request)
      {
           try {

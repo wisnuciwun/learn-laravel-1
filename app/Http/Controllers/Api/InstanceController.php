@@ -23,7 +23,7 @@ class InstanceController extends Controller
           $instanceCode = $userData->instance_code;
 
           try {
-               $res = User::with(['userPriviledges'])->
+               $res = User::with(['userPriviledges.app:id,name,app_id,link'])->
                     select('name', 'gender', 'is_owner', 'email', 'address', 'instance_code', 'active', 'nickname')->where('instance_code', $instanceCode)->where('is_owner', '!=', 1)->get();
 
                return response()->json([

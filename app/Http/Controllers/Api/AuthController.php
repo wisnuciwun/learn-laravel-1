@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Helpers\ItsHelper;
+use App\Models\Fianut\Apps;
 use App\Models\Fianut\Instances;
 use App\Models\Fianut\InstanceSettings;
 use Illuminate\Http\Request;
@@ -14,6 +15,41 @@ use App\Http\Controllers\Controller;
 
 class AuthController extends Controller
 {
+    public function verifyToken(Request $request)
+    {
+        $userData = ItsHelper::verifyToken($request->token);
+
+        // Get app by name
+        $app = Apps::where('name', $request->app_name)->first();
+        if (!$app) {
+            return response()->json([
+                'success' => false,
+                'message' => 'App not found',
+            ], 404);
+        }
+
+        // Load user with priviledges for that app
+        $user = User::with('checkUserPriviledge')
+            ->where('id', $userData->id)
+            ->first();
+
+        // Filter userPriviledges to find matching app_id
+        $hasPriviledge = $user->checkUserPriviledge->firstWhere('app_id', $app->id);
+
+        if ($hasPriviledge) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Token validated & has privilege',
+            ], 200);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Token valid but no access to this app',
+        ], 403);
+    }
+
+
     public function googleSignIn(Request $request)
     {
         $request->validate([

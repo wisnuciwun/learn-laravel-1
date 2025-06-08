@@ -23,7 +23,7 @@ class InstanceController extends Controller
           $instanceCode = $userData->instance_code;
 
           try {
-               $res = User::where('id', $userId)->select('name', 'gender', 'is_owner', 'email', 'address', 'instance_code', 'active', 'nickname')->where('instance_code', $instanceCode)->where('is_owner', '!=', 1)->get();
+               $res = User::select('name', 'gender', 'is_owner', 'email', 'address', 'instance_code', 'active', 'nickname')->where('instance_code', $instanceCode)->where('is_owner', '!=', 1)->get();
 
                return response()->json([
                     'success' => true,

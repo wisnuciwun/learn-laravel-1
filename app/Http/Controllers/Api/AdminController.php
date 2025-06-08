@@ -96,7 +96,17 @@ class AdminController extends Controller
           $data = [];
 
           try {
-               $data = Settings::where('name', '=', $request->keyword)->latest()->first();
+               $data = Settings::
+                    when($request->keyword_like, function ($q) use ($request) {
+                         $q->where('name', 'like', "%$request->keyword%");
+                    })
+                    ->when($request->keyword_match, function ($q) use ($request) {
+                         $q->where('name', '=', $request->keyword);
+                    })
+                    ->when($request->app_id, function ($q) use ($request) {
+                         $q->where('app_id', '=', $request->app_id);
+                    })
+                    ->latest()->first();
 
                return response()->json([
                     'success' => $success,

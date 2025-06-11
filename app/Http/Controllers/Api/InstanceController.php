@@ -85,6 +85,9 @@ class InstanceController extends Controller
 
           try {
                $data = Apps::with([
+                    'appPayment' => function ($query) use ($userId) {
+                         $query->where('user_id', $userId);
+                    },
                     'instancePriviledge' => function ($query) use ($instanceId) {
                          $query->where('instance_id', $instanceId);
                     },

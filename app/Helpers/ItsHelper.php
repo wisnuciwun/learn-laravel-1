@@ -6,6 +6,7 @@ use App\Models\Fianut\Images;
 use App\Models\Fianut\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ItsHelper
 {
@@ -29,12 +30,16 @@ class ItsHelper
           }
      }
 
+
      public static function generateTransactionCode(string $instanceCode): string
      {
-          $date = Carbon::now()->format('Ymd'); // e.g. 20240529
-          $baseCode = "{$date}-{$instanceCode}";
-          return $baseCode;
+          $timestamp = (int) (microtime(true) * 1000);
+          $encodedTime = strtoupper(base_convert($timestamp, 10, 36)); // e.g. "LQ1VJ83"
+          $random = strtoupper(Str::random(3)); // e.g. "Z8M"
+
+          return "{$encodedTime}-{$instanceCode}-{$random}";
      }
+
 
      public static function generateInstanceCode(string $instanceName): string
      {

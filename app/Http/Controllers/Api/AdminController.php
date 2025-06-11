@@ -575,6 +575,44 @@ class AdminController extends Controller
           }
      }
 
+     public function checkPayment(Request $request)
+     {
+          $userData = ItsHelper::verifyToken($request->token);
+          $request->merge([
+               'instance_id' => $userData->instance->id,
+               'user_id' => $userData->id,
+               'instance_code' => $userData->instance->instance_code,
+          ]);
+
+          $validatedData = $request->validate([
+               'app_id' => 'required',
+          ]);
+
+          try {
+               $res = AppPayments::when($request->keyword, function ($q) use ($request) {
+                    $q->where('transaction_id', 'like', "%{$request->keyword}%");
+               })
+                    ->when($request->app_id, function ($q) use ($validatedData) {
+                         $q->where($validatedData['app_id']);
+                    })
+                    ->when($request->user_id, function ($q) use ($request) {
+                         $q->where($request->user_id);
+                    })
+                    ->get();
+
+               return response()->json([
+                    'success' => true,
+                    'message' => 'Get payment data successfully',
+                    'data' => $res,
+               ], 200);
+          } catch (\Throwable $th) {
+               return response()->json([
+                    'success' => false,
+                    'errors' => $th->getMessage(),
+               ], 500);
+          }
+     }
+
      public function requestPayment(Request $request)
      {
           $userData = ItsHelper::verifyToken($request->token);

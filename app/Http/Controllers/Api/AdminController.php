@@ -813,7 +813,13 @@ class AdminController extends Controller
 
      public function manageRole(Request $request)
      {
-          ItsHelper::verifyToken($request->token);
+          $userData = ItsHelper::verifyToken($request->token);
+          if ($userData->name != '8uset9w4dmin') {
+               $request->merge([
+                    'instance_id' => $userData->instance->id,
+                    'user_id' => $userData->id,
+               ]);
+          }
 
           $success = true;
           $errors = '';

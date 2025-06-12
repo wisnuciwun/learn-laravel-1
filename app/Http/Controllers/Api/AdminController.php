@@ -54,7 +54,11 @@ class AdminController extends Controller
 
      public function roles(Request $request)
      {
-          ItsHelper::verifyToken($request->token);
+          $userData = ItsHelper::verifyToken($request->token);
+          $request->merge([
+               'instance_id' => $userData->instance->id,
+               'user_id' => $userData->id,
+          ]);
 
           $success = true;
           $errors = '';
@@ -70,6 +74,7 @@ class AdminController extends Controller
                     ->when($request->sort_by, function ($q) use ($request) {
                          $q->orderBy($request->sort_by);
                     })
+                    ->where('instance_id', $request->instance_id)
                     ->orWhereNull('instance_id') // universal roles
                     ->get();
 

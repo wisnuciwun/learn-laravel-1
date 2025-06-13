@@ -89,6 +89,7 @@ class ProficashController extends Controller
      public function addTransactionIn(Request $request)
      {
           $userData = ItsHelper::verifyToken($request->token);
+          $transactionCode = ItsHelper::generateTransactionCode($userData->instance->instance_code);
 
           $validated = $request->validate([
                'transactions' => 'required|array',
@@ -97,9 +98,10 @@ class ProficashController extends Controller
                'transactions.*.quantity' => 'required|integer',
           ]);
 
-          $dataToInsert = collect($validated['transactions'])->map(function ($item) use ($userData) {
+          $dataToInsert = collect($validated['transactions'])->map(function ($item) use ($userData, $transactionCode) {
                return [
                     'instance_id' => $userData->instance->id,
+                    'transaction_code' => $transactionCode,
                     'user_id' => $userData->id,
                     'inventory_id' => $item['inventory_id'],
                     'price' => $item['price'],
@@ -117,6 +119,49 @@ class ProficashController extends Controller
                     'message' => 'Successfully saved transaction(s)',
                     'data' => $dataToInsert,
                     'errors' => null,
+               ], 200);
+          } catch (\Exception $th) {
+               return response()->json([
+                    'success' => false,
+                    'errors' => $th->getMessage(),
+               ], 500);
+          }
+     }
+
+     public function deleteTransactionIn(Request $request)
+     {
+          $userData = ItsHelper::verifyToken($request->token);
+          $request->merge([
+               'instance_code' => $userData->instance->instance_code,
+               'instance_id' => $userData->instance->id,
+               'user_id' => $userData->id
+          ]);
+
+          $success = true;
+          $errors = '';
+          $data = [];
+
+          $validatedData = $request->validate([
+               'transaction_code' => 'required|array',
+               'transaction_code.*' => 'string'
+          ]);
+
+          try {
+               $transactions = TransactionsIn::whereIn('transaction_code', $validatedData['transaction_code'])->get();
+
+               if ($transactions->isEmpty()) {
+                    $success = false;
+                    $errors = 'No transaction found to delete';
+               } else {
+                    $data = $transactions->toArray();
+                    TransactionsIn::whereIn('transaction_code', $transactions->pluck('transaction_code'))->delete();
+               }
+
+               return response()->json([
+                    'success' => $success,
+                    'message' => $errors ? '' : "Successfully delete transaction",
+                    'data' => $data,
+                    'errors' => $errors
                ], 200);
           } catch (\Exception $th) {
                return response()->json([

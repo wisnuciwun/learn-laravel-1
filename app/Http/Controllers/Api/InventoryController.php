@@ -37,6 +37,58 @@ class InventoryController extends Controller
           }
      }
 
+     public function delete(Request $request)
+     {
+          $userData = ItsHelper::verifyToken($request->token);
+          $request->merge([
+               'instance_code' => $userData->instance->instance_code,
+               'instance_id' => $userData->instance->id,
+               'user_id' => $userData->id
+          ]);
+
+          $success = true;
+          $errors = '';
+          $data = [];
+
+          $validatedData = $request->validate([
+               'id' => 'required|array',
+               'id.*' => 'integer'
+          ]);
+
+          try {
+               if ($userData->is_owner == 1) {
+                    $inventories = Inventory::whereIn('id', $validatedData['id'])
+                         ->where('instance_code', $request->instance_code)
+                         ->get();
+
+                    if ($inventories->isEmpty()) {
+                         $success = false;
+                         $errors = 'No inventory found to delete.';
+                    } else {
+                         $data = $inventories->toArray();
+                         Inventory::whereIn('id', $inventories->pluck('id'))->delete();
+                    }
+
+               } else {
+                    $success = false;
+                    $errors = 'User not allowed';
+               }
+
+
+               return response()->json([
+                    'success' => $success,
+                    'message' => $errors ? '' : "Successfully delete inventory",
+                    'data' => $data,
+                    'errors' => $errors
+               ], 200);
+          } catch (\Exception $th) {
+               return response()->json([
+                    'success' => false,
+                    'errors' => $th->getMessage(),
+               ], 500);
+          }
+     }
+
      public function manage(Request $request)
      {
           $userData = ItsHelper::verifyToken($request->token);

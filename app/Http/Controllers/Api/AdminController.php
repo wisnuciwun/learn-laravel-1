@@ -582,26 +582,20 @@ class AdminController extends Controller
 
      public function checkPayment(Request $request)
      {
-          $userData = ItsHelper::verifyToken($request->token);
-          $request->merge([
-               'instance_id' => $userData->instance->id,
-               'user_id' => $userData->id,
-               'instance_code' => $userData->instance->instance_code,
-          ]);
-
-          $validatedData = $request->validate([
-               'app_id' => 'required',
-          ]);
+          ItsHelper::verifyToken($request->token);
 
           try {
                $res = AppPayments::when($request->keyword, function ($q) use ($request) {
                     $q->where('transaction_id', 'like', "%{$request->keyword}%");
                })
-                    ->when($request->app_id, function ($q) use ($validatedData) {
-                         $q->where($validatedData['app_id']);
+                    ->when($request->app_id, function ($q) use ($request) {
+                         $q->where($request->app_id);
                     })
                     ->when($request->user_id, function ($q) use ($request) {
                          $q->where($request->user_id);
+                    })
+                    ->when($request->instance_code, function ($q) use ($request) {
+                         $q->where($request->instance_code);
                     })
                     ->get();
 
@@ -634,6 +628,7 @@ class AdminController extends Controller
           $validatedData = $request->validate([
                'user_id' => 'required',
                'instance_id' => 'required',
+               'instance_code' => 'required',
                'app_id' => 'required',
                'app_pricings_id' => 'required',
           ]);
@@ -649,6 +644,7 @@ class AdminController extends Controller
                     $dataNewInstancePriviledge = [
                          'user_id' => $validatedData['user_id'],
                          'instance_id' => $validatedData['instance_id'],
+                         'instance_code' => $validatedData['instance_code'],
                          'app_id' => $validatedData['app_id'],
                          'app_pricings_id' => $validatedData['app_pricings_id'],
                          'expired_at' => null,
@@ -681,7 +677,7 @@ class AdminController extends Controller
 
                // Step 3: Prevent duplicate pending payments
                $exists = AppPayments::where('user_id', $request->user_id)
-                    ->where('instance_id', $request->instance_id)
+                    ->where('instance_code', $request->instance_code)
                     ->where('app_id', $request->app_id)
                     ->whereNull('confirm_payment')
                     ->exists();
@@ -700,7 +696,7 @@ class AdminController extends Controller
                // Step 5: Save payment request
                $dataToSave = [
                     'user_id' => $validatedData['user_id'],
-                    'instance_id' => $validatedData['instance_id'],
+                    'instance_code' => $validatedData['instance_code'],
                     'app_id' => $validatedData['app_id'],
                     'app_pricings_id' => $validatedData['app_pricings_id'],
                     'transaction_id' => $transactionId,
@@ -744,12 +740,30 @@ class AdminController extends Controller
                     ->latest()
                     ->first();
 
-               $dataUsers = User::where('instance_code')
+               $targetMonth = Carbon::now()->subMonth(); // or use Carbon::parse('2025-06-01') for June
+               $startOfMonth = $targetMonth->copy()->startOfMonth();
+               $endOfMonth = $targetMonth->copy()->endOfMonth();
+
+               $dataUsers = User::withTrashed()
+                    ->with([
+                         'userPriviledges' => function ($q) use ($dataTransaction) {
+                              $q->where('app_id', $dataTransaction->app_id);
+                         }
+                    ])
+                    ->whereHas('userPriviledges', function ($q) use ($dataTransaction) {
+                         $q->where('app_id', $dataTransaction->app_id);
+                    })
+                    ->where('instance_code', $dataTransaction->instance_code)
                     ->where('is_owner', '!=', 1)
-                    ->select('id', 'name'); // TODO: we have to check unactive user
+                    ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
+                    ->whereBetween('deleted_at', [$startOfMonth, $endOfMonth])
+                    ->select('id', 'name')
+                    ->get();
+
                $dataToSave = [
                     'confirm_payment' => $validatedData['confirm_payment'],
                ];
+
                $userCount = (clone $dataUsers)->count();
                $price = optional($dataTransaction->appPricing)->price ?? 0;
                $shouldPay = $price * ($userCount != 0 ? $userCount : 1);
@@ -761,10 +775,13 @@ class AdminController extends Controller
                                    'expired_at' => Carbon::parse($dataInstancePriviledges->expired_at ?? now())->addDays(30)
                               ];
                               $dataInstancePriviledges = InstancePriviledges::
-                                   where('instance_id', $dataTransaction->instance_id)
+                                   where('instance_code', $dataTransaction->instance_code)
                                    ->where('app_id', $dataTransaction->app_id)
-                                   ->first();
-                              $dataInstancePriviledges->update($dataInstancePriviledgesToSave);
+                                   ->get();
+                              $dataInstancePriviledges->each(function ($item) use ($dataInstancePriviledgesToSave) {
+                                   $item->update($dataInstancePriviledgesToSave);
+                              });
+
                               $dataTransaction->update($dataToSave);
 
                               $isAlreadyPriviledged = UserPriviledges::where('user_id', $dataTransaction->user_id)->where('app_id', $dataTransaction->app_id)->first();
@@ -857,6 +874,103 @@ class AdminController extends Controller
                     'errors' => $errors
                ], 200);
           } catch (\Throwable $th) {
+               return response()->json([
+                    'success' => false,
+                    'errors' => $th->getMessage(),
+               ], 500);
+          }
+     }
+
+     public function deleteRole(Request $request)
+     {
+          $userData = ItsHelper::verifyToken($request->token);
+          $request->merge([
+               'instance_code' => $userData->instance->instance_code,
+               'instance_id' => $userData->instance->id,
+               'user_id' => $userData->id
+          ]);
+
+          $success = true;
+          $errors = '';
+          $data = [];
+
+          $validatedData = $request->validate([
+               'id' => 'required|array',
+               'id.*' => 'integer'
+          ]);
+
+          try {
+               if ($userData->is_owner == 1) {
+                    $roles = Roles::whereIn('id', $validatedData['id'])
+                         ->where('instance_id', $request->instance_id)
+                         ->get();
+
+                    if ($roles->isEmpty()) {
+                         $success = false;
+                         $errors = 'No roles found to delete';
+                    } else {
+                         $data = $roles->toArray();
+                         Roles::whereIn('id', $roles->pluck('id'))->delete();
+                    }
+               } else {
+                    $success = false;
+                    $errors = 'User not allowed';
+               }
+
+               return response()->json([
+                    'success' => $success,
+                    'message' => $errors ? '' : "Successfully delete role",
+                    'data' => $data,
+                    'errors' => $errors
+               ], 200);
+          } catch (\Exception $th) {
+               return response()->json([
+                    'success' => false,
+                    'errors' => $th->getMessage(),
+               ], 500);
+          }
+     }
+
+     public function deleteUser(Request $request)
+     {
+          $userData = ItsHelper::verifyToken($request->token);
+          $request->merge([
+               'instance_code' => $userData->instance->instance_code,
+               'instance_id' => $userData->instance->id,
+               'user_id' => $userData->id
+          ]);
+
+          $success = true;
+          $errors = '';
+          $data = [];
+
+          $validatedData = $request->validate([
+               'id' => 'required',
+          ]);
+
+          try {
+               if ($userData->is_owner == 1) {
+                    $data = User::where('id', $validatedData['id'])->where('instance_code', $request->instance_code)->first();
+
+                    if ($data) {
+                         $data->delete();
+                    } else {
+                         $success = false;
+                         $errors = 'User data not found';
+                    }
+               } else {
+                    $success = false;
+                    $errors = 'User not allowed';
+               }
+
+
+               return response()->json([
+                    'success' => $success,
+                    'message' => $errors ? '' : "Successfully delete user",
+                    'data' => $data,
+                    'errors' => $errors
+               ], 200);
+          } catch (\Exception $th) {
                return response()->json([
                     'success' => false,
                     'errors' => $th->getMessage(),

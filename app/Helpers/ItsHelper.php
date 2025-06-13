@@ -31,13 +31,13 @@ class ItsHelper
      }
 
 
-     public static function generateTransactionCode(string $instanceCode): string
+     public static function generateTransactionCode(string $instanceCode, bool $short = false): string
      {
           $timestamp = (int) (microtime(true) * 1000);
           $encodedTime = strtoupper(base_convert($timestamp, 10, 36)); // e.g. "LQ1VJ83"
           $random = strtoupper(Str::random(3)); // e.g. "Z8M"
 
-          return "{$encodedTime}-{$instanceCode}-{$random}";
+          return $short ? "{$encodedTime}" : "{$encodedTime}-{$instanceCode}-{$random}";
      }
 
 

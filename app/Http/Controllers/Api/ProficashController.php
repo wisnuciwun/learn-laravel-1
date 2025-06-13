@@ -89,7 +89,7 @@ class ProficashController extends Controller
      public function addTransactionIn(Request $request)
      {
           $userData = ItsHelper::verifyToken($request->token);
-          $transactionCode = ItsHelper::generateTransactionCode($userData->instance->instance_code);
+          $transactionCode = ItsHelper::generateTransactionCode($userData->instance->instance_code, true);
 
           $validated = $request->validate([
                'transactions' => 'required|array',

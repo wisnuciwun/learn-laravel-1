@@ -881,6 +881,55 @@ class AdminController extends Controller
           }
      }
 
+     public function deletePriviledge(Request $request)
+     {
+          $userData = ItsHelper::verifyToken($request->token);
+          $request->merge([
+               'instance_code' => $userData->instance->instance_code,
+               'instance_id' => $userData->instance->id,
+               'user_id' => $userData->id
+          ]);
+
+          $success = true;
+          $errors = '';
+          $data = [];
+
+          $validatedData = $request->validate([
+               'id' => 'required|array',
+               'id.*' => 'integer'
+          ]);
+
+          try {
+
+               if ($userData->is_owner == 1) {
+                    $priviledge = UserPriviledges::whereIn('id', $validatedData['id'])->get();
+
+                    if ($priviledge->isEmpty()) {
+                         $success = false;
+                         $errors = 'No priviledge found to delete';
+                    } else {
+                         $data = $priviledge->toArray();
+                         UserPriviledges::whereIn('id', $priviledge->pluck('id'))->delete();
+                    }
+               } else {
+                    $success = false;
+                    $errors = 'User not allowed';
+               }
+
+               return response()->json([
+                    'success' => $success,
+                    'message' => $errors ? '' : "Successfully delete role",
+                    'data' => $data,
+                    'errors' => $errors
+               ], 200);
+          } catch (\Exception $th) {
+               return response()->json([
+                    'success' => false,
+                    'errors' => $th->getMessage(),
+               ], 500);
+          }
+     }
+
      public function deleteRole(Request $request)
      {
           $userData = ItsHelper::verifyToken($request->token);

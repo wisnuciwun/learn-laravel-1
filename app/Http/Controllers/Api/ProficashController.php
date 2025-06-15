@@ -106,6 +106,7 @@ class ProficashController extends Controller
                     'inventory_id' => $item['inventory_id'],
                     'price' => $item['price'],
                     'quantity' => $item['quantity'],
+                    'payment_method' => $item['payment_method'],
                     'created_at' => now(),
                     'updated_at' => now(),
                ];

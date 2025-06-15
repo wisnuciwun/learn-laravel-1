@@ -120,7 +120,7 @@ class ItsHelper
                })
                ->first();
 
-          return $data;
+          return $data->img_path;
      }
 
      public static function createSlug(string $name, string $table_name)

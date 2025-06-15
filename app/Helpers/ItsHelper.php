@@ -5,6 +5,7 @@ namespace App\Helpers;
 use App\Models\Fianut\Images;
 use App\Models\Fianut\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -102,5 +103,36 @@ class ItsHelper
 
                return $path;
           }
+     }
+
+     public static function getImages(string $name, $instance_code = null, $app_id = null, $instance_id = null)
+     {
+          $data = Images::select('img_path')
+               ->where('name', $name)
+               ->when($instance_code != '', function ($q) use ($instance_code) {
+                    $q->where('instance_code', $instance_code);
+               })
+               ->when($app_id != '', function ($q) use ($app_id) {
+                    $q->where('app_id', $app_id);
+               })
+               ->when($instance_id != '', function ($q) use ($instance_id) {
+                    $q->where('instance_id', $instance_id);
+               })
+               ->first();
+
+          return $data;
+     }
+
+     public static function createSlug(string $name, string $table_name)
+     {
+          $slug = Str::slug($name, '-');
+          $originalSlug = $slug;
+          $counter = 1;
+          while (DB::table($table_name)->where('slug', $slug)->exists()) {
+               $slug = $originalSlug . '-' . $counter;
+               $counter++;
+          }
+
+          return $slug;
      }
 }

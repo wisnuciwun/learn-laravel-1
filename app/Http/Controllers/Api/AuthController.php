@@ -137,9 +137,12 @@ class AuthController extends Controller
                 'user_id' => $user->id
             ])->save();
 
+            $slug = ItsHelper::createSlug($request->instance_name, 'instance_settings');
+
             InstanceSettings::create([
                 'title' => $request->instance_name,
                 'instance_code' => $instance_code,
+                'slug' => $slug
             ])->save();
         }
 

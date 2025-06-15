@@ -162,6 +162,7 @@ class InventoryController extends Controller
                          $image = ItsHelper::saveImage('client', false, null, $request);
                          $dataToSave['image'] = $image;
                     }
+                    $dataToSave['slug'] = ItsHelper::createSlug($validatedData['name'], 'inventory');
 
                     $data = Inventory::create($dataToSave)->save();
                }

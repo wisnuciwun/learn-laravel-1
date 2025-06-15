@@ -133,6 +133,65 @@ class InstanceController extends Controller
           }
      }
 
+     public function manage(Request $request)
+     {
+          $userData = ItsHelper::verifyToken($request->token);
+          $request->merge([
+               'user_id' => $userData->id,
+               'instance_code' => $userData->instance_code,
+          ]);
+
+          $success = true;
+          $errors = '';
+          $data = [];
+
+          $validatedData = $request->validate([
+               'name' => 'required|string|max:255'
+          ]);
+
+          try {
+               $dataToSave = [
+                    'name' => $validatedData['name'],
+                    'instance_type' => $request->instance_type,
+               ];
+
+               if ($request->instance_id) {
+                    $data = Instances::where('id', $request->id)->first();
+
+                    if ($data) {
+                         $data->update($dataToSave);
+                    } else {
+                         $success = false;
+                         $errors = 'Instance data not found';
+                    }
+               } else {
+                    Instances::create([
+                         'name' => $request->instance_name,
+                         'instance_type' => $request->instance_type,
+                         'instance_code' => $request->instance_code,
+                         'user_id' => $userData->id
+                    ])->save();
+
+                    InstanceSettings::create([
+                         'title' => $request->instance_name,
+                         'instance_code' => $request->instance_code,
+                    ])->save();
+               }
+
+               return response()->json([
+                    'success' => $success,
+                    'message' => $errors ? '' : "Successfully saved settings instance changes",
+                    'data' => $data,
+                    'errors' => $errors
+               ], 200);
+          } catch (\Throwable $th) {
+               return response()->json([
+                    'success' => false,
+                    'errors' => $th->getMessage(),
+               ], 500);
+          }
+     }
+
      public function instancePriviledge(Request $request)
      {
           try {

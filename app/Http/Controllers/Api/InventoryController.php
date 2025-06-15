@@ -36,6 +36,9 @@ class InventoryController extends Controller
                     ->when($request->sort_by != '', function ($q) use ($request) {
                          $q->orderBy($request->sort_by);
                     })
+                    ->when($request->sort_by == '', function ($q) use ($request) {
+                         $q->orderByDesc('created_at');
+                    })
                     ->when($request->limit != '', function ($q) use ($request) {
                          $q->limit($request->limit);
                     })

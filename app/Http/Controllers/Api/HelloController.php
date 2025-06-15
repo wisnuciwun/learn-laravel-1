@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 use App\Helpers\InstanceHelper;
 use App\Helpers\ItsHelper;
 use App\Models\Fianut\Apps;
+use App\Models\Fianut\Images;
 use App\Models\Fianut\Instances;
 use App\Models\Fianut\InstanceSettings;
 use App\Models\Fianut\Texts;
@@ -22,13 +23,15 @@ class HelloController extends Controller
           try {
                $dataInstanceSetting = InstanceSettings::where('instance_code', $request->instance_code)->select('instance_code', 'hello_template_id', 'title', 'slogan', 'promotion', 'third_party_links', 'img_heading', 'phone')->first();
                $res = Texts::where('name', 'app_hello_template')->where('id', $dataInstanceSetting->hello_template_id)->first();
+               $dataImgClosing = ItsHelper::getImages('hello_img_closing');
 
                return response()->json([
                     'success' => true,
                     'message' => 'Get hello template list successful',
                     'data' => [
                          'template_html' => $res->data,
-                         'instance_settings' => $dataInstanceSetting
+                         'instance_settings' => $dataInstanceSetting,
+                         'image_closing' => $dataImgClosing
                     ],
                ], 200);
           } catch (\Throwable $th) {
@@ -88,6 +91,7 @@ class HelloController extends Controller
                     'hello_template_id' => $validatedData['hello_template_id'],
                     'instance_code' => $validatedData['instance_code'],
                     'phone' => $validatedData['phone'],
+                    'closing_text' => $request->closing_text,
                     // 'sort_by' => $request->img_heading,
                ];
 
@@ -103,6 +107,21 @@ class HelloController extends Controller
                     $dataToSave['img_heading'] = $image;
                }
 
+               // save image bulk
+               $imagePaths = [];
+               if ($request->hasFile('img_closing')) {
+                    foreach ($request->file('img_closing') as $image) {
+                         $path = $image->store('public/images');
+                         $imagePaths[] = $path;
+                    }
+                    $implodedImagePaths = implode(',', $imagePaths);
+
+                    Images::create([
+                         'name' => 'hello_img_closing',
+                         'instance_code' => $request->instance_code,
+                         'img_path' => $implodedImagePaths
+                    ]);
+               }
 
                if ($data) {
                     $data->update($dataToSave);

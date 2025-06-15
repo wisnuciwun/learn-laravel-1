@@ -9,6 +9,24 @@ use Illuminate\Http\Request;
 
 class InventoryController extends Controller
 {
+     public function detail(Request $request)
+     {
+          try {
+               $res = Inventory::where('id', $request->id)->get();
+
+               return response()->json([
+                    'success' => true,
+                    'message' => 'Get inventory successfully',
+                    'data' => $res,
+               ], 200);
+          } catch (\Throwable $th) {
+               return response()->json([
+                    'success' => false,
+                    'errors' => $th->getMessage(),
+               ], 500);
+          }
+     }
+
      public function list(Request $request)
      {
           try {

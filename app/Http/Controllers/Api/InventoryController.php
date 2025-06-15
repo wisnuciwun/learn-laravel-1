@@ -12,7 +12,7 @@ class InventoryController extends Controller
      public function detail(Request $request)
      {
           try {
-               $res = Inventory::where('id', $request->id)->get();
+               $res = Inventory::where('id', $request->id)->first();
 
                return response()->json([
                     'success' => true,

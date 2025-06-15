@@ -21,7 +21,7 @@ class HelloController extends Controller
      public function showcase(Request $request)
      {
           try {
-               $dataInstanceSetting = InstanceSettings::where('instance_code', $request->instance_code)->select('instance_code', 'hello_template_id', 'title', 'slogan', 'promotion', 'third_party_links', 'img_heading', 'phone')->first();
+               $dataInstanceSetting = InstanceSettings::where('instance_code', $request->instance_code)->select('instance_code', 'hello_template_id', 'title', 'slogan', 'promotion', 'third_party_links', 'img_heading', 'phone', 'closing_text')->first();
                $res = Texts::where('name', 'app_hello_template')->where('id', $dataInstanceSetting->hello_template_id)->first();
                $dataImgClosing = ItsHelper::getImages('hello_img_closing');
 
@@ -31,7 +31,7 @@ class HelloController extends Controller
                     'data' => [
                          'template_html' => $res->data,
                          'instance_settings' => $dataInstanceSetting,
-                         'image_closing' => $dataImgClosing
+                         'closing_image' => $dataImgClosing
                     ],
                ], 200);
           } catch (\Throwable $th) {

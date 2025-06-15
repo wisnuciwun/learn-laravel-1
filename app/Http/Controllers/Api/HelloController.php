@@ -111,7 +111,7 @@ class HelloController extends Controller
                $imagePaths = [];
                if ($request->hasFile('img_closing')) {
                     foreach ($request->file('img_closing') as $image) {
-                         $path = $image->store('public/images');
+                         $path = $image->store('public/fianut/client');
                          $imagePaths[] = $path;
                     }
                     $implodedImagePaths = implode(',', $imagePaths);

@@ -165,17 +165,10 @@ class InstanceController extends Controller
                          $errors = 'Instance data not found';
                     }
                } else {
-                    Instances::create([
-                         'name' => $request->instance_name,
-                         'instance_type' => $request->instance_type,
-                         'instance_code' => $request->instance_code,
-                         'user_id' => $userData->id
-                    ])->save();
+                    $dataToSave['instance_code'] = $request->instance_code;
+                    $dataToSave['user_id'] = $userData->id;
 
-                    InstanceSettings::create([
-                         'title' => $request->instance_name,
-                         'instance_code' => $request->instance_code,
-                    ])->save();
+                    Instances::create($dataToSave)->save();
                }
 
                return response()->json([

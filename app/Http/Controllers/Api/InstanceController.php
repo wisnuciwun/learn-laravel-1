@@ -155,8 +155,8 @@ class InstanceController extends Controller
                     'instance_type' => $request->instance_type,
                ];
 
-               if ($request->instance_id) {
-                    $data = Instances::where('id', $request->id)->first();
+               if (!isset($request->add_new_branch)) {
+                    $data = Instances::where('instance_code', $request->instance_code)->first();
 
                     if (!empty($request->img_instance_logo)) {
                          $dataInstanceSetting = InstanceSettings::where('instance_code', $request->instance_code)->first();

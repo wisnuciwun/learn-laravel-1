@@ -162,7 +162,7 @@ class InstanceController extends Controller
                          $dataInstanceSetting = InstanceSettings::where('instance_code', $request->instance_code)->first();
 
                          if (!empty($dataInstanceSetting->img_instance_logo)) {
-                              $image = ItsHelper::saveImage('client', true, $data->img_heading, $request, 'img_instance_logo');
+                              $image = ItsHelper::saveImage('client', true, $data->img_instance_logo, $request, 'img_instance_logo');
                          } else {
                               $image = ItsHelper::saveImage('client', false, null, $request, 'img_instance_logo');
                          }

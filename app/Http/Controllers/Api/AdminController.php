@@ -744,8 +744,9 @@ class AdminController extends Controller
                $startOfMonth = $targetMonth->copy()->startOfMonth();
                $endOfMonth = $targetMonth->copy()->endOfMonth();
 
-               $dataUsers = User::withTrashed()
-                    ->with([
+               // $dataUsers = User::withTrashed()
+               $dataUsers = User::
+                    with([
                          'userPriviledges' => function ($q) use ($dataTransaction) {
                               $q->where('app_id', $dataTransaction->app_id);
                          }

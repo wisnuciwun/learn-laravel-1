@@ -158,14 +158,13 @@ class InstanceController extends Controller
           try {
                $dataToSave = [
                     'name' => $validatedData['name'],
-                    'instance_type' => $request->instance_type,
                ];
 
                if ($request->id) {
                     $data = Instances::where('id', $request->id)->first();
+                    $dataInstanceSetting = InstanceSettings::where('instance_code', $request->instance_code)->first();
 
                     if (!empty($request->img_instance_logo)) {
-                         $dataInstanceSetting = InstanceSettings::where('instance_code', $request->instance_code)->first();
 
                          if (!empty($dataInstanceSetting->img_instance_logo)) {
                               $image = ItsHelper::saveImage('client', true, $data->img_instance_logo, $request, 'img_instance_logo');
@@ -174,7 +173,12 @@ class InstanceController extends Controller
                          }
 
                          $dataInstanceSetting->update([
-                              'img_instance_logo' => $image
+                              'img_instance_logo' => $image,
+                              'instance_type' => $request->instance_type,
+                         ]);
+                    } else {
+                         $dataInstanceSetting->update([
+                              'instance_type' => $request->instance_type,
                          ]);
                     }
 

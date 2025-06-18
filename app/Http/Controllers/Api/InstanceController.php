@@ -194,11 +194,6 @@ class InstanceController extends Controller
                     if ($dataInstancePriviledge && $request->is_owner == 1) {
                          $idRoleAppAdmin = Roles::where('name', 'app_admin')->first();
 
-                         $dataToSave = [
-                              'instance_code' => $request->instance_code,
-                              'user_id' => $userData->id,
-                         ];
-
                          // Create instance and get the saved model
                          $dataInstance = Instances::create($dataToSave);
 

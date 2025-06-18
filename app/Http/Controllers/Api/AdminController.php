@@ -56,7 +56,8 @@ class AdminController extends Controller
      {
           $userData = ItsHelper::verifyToken($request->token);
           $request->merge([
-               'instance_id' => $userData->instance->id,
+               // 'instance_id' => $userData->instance->id,
+               'instance_code' => $userData->instance_code,
                'user_id' => $userData->id,
           ]);
 
@@ -74,8 +75,8 @@ class AdminController extends Controller
                     ->when($request->sort_by, function ($q) use ($request) {
                          $q->orderBy($request->sort_by);
                     })
-                    ->where('instance_id', $request->instance_id)
-                    ->orWhereNull('instance_id') // universal roles
+                    ->where('instance_code', $request->instance_code)
+                    ->orWhereNull('instance_code') // universal roles
                     ->get();
 
                return response()->json([
@@ -292,68 +293,68 @@ class AdminController extends Controller
           }
      }
 
-     public function manageInstancePriviledges(Request $request)
-     {
-          $userData = ItsHelper::verifyToken($request->token);
-          $request->merge([
-               'instance_id' => $userData->instance->id,
-               'user_id' => $userData->id,
-          ]);
+     // public function manageInstance(Request $request)
+     // {
+     //      $userData = ItsHelper::verifyToken($request->token);
+     //      $request->merge([
+     //           'instance_code' => $userData->instance_code,
+     //           'user_id' => $userData->id,
+     //      ]);
 
-          $success = true;
-          $errors = '';
-          $data = [];
+     //      $success = true;
+     //      $errors = '';
+     //      $data = [];
 
-          $validatedData = $request->validate([
-               'app_id' => 'required',
-               'instance_id' => 'required',
-               'user_id' => 'required',
-               'app_pricings_id' => 'required',
-          ]);
+     //      $validatedData = $request->validate([
+     //           'app_id' => 'required',
+     //           'instance_id' => 'required',
+     //           'user_id' => 'required',
+     //           'app_pricings_id' => 'required',
+     //      ]);
 
-          try {
-               $dataInstance = Instances::where('id', $request->instance_id)->first();
-               $dataUser = User::where('id', $request->user_id)->first();
-               $dataApp = Apps::where('id', $request->app_id)->first();
-               $dataToSave = [
-                    'app_id' => $validatedData['app_id'],
-                    'instance_id' => $validatedData['instance_id'],
-                    'user_id' => $validatedData['user_id'],
-                    'app_pricings_id' => $validatedData['app_pricings_id'],
-                    'expired_at' => Carbon::now()->addDays(30)
-               ];
+     //      try {
+     //           $dataInstance = Instances::where('id', $request->instance_id)->first();
+     //           $dataUser = User::where('id', $request->user_id)->first();
+     //           $dataApp = Apps::where('id', $request->app_id)->first();
+     //           $dataToSave = [
+     //                'app_id' => $validatedData['app_id'],
+     //                'instance_id' => $validatedData['instance_id'],
+     //                'user_id' => $validatedData['user_id'],
+     //                'app_pricings_id' => $validatedData['app_pricings_id'],
+     //                'expired_at' => Carbon::now()->addDays(30)
+     //           ];
 
-               if ($request->id) {
-                    $data = InstancePriviledges::where('id', $request->id)->first();
+     //           if ($request->id) {
+     //                $data = InstancePriviledges::where('id', $request->id)->first();
 
-                    if ($data && $dataApp && $dataInstance && $dataUser) {
-                         $data->update($dataToSave);
-                    } else {
-                         $success = false;
-                         $errors = 'Required data not found';
-                    }
-               } else {
-                    if ($dataApp && $dataInstance && $dataUser) {
-                         $data = InstancePriviledges::create($dataToSave)->save();
-                    } else {
-                         $success = false;
-                         $errors = 'Required data not found';
-                    }
-               }
+     //                if ($data && $dataApp && $dataInstance && $dataUser) {
+     //                     $data->update($dataToSave);
+     //                } else {
+     //                     $success = false;
+     //                     $errors = 'Required data not found';
+     //                }
+     //           } else {
+     //                if ($dataApp && $dataInstance && $dataUser) {
+     //                     $data = InstancePriviledges::create($dataToSave)->save();
+     //                } else {
+     //                     $success = false;
+     //                     $errors = 'Required data not found';
+     //                }
+     //           }
 
-               return response()->json([
-                    'success' => $success,
-                    'message' => $errors ? '' : "Successfully saved app pricing changes",
-                    'data' => $data,
-                    'errors' => $errors
-               ], 200);
-          } catch (\Throwable $th) {
-               return response()->json([
-                    'success' => false,
-                    'errors' => $th->getMessage(),
-               ], 500);
-          }
-     }
+     //           return response()->json([
+     //                'success' => $success,
+     //                'message' => $errors ? '' : "Successfully saved app pricing changes",
+     //                'data' => $data,
+     //                'errors' => $errors
+     //           ], 200);
+     //      } catch (\Throwable $th) {
+     //           return response()->json([
+     //                'success' => false,
+     //                'errors' => $th->getMessage(),
+     //           ], 500);
+     //      }
+     // }
 
      public function instanceTypes(Request $request)
      {
@@ -521,10 +522,10 @@ class AdminController extends Controller
 
      public function manageUserPriviledges(Request $request)
      {
-          $userData = ItsHelper::verifyToken($request->token);
-          $request->merge([
-               'instance_id' => $userData->instance->id,
-          ]);
+          ItsHelper::verifyToken($request->token);
+          // $request->merge([
+          //      'instance_id' => $userData->instance->id,
+          // ]);
 
           $success = true;
           $errors = '';
@@ -618,7 +619,7 @@ class AdminController extends Controller
           $request->merge([
                // 'instance_id' => $userData->instance->id,
                'user_id' => $userData->id,
-               'instance_code' => $userData->instance->instance_code,
+               'instance_code' => $userData->instance_code,
           ]);
 
           $success = true;
@@ -834,6 +835,7 @@ class AdminController extends Controller
           if ($userData->name != '8uset9w4dmin') {
                $request->merge([
                     'instance_id' => $userData->instance->id,
+                    'instance_code' => $userData->instance_code,
                     'user_id' => $userData->id,
                ]);
           }
@@ -848,7 +850,7 @@ class AdminController extends Controller
 
           try {
                $dataToSave = [
-                    'instance_id' => $request->instance_id,
+                    'instance_code' => $request->instance_code,
                     'tabs' => $request->tabs,
                     'description' => $request->description,
                     'name' => $validatedData['name']
@@ -951,7 +953,7 @@ class AdminController extends Controller
           try {
                if ($userData->is_owner == 1) {
                     $roles = Roles::whereIn('id', $validatedData['id'])
-                         ->where('instance_id', $request->instance_id)
+                         ->where('instance_code', $request->instance_code)
                          ->get();
 
                     if ($roles->isEmpty()) {

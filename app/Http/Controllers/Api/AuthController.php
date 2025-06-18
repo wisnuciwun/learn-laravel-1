@@ -132,7 +132,6 @@ class AuthController extends Controller
         if (!$request->instance_code) {
             Instances::create([
                 'name' => $request->instance_name,
-                'instance_type' => $request->instance_type,
                 'instance_code' => $instance_code,
                 'user_id' => $user->id
             ])->save();
@@ -142,6 +141,7 @@ class AuthController extends Controller
             InstanceSettings::create([
                 'title' => $request->instance_name,
                 'instance_code' => $instance_code,
+                'instance_type' => $request->instance_type,
                 'slug' => $slug
             ])->save();
         }

@@ -80,19 +80,23 @@ class InstanceController extends Controller
      public function appList(Request $request)
      {
           $userData = ItsHelper::verifyToken($request->token);
-          $instanceId = $userData->instance->id;
-          $userId = $userData->id;
+
+          $request->merge([
+               // 'instance_id' => $userData->instance->id,
+               'user_id' => $userData->id,
+               'instance_code' => $userData->instance_code,
+          ]);
 
           try {
                $data = Apps::with([
-                    'appPayment' => function ($query) use ($userId) {
-                         $query->where('user_id', $userId);
+                    'appPayment' => function ($query) use ($request) {
+                         $query->where('user_id', $request->user_id);
                     },
-                    'instancePriviledge' => function ($query) use ($instanceId) {
-                         $query->where('instance_id', $instanceId);
+                    'instancePriviledge' => function ($query) use ($request) {
+                         $query->where('instance_code', $request->instance_code);
                     },
-                    'userPriviledge' => function ($query) use ($userId) {
-                         $query->where('user_id', $userId);
+                    'userPriviledge' => function ($query) use ($request) {
+                         $query->where('user_id', $request->user_id);
                     }
                ])->when($request->keyword, fn($q) => $q->where('name', 'like', "%{$request->keyword}%"))->get();
 
@@ -204,11 +208,12 @@ class InstanceController extends Controller
           try {
                $userData = ItsHelper::verifyToken($request->token);
                $request->merge([
-                    'instance_id' => $userData->instance->id,
+                    // 'instance_id' => $userData->instance->id,
+                    'instance_code' => $userData->instance_code,
                     'user_id' => $userData->id,
                ]);
 
-               $data = InstancePriviledges::with(['instances'])->where('id', $request->instance_id)->first();
+               $data = InstancePriviledges::with(['instances'])->where('id', $request->instance_code)->first();
 
                return response()->json([
                     'success' => true,

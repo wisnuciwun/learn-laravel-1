@@ -789,10 +789,12 @@ class AdminController extends Controller
                               $idRoleAppAdmin = Roles::where('name', 'app_admin')->first();
 
                               if (!$isAlreadyPriviledged) {
+                                   $dataInstance = Instances::where('instance_code', $dataTransaction->instance_code)->first();
+
                                    $dataNewPriviledge = [
                                         'user_id' => $dataTransaction->user_id,
                                         'role_id' => $idRoleAppAdmin->id,
-                                        'instance_id' => $dataTransaction->instance_id,
+                                        'instance_id' => $dataInstance->id,
                                         'app_id' => $dataTransaction->app_id,
                                    ];
 

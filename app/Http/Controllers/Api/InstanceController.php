@@ -6,6 +6,7 @@ use App\Models\Fianut\Apps;
 use App\Models\Fianut\InstancePriviledges;
 use App\Models\Fianut\Instances;
 use App\Models\Fianut\InstanceSettings;
+use App\Models\Fianut\Roles;
 use App\Models\Fianut\UserPriviledges;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -143,6 +144,7 @@ class InstanceController extends Controller
           $request->merge([
                'user_id' => $userData->id,
                'instance_code' => $userData->instance_code,
+               'is_owner' => $userData->is_owner,
           ]);
 
           $success = true;
@@ -159,8 +161,8 @@ class InstanceController extends Controller
                     'instance_type' => $request->instance_type,
                ];
 
-               if (!isset($request->add_new_branch)) {
-                    $data = Instances::where('instance_code', $request->instance_code)->first();
+               if ($request->id) {
+                    $data = Instances::where('id', $request->id)->first();
 
                     if (!empty($request->img_instance_logo)) {
                          $dataInstanceSetting = InstanceSettings::where('instance_code', $request->instance_code)->first();
@@ -183,10 +185,44 @@ class InstanceController extends Controller
                          $errors = 'Instance data not found';
                     }
                } else {
-                    $dataToSave['instance_code'] = $request->instance_code;
-                    $dataToSave['user_id'] = $userData->id;
+                    $dataInstancePriviledge = InstancePriviledges::where('instance_code', $request->instance_code)->first();
 
-                    Instances::create($dataToSave)->save();
+                    if ($dataInstancePriviledge && $request->is_owner == 1) {
+                         $idRoleAppAdmin = Roles::where('name', 'app_admin')->first();
+
+                         $dataToSave = [
+                              'instance_code' => $request->instance_code,
+                              'user_id' => $userData->id,
+                         ];
+
+                         // Create instance and get the saved model
+                         $dataInstance = Instances::create($dataToSave);
+
+                         // Fetch all priviledges with app_admin role for this instance_code
+                         $dataUserPriviledge = UserPriviledges::where('instance_code', $request->instance_code)
+                              ->where('role_id', $idRoleAppAdmin->id)
+                              ->get();
+
+                         $dataNewPriviledges = [];
+
+                         foreach ($dataUserPriviledge as $priv) {
+                              $dataNewPriviledges[] = [
+                                   'user_id' => $priv->user_id,
+                                   'role_id' => $priv->role_id,
+                                   'instance_id' => $dataInstance->id,
+                                   'app_id' => $priv->app_id,
+                                   'created_at' => now(),
+                                   'updated_at' => now(),
+                              ];
+                         }
+
+                         if (!empty($dataNewPriviledges)) {
+                              UserPriviledges::insert($dataNewPriviledges);
+                         }
+                    } else {
+                         $success = false;
+                         $errors = 'Not allowed to create new instance. Please subscribe at least 1 module by owner account.';
+                    }
                }
 
                return response()->json([

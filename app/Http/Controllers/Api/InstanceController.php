@@ -200,7 +200,7 @@ class InstanceController extends Controller
                          $dataInstance = Instances::create($dataToSave);
 
                          // Fetch all priviledges with app_admin role for this instance_code
-                         $dataUserPriviledge = UserPriviledges::where('instance_code', $request->instance_code)
+                         $dataUserPriviledge = UserPriviledges::where('user_id', $request->user_id)
                               ->where('role_id', $idRoleAppAdmin->id)
                               ->get();
 

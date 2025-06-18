@@ -616,7 +616,7 @@ class AdminController extends Controller
      {
           $userData = ItsHelper::verifyToken($request->token);
           $request->merge([
-               'instance_id' => $userData->instance->id,
+               // 'instance_id' => $userData->instance->id,
                'user_id' => $userData->id,
                'instance_code' => $userData->instance->instance_code,
           ]);
@@ -627,7 +627,7 @@ class AdminController extends Controller
 
           $validatedData = $request->validate([
                'user_id' => 'required',
-               'instance_id' => 'required',
+               // 'instance_id' => 'required',
                'instance_code' => 'required',
                'app_id' => 'required',
                'app_pricings_id' => 'required',
@@ -636,14 +636,14 @@ class AdminController extends Controller
           try {
                // Step 1: Check user access/privilege
                $priv = InstancePriviledges::where('user_id', $request->user_id)
-                    ->where('instance_id', $request->instance_id)
+                    ->where('instance_code', $request->instance_code)
                     ->where('app_id', $request->app_id)
                     ->first();
 
                if (!$priv) {
                     $dataNewInstancePriviledge = [
                          'user_id' => $validatedData['user_id'],
-                         'instance_id' => $validatedData['instance_id'],
+                         // 'instance_id' => $validatedData['instance_id'],
                          'instance_code' => $validatedData['instance_code'],
                          'app_id' => $validatedData['app_id'],
                          'app_pricings_id' => $validatedData['app_pricings_id'],
@@ -744,9 +744,8 @@ class AdminController extends Controller
                $startOfMonth = $targetMonth->copy()->startOfMonth();
                $endOfMonth = $targetMonth->copy()->endOfMonth();
 
-               // $dataUsers = User::withTrashed()
-               $dataUsers = User::
-                    with([
+               $dataUsers = User::withTrashed()
+                    ->with([
                          'userPriviledges' => function ($q) use ($dataTransaction) {
                               $q->where('app_id', $dataTransaction->app_id);
                          }

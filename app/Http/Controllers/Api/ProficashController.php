@@ -23,6 +23,78 @@ use App\Http\Controllers\Controller;
 
 class ProficashController extends Controller
 {
+     public function commonSpendingItems(Request $request)
+     {
+          $userData = ItsHelper::verifyToken($request->token);
+          $request->merge([
+               'instance_id' => $userData->instance->id,
+               'user_id' => $userData->id,
+          ]);
+
+          $success = true;
+          $errors = '';
+          $data = [];
+
+          try {
+               $data = TransactionsOut::select('name')
+                    ->where('instance_id', $request->instance_id)
+                    ->groupBy('name')->get();
+
+               return response()->json([
+                    'success' => $success,
+                    'message' => $errors ?: "Successfully get common outcome items",
+                    'data' => $data,
+               ], 200);
+          } catch (\Throwable $th) {
+               return response()->json([
+                    'success' => false,
+                    'message' => $th->getMessage(),
+               ], 500);
+          }
+     }
+
+     public function spending(Request $request)
+     {
+          $userData = ItsHelper::verifyToken($request->token);
+          $request->merge([
+               'instance_id' => $userData->instance->id,
+               'user_id' => $userData->id,
+          ]);
+
+          $success = true;
+          $errors = '';
+          $data = [];
+
+          try {
+               $data = TransactionsOut::select('name', 'price', 'quantity', 'created_at', 'transaction_code', 'payment_method')
+                    ->where('instance_id', $request->instance_id)
+                    ->when($request->start_date && $request->end_date, function ($q) use ($request) {
+                         $q->whereBetween('created_at', [
+                              $request->start_date . " 00:00:00",
+                              $request->end_date . ' 23:59:59'
+                         ]);
+                    })
+                    ->when(!$request->start_date && !$request->end_date, function ($q) {
+                         $q->whereBetween('created_at', [
+                              Carbon::now()->firstOfMonth(),
+                              Carbon::now()->endOfMonth()
+                         ]);
+                    })
+                    ->get();
+
+               return response()->json([
+                    'success' => $success,
+                    'message' => $errors ?: "Successfully get spending transaction",
+                    'data' => $data,
+               ], $success ? 200 : 400);
+          } catch (\Throwable $th) {
+               return response()->json([
+                    'success' => false,
+                    'message' => $th->getMessage(),
+               ], 500);
+          }
+     }
+
      public function transactions(Request $request)
      {
           $userData = ItsHelper::verifyToken($request->token);
@@ -67,7 +139,7 @@ class ProficashController extends Controller
 
                return response()->json([
                     'success' => $success,
-                    'message' => $errors ?: "Successfully saved transaction",
+                    'message' => $errors ?: "Successfully get transaction",
                     'data' => [
                          'transactions' => $data,
                          'highlight' => [
@@ -84,7 +156,6 @@ class ProficashController extends Controller
                     'message' => $th->getMessage(),
                ], 500);
           }
-
      }
 
      public function addTransactionOut(Request $request)

@@ -289,6 +289,50 @@ class AdminController extends Controller
           }
      }
 
+     public function manageProfile(Request $request)
+     {
+          ItsHelper::verifyAsAdmin($request->token);
+
+          $success = true;
+          $errors = '';
+          $data = [];
+
+          try {
+               $dataToSave = [
+                    'name' => $request->name,
+                    'gender' => $request->gender,
+                    'nickname' => $request->nickname,
+                    'address' => $request->address,
+                    'view_type' => $request->view_type,
+                    'default_app' => $request->default_app,
+                    'email_report' => $request->email_report,
+                    'target_per_month' => $request->target_per_month,
+                    'email' => $request->email,
+                    'password' => $request->password
+               ];
+
+               $data = User::where('id', $request->id)->first();
+
+               if ($data) {
+                    $data->update($dataToSave);
+               } else {
+                    $success = false;
+                    $errors = 'User data not found';
+               }
+
+               return response()->json([
+                    'success' => $success,
+                    'message' => $errors ?: "Successfully saved user data changes",
+                    'data' => $data,
+               ], 200);
+          } catch (\Throwable $th) {
+               return response()->json([
+                    'success' => false,
+                    'message' => $th->getMessage(),
+               ], 500);
+          }
+     }
+
      // public function manageInstance(Request $request)
      // {
      //      $userData = ItsHelper::verifyToken($request->token);
@@ -517,7 +561,7 @@ class AdminController extends Controller
 
      public function manageUserPriviledges(Request $request)
      {
-          ItsHelper::verifyToken($request->token);
+          $dataUser = ItsHelper::verifyToken($request->token);
           // $request->merge([
           //      'instance_id' => $userData->instance->id,
           // ]);
@@ -533,6 +577,13 @@ class AdminController extends Controller
                'app_id' => 'required',
           ]);
 
+          if ($dataUser->is_owner != 1) {
+               return response()->json([
+                    'success' => false,
+                    'message' => "Not allowed to manage user priviledge",
+               ], 403);
+          }
+
           try {
                $dataInstance = Instances::where('id', $request->instance_id)->first();
                $dataUser = User::where('id', $request->user_id)->first();
@@ -543,6 +594,14 @@ class AdminController extends Controller
                     'user_id' => $validatedData['user_id'],
                     'role_id' => $validatedData['role_id'],
                ];
+
+               if ($dataUser && $request->sallary) {
+                    $dataUserToSave = [
+                         'sallary' => $request->sallary
+                    ];
+
+                    $dataUser->update($dataUserToSave);
+               }
 
                if ($request->id) {
                     $data = UserPriviledges::where('id', $request->id)->first();

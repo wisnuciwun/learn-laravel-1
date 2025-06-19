@@ -135,6 +135,7 @@ class InventoryController extends Controller
                     'description' => $request->description,
                     'price' => $request->price,
                     'base_price' => $request->base_price,
+                    'operational_price' => $request->operational_price,
                     'sku' => $request->sku,
                     'stock' => $request->stock,
                     'minimum_stock' => $request->minimum_stock,

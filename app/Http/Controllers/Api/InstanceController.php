@@ -228,7 +228,7 @@ class InstanceController extends Controller
 
                return response()->json([
                     'success' => $success,
-                    'message' => $errors ? '' : "Successfully saved settings instance changes",
+                    'message' => $errors ?: "Successfully saved settings instance changes",
                     'data' => $data,
                ], $success ? 200 : 400);
           } catch (\Throwable $th) {

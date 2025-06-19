@@ -228,7 +228,7 @@ class AdminController extends Controller
 
                return response()->json([
                     'success' => $success,
-                    'message' => $errors ? '' : "Successfully saved app changes",
+                    'message' => $errors ?: "Successfully saved app changes",
                     'data' => $data,
                ], $success ? 200 : 400);
           } catch (\Exception $th) {
@@ -278,7 +278,7 @@ class AdminController extends Controller
 
                return response()->json([
                     'success' => $success,
-                    'message' => $errors ? '' : "Successfully saved app pricing changes",
+                    'message' => $errors ?: "Successfully saved app pricing changes",
                     'data' => $data,
                ], 200);
           } catch (\Throwable $th) {
@@ -340,7 +340,7 @@ class AdminController extends Controller
 
      //           return response()->json([
      //                'success' => $success,
-     //                'message' => $errors ? '' : "Successfully saved app pricing changes",
+     //                'message' => $errors ?: "Successfully saved app pricing changes",
      //                'data' => $data,
      //                'errors' => $errors
      //           ], 200);
@@ -404,7 +404,7 @@ class AdminController extends Controller
 
                return response()->json([
                     'success' => $success,
-                    'message' => $errors ? '' : "Successfully saved instances type changes",
+                    'message' => $errors ?: "Successfully saved instances type changes",
                     'data' => $data,
                ], $success ? 200 : 400);
           } catch (\Throwable $th) {
@@ -453,7 +453,7 @@ class AdminController extends Controller
 
                return response()->json([
                     'success' => $success,
-                    'message' => $errors ? '' : "Successfully saved texts changes",
+                    'message' => $errors ?: "Successfully saved texts changes",
                     'data' => $data,
                     'errors' => $errors
                ], $success ? 200 : 400);
@@ -503,7 +503,7 @@ class AdminController extends Controller
 
                return response()->json([
                     'success' => $success,
-                    'message' => $errors ? '' : "Successfully saved settings changes",
+                    'message' => $errors ?: "Successfully saved settings changes",
                     'data' => $data,
                     'errors' => $errors
                ], $success ? 200 : 400);
@@ -564,7 +564,7 @@ class AdminController extends Controller
 
                return response()->json([
                     'success' => $success,
-                    'message' => $errors ? '' : "Successfully saved user priviledge changes",
+                    'message' => $errors ?: "Successfully saved user priviledge changes",
                     'data' => $data,
                ], $success ? 200 : 400);
           } catch (\Throwable $th) {
@@ -702,7 +702,7 @@ class AdminController extends Controller
 
                return response()->json([
                     'success' => $success,
-                    'message' => $errors ? '' : "Successfully saved app pricing changes",
+                    'message' => $errors ?: "Successfully saved app pricing changes",
                     'data' => $data,
                ], $success ? 200 : 400);
           } catch (\Throwable $th) {
@@ -811,7 +811,7 @@ class AdminController extends Controller
 
                return response()->json([
                     'success' => $success,
-                    'message' => $errors ? '' : "Successfully confirm payment",
+                    'message' => $errors ?: "Successfully confirm payment",
                     'data' => $data,
                ], $success ? 200 : 400);
           } catch (\Throwable $th) {
@@ -865,7 +865,7 @@ class AdminController extends Controller
 
                return response()->json([
                     'success' => $success,
-                    'message' => $errors ? '' : "Successfully saved role changes",
+                    'message' => $errors ?: "Successfully saved role changes",
                     'data' => $data,
                ], $success ? 200 : 400);
           } catch (\Throwable $th) {
@@ -913,7 +913,7 @@ class AdminController extends Controller
 
                return response()->json([
                     'success' => $success,
-                    'message' => $errors ? '' : "Successfully delete role",
+                    'message' => $errors ?: "Successfully delete role",
                     'data' => $data,
                ], $success ? 200 : 400);
           } catch (\Exception $th) {
@@ -962,7 +962,7 @@ class AdminController extends Controller
 
                return response()->json([
                     'success' => $success,
-                    'message' => $errors ? '' : "Successfully delete role",
+                    'message' => $errors ?: "Successfully delete role",
                     'data' => $data,
                ], $success ? 200 : 400);
           } catch (\Exception $th) {
@@ -1008,7 +1008,7 @@ class AdminController extends Controller
 
                return response()->json([
                     'success' => $success,
-                    'message' => $errors ? '' : "Successfully delete user",
+                    'message' => $errors ?: "Successfully delete user",
                     'data' => $data,
                ], $success ? 200 : 400);
           } catch (\Exception $th) {

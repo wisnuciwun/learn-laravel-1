@@ -65,7 +65,7 @@ class ProficashController extends Controller
 
                return response()->json([
                     'success' => $success,
-                    'message' => $errors ? '' : "Successfully saved transaction",
+                    'message' => $errors ?: "Successfully saved transaction",
                     'data' => [
                          'transactions' => $data,
                          'highlight' => [

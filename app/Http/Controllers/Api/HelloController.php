@@ -131,7 +131,7 @@ class HelloController extends Controller
 
                return response()->json([
                     'success' => $success,
-                    'message' => $errors ? '' : "Successfully saved landing page changes",
+                    'message' => $errors ?: "Successfully saved landing page changes",
                     'data' => $data,
                ], $success ? 200 : 400);
           } catch (\Throwable $th) {

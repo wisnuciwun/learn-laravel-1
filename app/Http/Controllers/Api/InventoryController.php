@@ -98,7 +98,7 @@ class InventoryController extends Controller
 
                return response()->json([
                     'success' => $success,
-                    'message' => $errors ? '' : "Successfully delete inventory",
+                    'message' => $errors ?: "Successfully delete inventory",
                     'data' => $data,
                ], $success ? 200 : 400);
           } catch (\Exception $th) {
@@ -168,7 +168,7 @@ class InventoryController extends Controller
 
                return response()->json([
                     'success' => $success,
-                    'message' => $errors ? '' : "Successfully saved inventory changes",
+                    'message' => $errors ?: "Successfully saved inventory changes",
                     'data' => $data,
                ], $success ? 200 : 400);
           } catch (\Exception $th) {

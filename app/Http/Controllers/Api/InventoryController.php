@@ -6,6 +6,7 @@ use App\Models\Fianut\Instances;
 use App\Models\Fianut\Inventory;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
+use Storage;
 
 class InventoryController extends Controller
 {
@@ -87,6 +88,10 @@ class InventoryController extends Controller
                          $errors = 'No inventory found to delete.';
                     } else {
                          $data = $inventories->toArray();
+                         foreach ($inventories as $key => $value) {
+                              Storage::delete($value->image);
+                         }
+
                          Inventory::whereIn('id', $inventories->pluck('id'))->delete();
                     }
 

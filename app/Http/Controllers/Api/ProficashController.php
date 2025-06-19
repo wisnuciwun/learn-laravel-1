@@ -10,10 +10,12 @@ use App\Models\Fianut\InstanceTypes;
 use App\Models\Fianut\Inventory;
 use App\Models\Fianut\Texts;
 use App\Models\Fianut\TransactionsIn;
+use App\Models\Fianut\TransactionsOut;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Fianut\User;
 use Illuminate\Support\Str;
@@ -83,6 +85,58 @@ class ProficashController extends Controller
                ], 500);
           }
 
+     }
+
+     public function addTransactionOut(Request $request)
+     {
+          $userData = ItsHelper::verifyToken($request->token);
+          $request->merge([
+               'instance_id' => $userData->instance->id,
+               'user_id' => $userData->id,
+               'instance_code' => $userData->instance_code,
+          ]);
+
+          $transactionCode = ItsHelper::generateTransactionCode($userData->instance->instance_code, true);
+          $validated = $request->validate([
+               'transactions' => 'required|array',
+               'transactions.*.name' => 'required|integer',
+               'transactions.*.price' => 'required|integer',
+               'transactions.*.quantity' => 'required|integer',
+          ]);
+
+          $dataToInsert = collect($validated['transactions'])->map(function ($item) {
+               return [
+                    'name' => $item['name'],
+                    'price' => $item['price'],
+                    'quantity' => $item['quantity'],
+               ];
+          })->toArray();
+
+          $dataTextToSave = [
+               'title' => $request->receipt_id,
+               'name' => $transactionCode,
+               'instance_id' => $request->instance_id
+          ];
+
+          try {
+               TransactionsOut::insert($dataToInsert);
+               if (!empty($request->image)) {
+                    $image = ItsHelper::saveImage('client', false, null, $request);
+                    $dataTextToSave['data'] = $image;
+               }
+               Texts::create($dataTextToSave)->save();
+
+               return response()->json([
+                    'success' => true,
+                    'message' => 'Successfully saved outcome transaction',
+                    'data' => $dataToInsert,
+               ], 200);
+          } catch (\Exception $th) {
+               return response()->json([
+                    'success' => false,
+                    'message' => $th->getMessage(),
+               ], 500);
+          }
      }
 
      public function addTransactionIn(Request $request)
@@ -155,6 +209,52 @@ class ProficashController extends Controller
                } else {
                     $data = $transactions->toArray();
                     TransactionsIn::whereIn('transaction_code', $transactions->pluck('transaction_code'))->delete();
+               }
+
+               return response()->json([
+                    'success' => $success,
+                    'message' => $errors ?: "Successfully delete transaction",
+                    'data' => $data,
+               ], $success ? 200 : 400);
+          } catch (\Exception $th) {
+               return response()->json([
+                    'success' => false,
+                    'message' => $th->getMessage(),
+               ], 500);
+          }
+     }
+
+     public function deleteTransactionOut(Request $request)
+     {
+          $userData = ItsHelper::verifyToken($request->token);
+          $request->merge([
+               'instance_code' => $userData->instance->instance_code,
+               'instance_id' => $userData->instance->id,
+               'user_id' => $userData->id
+          ]);
+
+          $success = true;
+          $errors = '';
+          $data = [];
+
+          $validatedData = $request->validate([
+               'transaction_code' => 'required|array',
+               'transaction_code.*' => 'string'
+          ]);
+
+          try {
+               $transactions = TransactionsOut::whereIn('transaction_code', $validatedData['transaction_code'])->get();
+
+               if ($transactions->isEmpty()) {
+                    $success = false;
+                    $errors = 'No outcome transaction found to delete';
+               } else {
+                    $data = $transactions->toArray();
+                    TransactionsOut::whereIn('transaction_code', $transactions->pluck('transaction_code'))->delete();
+                    $dataText = Texts::where('name', $validatedData['transaction_code'])->first();
+
+                    Storage::delete($dataText->data);
+                    $dataText->delete();
                }
 
                return response()->json([

@@ -22,7 +22,7 @@ class InventoryController extends Controller
           } catch (\Throwable $th) {
                return response()->json([
                     'success' => false,
-                    'errors' => $th->getMessage(),
+                    'message' => $th->getMessage(),
                ], 500);
           }
      }
@@ -53,7 +53,7 @@ class InventoryController extends Controller
           } catch (\Throwable $th) {
                return response()->json([
                     'success' => false,
-                    'errors' => $th->getMessage(),
+                    'message' => $th->getMessage(),
                ], 500);
           }
      }
@@ -100,12 +100,11 @@ class InventoryController extends Controller
                     'success' => $success,
                     'message' => $errors ? '' : "Successfully delete inventory",
                     'data' => $data,
-                    'errors' => $errors
-               ], 200);
+               ], $success ? 200 : 400);
           } catch (\Exception $th) {
                return response()->json([
                     'success' => false,
-                    'errors' => $th->getMessage(),
+                    'message' => $th->getMessage(),
                ], 500);
           }
      }
@@ -171,12 +170,11 @@ class InventoryController extends Controller
                     'success' => $success,
                     'message' => $errors ? '' : "Successfully saved inventory changes",
                     'data' => $data,
-                    'errors' => $errors
-               ], 200);
+               ], $success ? 200 : 400);
           } catch (\Exception $th) {
                return response()->json([
                     'success' => false,
-                    'errors' => $th->getMessage(),
+                    'message' => $th->getMessage(),
                ], 500);
           }
      }

@@ -36,7 +36,7 @@ class InstanceController extends Controller
           } catch (\Throwable $th) {
                return response()->json([
                     'success' => false,
-                    'errors' => $th->getMessage(),
+                    'message' => $th->getMessage(),
                ], 500);
           }
      }
@@ -56,7 +56,7 @@ class InstanceController extends Controller
 
                }
                $dataUser = User::where('id', $userId)->select('name', 'gender', 'referral_code', 'email', 'address', 'income', 'outcome', 'target_per_month', 'saving', 'active', 'is_owner')->first();
-               $dataInstance = Instances::where('instance_code', $instanceCode)->select('name', 'instance_code')->get();
+               $dataInstance = Instances::where('instance_code', $instanceCode)->select('name', 'instance_code', 'id')->get();
                $dataInstanceSettings = InstanceSettings::where('instance_code', $instanceCode)->select('hello_template_id', 'instance_code', 'title', 'slogan', 'promotion', 'third_party_links', 'img_heading', 'phone', 'closing_text', 'img_instance_logo')->first();
                $dataRole = UserPriviledges::with(['role'])->where('user_id', $userId)->select('id', 'role_id')->first();
 
@@ -73,7 +73,7 @@ class InstanceController extends Controller
           } catch (\Throwable $th) {
                return response()->json([
                     'success' => false,
-                    'errors' => $th->getMessage(),
+                    'message' => $th->getMessage(),
                ], 500);
           }
      }
@@ -109,7 +109,7 @@ class InstanceController extends Controller
           } catch (\Throwable $th) {
                return response()->json([
                     'success' => false,
-                    'errors' => $th->getMessage(),
+                    'message' => $th->getMessage(),
                ], 500);
           }
      }
@@ -133,7 +133,7 @@ class InstanceController extends Controller
           } catch (\Throwable $th) {
                return response()->json([
                     'success' => false,
-                    'errors' => $th->getMessage(),
+                    'message' => $th->getMessage(),
                ], 500);
           }
      }
@@ -230,12 +230,11 @@ class InstanceController extends Controller
                     'success' => $success,
                     'message' => $errors ? '' : "Successfully saved settings instance changes",
                     'data' => $data,
-                    'errors' => $errors
-               ], 200);
+               ], $success ? 200 : 400);
           } catch (\Throwable $th) {
                return response()->json([
                     'success' => false,
-                    'errors' => $th->getMessage(),
+                    'message' => $th->getMessage(),
                ], 500);
           }
      }
@@ -260,7 +259,7 @@ class InstanceController extends Controller
           } catch (\Throwable $th) {
                return response()->json([
                     'success' => false,
-                    'errors' => $th->getMessage(),
+                    'message' => $th->getMessage(),
                ], 500);
           }
      }

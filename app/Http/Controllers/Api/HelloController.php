@@ -37,7 +37,7 @@ class HelloController extends Controller
           } catch (\Throwable $th) {
                return response()->json([
                     'success' => false,
-                    'errors' => $th->getMessage(),
+                    'message' => $th->getMessage(),
                ], 500);
           }
      }
@@ -59,7 +59,7 @@ class HelloController extends Controller
           } catch (\Throwable $th) {
                return response()->json([
                     'success' => false,
-                    'errors' => $th->getMessage(),
+                    'message' => $th->getMessage(),
                ], 500);
           }
      }
@@ -133,12 +133,11 @@ class HelloController extends Controller
                     'success' => $success,
                     'message' => $errors ? '' : "Successfully saved landing page changes",
                     'data' => $data,
-                    'errors' => $errors
-               ], 200);
+               ], $success ? 200 : 400);
           } catch (\Throwable $th) {
                return response()->json([
                     'success' => false,
-                    'errors' => $th->getMessage(),
+                    'message' => $th->getMessage(),
                ], 500);
           }
      }

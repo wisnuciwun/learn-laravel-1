@@ -75,12 +75,11 @@ class ProficashController extends Controller
                               'additional_cost' => 0
                          ]
                     ],
-                    'errors' => $errors
-               ], 200);
+               ], $success ? 200 : 400);
           } catch (\Throwable $th) {
                return response()->json([
                     'success' => false,
-                    'errors' => $th->getMessage(),
+                    'message' => $th->getMessage(),
                ], 500);
           }
 
@@ -118,14 +117,13 @@ class ProficashController extends Controller
 
                return response()->json([
                     'success' => true,
-                    'message' => 'Successfully saved transaction(s)',
+                    'message' => 'Successfully saved transactions',
                     'data' => $dataToInsert,
-                    'errors' => null,
                ], 200);
           } catch (\Exception $th) {
                return response()->json([
                     'success' => false,
-                    'errors' => $th->getMessage(),
+                    'message' => $th->getMessage(),
                ], 500);
           }
      }
@@ -161,14 +159,13 @@ class ProficashController extends Controller
 
                return response()->json([
                     'success' => $success,
-                    'message' => $errors ? '' : "Successfully delete transaction",
+                    'message' => $errors ?: "Successfully delete transaction",
                     'data' => $data,
-                    'errors' => $errors
-               ], 200);
+               ], $success ? 200 : 400);
           } catch (\Exception $th) {
                return response()->json([
                     'success' => false,
-                    'errors' => $th->getMessage(),
+                    'message' => $th->getMessage(),
                ], 500);
           }
      }

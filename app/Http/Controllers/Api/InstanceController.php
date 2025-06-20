@@ -50,15 +50,15 @@ class InstanceController extends Controller
 
           try {
                if ($userData->is_owner == 1) {
-                    $dataUser = User::where('id', $userId)->select('name', 'gender', 'referral_code', 'email', 'address', 'income', 'outcome', 'target_per_month', 'saving', 'active', 'is_owner')->first();
+                    $dataUser = User::where('id', $userId)->first();
+                    $dataInstance = Instances::where('instance_code', $instanceCode)->select('name', 'instance_code', 'id')->get();
                } else {
-                    $dataUser = User::where('id', $userId)->select('name', 'gender', 'referral_code', 'email', 'address', 'active', 'is_owner')->first();
-
+                    $dataUser = User::where('id', $userId)->select('name', 'nickname', 'gender', 'referral_code', 'email', 'address', 'active', 'is_owner', 'instance_code', 'sallary', 'poins', 'default_app')->first();
+                    $dataInstance = Instances::where('id', $instanceId)->select('name', 'instance_code', 'address')->get();
                }
-               $dataUser = User::where('id', $userId)->select('name', 'gender', 'referral_code', 'email', 'address', 'income', 'outcome', 'target_per_month', 'saving', 'active', 'is_owner')->first();
-               $dataInstance = Instances::where('instance_code', $instanceCode)->select('name', 'instance_code', 'id')->get();
-               $dataInstanceSettings = InstanceSettings::where('instance_code', $instanceCode)->select('hello_template_id', 'instance_code', 'title', 'slogan', 'promotion', 'third_party_links', 'img_heading', 'phone', 'closing_text', 'img_instance_logo')->first();
+
                $dataRole = UserPriviledges::with(['role'])->where('user_id', $userId)->select('id', 'role_id')->first();
+               $dataInstanceSettings = InstanceSettings::where('instance_code', $instanceCode)->first();
 
                return response()->json([
                     'success' => true,

@@ -304,7 +304,6 @@ class AdminController extends Controller
                     'nickname' => $request->nickname,
                     'address' => $request->address,
                     'view_type' => $request->view_type,
-                    'default_app' => $request->default_app,
                     'email_report' => $request->email_report,
                     'target_per_month' => $request->target_per_month,
                     'email' => $request->email,

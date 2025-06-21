@@ -116,6 +116,12 @@ class AuthController extends Controller
             $instance_code = ItsHelper::generateInstanceCode($request->instance_name);
         }
 
+        $validReferralCode = null;
+
+        if (!$request->referral_code) {
+            $validReferralCode = User::where('referral_code', $request->referral_code)->select('referral_code')->first();
+        }
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -126,6 +132,7 @@ class AuthController extends Controller
             'nickname' => explode(' ', trim($request->name))[0],
             'active' => 1,
             'gender' => $request->gender,
+            'referred_by' => $validReferralCode->referral_code,
             'referral_code' => ItsHelper::generateReferralCode($request->name)
         ]);
 

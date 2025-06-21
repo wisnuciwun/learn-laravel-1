@@ -845,6 +845,22 @@ class AdminController extends Controller
                                    $item->update($dataInstancePriviledgesToSave);
                               });
 
+                              // referral poin system
+                              $dataOwnerUser = User::select('name', 'referred_by')
+                                   ->where('id', $dataTransaction->user_id)
+                                   ->whereNotNull('referred_by')
+                                   ->first();
+
+                              if ($dataOwnerUser) {
+                                   $dataReferral = User::select('name', 'poins')
+                                        ->where('referral_code', $dataOwnerUser->referred_by)
+                                        ->first();
+
+                                   if ($dataReferral) {
+                                        $dataReferral->increment('poins', $shouldPay * 0.1); // Make sure to specify the column name here
+                                   }
+                              }
+
                               $dataTransaction->update($dataToSave);
 
                               $isAlreadyPriviledged = UserPriviledges::where('user_id', $dataTransaction->user_id)->where('app_id', $dataTransaction->app_id)->first();
@@ -889,7 +905,6 @@ class AdminController extends Controller
                     'message' => $th->getMessage(),
                ], 500);
           }
-
      }
 
      public function manageRole(Request $request)

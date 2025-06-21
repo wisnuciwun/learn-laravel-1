@@ -53,7 +53,7 @@ class InstanceController extends Controller
                     $dataUser = User::where('id', $userId)->first();
                     $dataInstance = Instances::where('instance_code', $instanceCode)->get();
                } else {
-                    $dataUser = User::where('id', $userId)->select('name', 'nickname', 'gender', 'referral_code', 'email', 'address', 'active', 'is_owner', 'instance_code', 'sallary', 'poins', 'default_app')->first();
+                    $dataUser = User::where('id', $userId)->select('name', 'nickname', 'gender', 'referral_code', 'email', 'address', 'active', 'is_owner', 'instance_code', 'sallary', 'poins', 'default_app', 'image')->first();
                     $dataInstance = Instances::where('id', $instanceId)->select('name', 'instance_code', 'address')->get();
                }
 

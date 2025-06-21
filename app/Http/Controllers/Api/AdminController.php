@@ -291,7 +291,7 @@ class AdminController extends Controller
 
      public function manageProfile(Request $request)
      {
-          ItsHelper::verifyAsAdmin($request->token);
+          ItsHelper::verifyToken($request->token);
 
           $success = true;
           $errors = '';

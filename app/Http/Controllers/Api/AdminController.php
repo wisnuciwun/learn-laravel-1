@@ -298,7 +298,8 @@ class AdminController extends Controller
           $data = [];
 
           try {
-               $dataToSave = [
+               // filter payload
+               $dataToSave = array_filter([
                     'name' => $request->name,
                     'gender' => $request->gender,
                     'nickname' => $request->nickname,
@@ -307,8 +308,8 @@ class AdminController extends Controller
                     'email_report' => $request->email_report,
                     'target_per_month' => $request->target_per_month,
                     'email' => $request->email,
-                    'password' => $request->password
-               ];
+                    'password' => $request->password,
+               ], fn($value) => !is_null($value));
 
                $data = User::where('id', $request->id)->first();
 

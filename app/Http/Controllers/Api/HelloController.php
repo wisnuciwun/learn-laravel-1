@@ -22,6 +22,7 @@ class HelloController extends Controller
      {
           try {
                $dataInstanceSetting = InstanceSettings::where('slug', $request->slug)->select('slug', 'instance_code', 'hello_template_id', 'title', 'slogan', 'promotion', 'third_party_links', 'img_heading', 'phone', 'closing_text', 'img_instance_logo')->first();
+               $dataInstance = Instances::where('instance_code', $dataInstanceSetting->instance_code)->select('address')->first();
                $res = Texts::where('name', 'app_hello_template')->where('id', $dataInstanceSetting->hello_template_id)->first();
                $dataImgClosing = ItsHelper::getImages('hello_img_closing');
 
@@ -31,7 +32,8 @@ class HelloController extends Controller
                     'data' => [
                          'template_html' => $res->data,
                          'instance_settings' => $dataInstanceSetting,
-                         'closing_image' => $dataImgClosing
+                         'closing_image' => $dataImgClosing,
+                         'instance' => $dataInstance
                     ],
                ], 200);
           } catch (\Throwable $th) {

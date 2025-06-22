@@ -158,6 +158,7 @@ class InstanceController extends Controller
           try {
                $dataToSave = [
                     'name' => $validatedData['name'],
+                    'address' => $validatedData['address']
                ];
 
                if ($request->id) {

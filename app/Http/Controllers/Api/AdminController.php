@@ -1075,19 +1075,27 @@ class AdminController extends Controller
 
           try {
                if ($userData->is_owner == 1) {
-                    $data = User::where('id', $validatedData['id'])->where('instance_code', $request->instance_code)->first();
+                    $data = User::where('id', $validatedData['id'])
+                         ->where('instance_code', $request->instance_code)
+                         ->first();
 
                     if ($data) {
-                         $data->delete();
+                         $createdAt = Carbon::parse($data->created_at);
+
+                         if ($createdAt->diffInDays(Carbon::now()) >= 7) {
+                              $data->delete();
+                         } else {
+                              $success = false;
+                              $errors = 'User cannot deleted because its new. You can delete user after 1 week later';
+                         }
                     } else {
                          $success = false;
                          $errors = 'User data not found';
                     }
                } else {
                     $success = false;
-                    $errors = 'User not allowed';
+                    $errors = 'User not allowed to delete user';
                }
-
 
                return response()->json([
                     'success' => $success,

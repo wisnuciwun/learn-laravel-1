@@ -138,7 +138,7 @@ class InventoryController extends Controller
           ]);
 
           try {
-               $dataToSave = [
+               $dataToSave = array_filter([
                     'name' => $validatedData['name'],
                     'instance_code' => $validatedData['instance_code'],
                     'instance_id' => $validatedData['instance_id'],
@@ -151,7 +151,8 @@ class InventoryController extends Controller
                     'minimum_stock' => $request->minimum_stock,
                     'dummy_stock' => $request->dummy_stock,
                     'promotion_id' => $request->promotion_id,
-               ];
+                    'variant' => $request->variant
+               ], fn($value) => !is_null($value));
 
                if ($request->id) {
                     $data = Inventory::where('id', $request->id)->first();

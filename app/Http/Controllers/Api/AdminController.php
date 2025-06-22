@@ -299,17 +299,28 @@ class AdminController extends Controller
 
           try {
                // filter payload
-               $dataToSave = array_filter([
+               // $dataToSave = array_filter([
+               //      'name' => $request->name,
+               //      'gender' => $request->gender,
+               //      'nickname' => $request->nickname,
+               //      'address' => $request->address,
+               //      'view_type' => $request->view_type,
+               //      'email_report' => $request->email_report,
+               //      'target_per_month' => $request->target_per_month,
+               //      'email' => $request->email,
+               //      'password' => $request->password,
+               // ], fn($value) => !is_null($value));
+               $dataToSave = [
                     'name' => $request->name,
-                    'gender' => $request->gender,
+                    // 'gender' => $request->gender,
                     'nickname' => $request->nickname,
                     'address' => $request->address,
-                    'view_type' => $request->view_type,
-                    'email_report' => $request->email_report,
-                    'target_per_month' => $request->target_per_month,
-                    'email' => $request->email,
-                    'password' => $request->password,
-               ], fn($value) => !is_null($value));
+                    // 'view_type' => $request->view_type,
+                    // 'email_report' => $request->email_report,
+                    // 'target_per_month' => $request->target_per_month,
+                    // 'email' => $request->email,
+                    // 'password' => $request->password
+               ];
 
                $data = User::where('id', $request->id)->first();
 

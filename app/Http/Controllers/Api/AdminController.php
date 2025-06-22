@@ -299,38 +299,26 @@ class AdminController extends Controller
 
           try {
                // filter payload
-               // $dataToSave = array_filter([
-               //      'name' => $request->name,
-               //      'gender' => $request->gender,
-               //      'nickname' => $request->nickname,
-               //      'address' => $request->address,
-               //      'view_type' => $request->view_type,
-               //      'email_report' => $request->email_report,
-               //      'target_per_month' => $request->target_per_month,
-               //      'email' => $request->email,
-               //      'password' => $request->password,
-               // ], fn($value) => !is_null($value));
-               $dataToSave = [
+               $dataToSave = array_filter([
                     'name' => $request->name,
-                    // 'gender' => $request->gender,
+                    'gender' => $request->gender,
                     'nickname' => $request->nickname,
                     'address' => $request->address,
-                    // 'view_type' => $request->view_type,
-                    // 'email_report' => $request->email_report,
-                    // 'target_per_month' => $request->target_per_month,
-                    // 'email' => $request->email,
-                    // 'password' => $request->password
-               ];
+                    'view_type' => $request->view_type,
+                    'email_report' => $request->email_report,
+                    'target_per_month' => $request->target_per_month,
+                    'email' => $request->email,
+                    'password' => $request->password,
+               ], fn($value) => !is_null($value));
 
                $data = User::where('id', $request->id)->first();
 
-               if (!empty($data->image)) {
-                    $image = ItsHelper::saveImage('other', true, $data->image, $request);
-               } else {
-                    $image = ItsHelper::saveImage('other', false, null, $request);
-               }
-
-               if ($image) {
+               if ($request->hasFile('image') && $request->file('image')->isValid()) {
+                    if (!empty($data->image)) {
+                         $image = ItsHelper::saveImage('other', true, $data->image, $request);
+                    } else {
+                         $image = ItsHelper::saveImage('other', false, null, $request);
+                    }
                     $dataToSave['image'] = $image;
                }
 

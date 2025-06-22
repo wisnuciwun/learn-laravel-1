@@ -159,7 +159,7 @@ class InstanceController extends Controller
                $dataToSave = array_filter([
                     'name' => $validatedData['name'],
                     'address' => $request->address,
-               ], fn($value) => !is_null($value));
+               ], fn($value) => !empty($value));
 
                if ($request->id) {
                     $data = Instances::where('id', $request->id)->first();

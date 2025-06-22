@@ -309,7 +309,7 @@ class AdminController extends Controller
                     'target_per_month' => $request->target_per_month,
                     'email' => $request->email,
                     'password' => $request->password,
-               ], fn($value) => !is_null($value));
+               ], fn($value) => !empty($value));
 
                $data = User::where('id', $request->id)->first();
 

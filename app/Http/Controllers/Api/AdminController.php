@@ -313,16 +313,16 @@ class AdminController extends Controller
 
                $data = User::where('id', $request->id)->first();
 
-               if ($request->hasFile('image') && $request->file('image')->isValid()) {
-                    if (!empty($data->image)) {
-                         $image = ItsHelper::saveImage('other', true, $data->image, $request);
-                    } else {
-                         $image = ItsHelper::saveImage('other', false, null, $request);
-                    }
-                    $dataToSave['image'] = $image;
-               }
-
                if ($data) {
+                    if ($request->hasFile('image') && $request->file('image')->isValid()) {
+                         if (!empty($data->image)) {
+                              $image = ItsHelper::saveImage('other', true, $data->image, $request);
+                         } else {
+                              $image = ItsHelper::saveImage('other', false, null, $request);
+                         }
+                         $dataToSave['image'] = $image;
+                    }
+
                     $data->update($dataToSave);
                } else {
                     $success = false;

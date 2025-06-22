@@ -125,14 +125,23 @@ class ItsHelper
 
      public static function createSlug(string $name, string $table_name)
      {
-          $slug = Str::slug($name, '-');
-          $originalSlug = $slug;
+          // Generate base slug
+          $baseSlug = Str::slug($name, '-');
+
+          // Limit to 5 words (5 hyphen separators)
+          $parts = explode('-', $baseSlug);
+          $limitedSlug = implode('-', array_slice($parts, 0, 5));
+
+          $slug = $limitedSlug;
           $counter = 1;
+
+          // Check for uniqueness and append suffix if needed
           while (DB::table($table_name)->where('slug', $slug)->exists()) {
-               $slug = $originalSlug . '-' . $counter;
+               $slug = $limitedSlug . '-' . $counter;
                $counter++;
           }
 
           return $slug;
      }
+
 }

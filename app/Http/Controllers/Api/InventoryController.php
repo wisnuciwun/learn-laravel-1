@@ -150,6 +150,9 @@ class InventoryController extends Controller
 
                if ($request->id) {
                     $data = Inventory::where('id', $request->id)->first();
+                    if ($validatedData['name'] != $data->slug) {
+                         $dataToSave['slug'] = ItsHelper::createSlug($validatedData['name'], 'inventory');
+                    }
 
                     if ($data) {
                          if (!empty($request->image)) {

@@ -21,7 +21,7 @@ class HelloController extends Controller
      public function showcase(Request $request)
      {
           try {
-               $dataInstanceSetting = InstanceSettings::where('instance_code', $request->instance_code)->select('instance_code', 'hello_template_id', 'title', 'slogan', 'promotion', 'third_party_links', 'img_heading', 'phone', 'closing_text', 'img_instance_logo')->first();
+               $dataInstanceSetting = InstanceSettings::where('slug', $request->slug)->select('slug', 'instance_code', 'hello_template_id', 'title', 'slogan', 'promotion', 'third_party_links', 'img_heading', 'phone', 'closing_text', 'img_instance_logo')->first();
                $res = Texts::where('name', 'app_hello_template')->where('id', $dataInstanceSetting->hello_template_id)->first();
                $dataImgClosing = ItsHelper::getImages('hello_img_closing');
 
@@ -95,7 +95,13 @@ class HelloController extends Controller
                     // 'sort_by' => $request->img_heading,
                ];
 
+
                $data = InstanceSettings::where('instance_code', $request->instance_code)->first();
+
+               if ($data->title != $validatedData['title']) {
+                    $slug = ItsHelper::createSlug($validatedData['title'], 'instance_settings');
+                    $dataToSave['slug'] = $slug;
+               }
 
                if (!empty($request->img_heading)) {
                     if (!empty($data->img_heading)) {
@@ -119,7 +125,7 @@ class HelloController extends Controller
                     Images::create([
                          'name' => 'hello_img_closing',
                          'instance_code' => $request->instance_code,
-                         'img_path' => $implodedImagePaths
+                         'img_path' => $implodedImagePaths,
                     ]);
                }
 

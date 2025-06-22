@@ -21,7 +21,14 @@ class HelloController extends Controller
      public function showcase(Request $request)
      {
           try {
-               $dataInstanceSetting = InstanceSettings::where('slug', $request->slug)->select('slug', 'instance_code', 'hello_template_id', 'title', 'slogan', 'promotion', 'third_party_links', 'img_heading', 'phone', 'closing_text', 'img_instance_logo')->first();
+               $dataInstanceSetting = InstanceSettings::
+                    when($request->slug != '', function ($q) use ($request) {
+                         $q->where('slug', $request->slug);
+                    })
+                    ->when($request->instance_code != '', function ($q) use ($request) {
+                         $q->where('instance_code', $request->instance_code);
+                    })
+                    ->select('slug', 'instance_code', 'hello_template_id', 'title', 'slogan', 'promotion', 'third_party_links', 'img_heading', 'phone', 'closing_text', 'img_instance_logo')->first();
                $dataInstance = Instances::where('instance_code', $dataInstanceSetting->instance_code)->select('address')->first();
                $res = Texts::where('name', 'app_hello_template')->where('id', $dataInstanceSetting->hello_template_id)->first();
                $dataImgClosing = ItsHelper::getImages('hello_img_closing');

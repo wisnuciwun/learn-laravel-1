@@ -43,7 +43,12 @@ class InventoryController extends Controller
                     ->when($request->limit != '', function ($q) use ($request) {
                          $q->limit($request->limit);
                     })
-                    ->where('instance_code', $request->instance_code)
+                    ->when($request->slug != '', function ($q) use ($request) {
+                         $q->where('slug', $request->slug);
+                    })
+                    ->when($request->instance_code != '', function ($q) use ($request) {
+                         $q->where('instance_code', $request->instance_code);
+                    })
                     ->get();
 
                return response()->json([

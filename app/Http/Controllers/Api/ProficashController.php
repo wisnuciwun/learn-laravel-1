@@ -177,33 +177,40 @@ class ProficashController extends Controller
           $data = [];
 
           try {
-               $data = TransactionsIn::with('inventory:id,name,image,price,base_price')
-                    ->select('price', 'quantity', 'inventory_id', 'created_at', 'transaction_code', 'payment_method')
-                    ->where('instance_id', $request->instance_id)
-                    ->when($request->start_date && $request->end_date, function ($q) use ($request) {
-                         $q->whereBetween('created_at', [
-                              $request->start_date . " 00:00:00",
-                              $request->end_date . ' 23:59:59'
-                         ]);
-                    })
-                    ->when(!$request->start_date && !$request->end_date, function ($q) {
-                         $q->whereBetween('created_at', [
-                              Carbon::now()->firstOfMonth(),
-                              Carbon::now()->endOfMonth()
-                         ]);
-                    })
-                    ->get();
-
-
-               $totalSales = 0;
-               $totalBasePrice = 0;
-
-               foreach ($data as $transaction) {
-                    $totalSales += $transaction->price * $transaction->quantity;
-
-                    if ($transaction->inventory) {
-                         $totalBasePrice += $transaction->inventory->base_price * $transaction->quantity;
-                    }
+               if ($userData->is_owner == 1) {
+                    $data = TransactionsIn::with('inventory:id,name,image,price,base_price')
+                         ->select('price', 'quantity', 'inventory_id', 'instance_id', 'created_at', 'transaction_code', 'payment_method')
+                         ->whereIn('instance_id', $userData->instance->pluck('id')->toArray())
+                         ->when($request->start_date && $request->end_date, function ($q) use ($request) {
+                              $q->whereBetween('created_at', [
+                                   $request->start_date . " 00:00:00",
+                                   $request->end_date . ' 23:59:59'
+                              ]);
+                         })
+                         ->when(!$request->start_date && !$request->end_date, function ($q) {
+                              $q->whereBetween('created_at', [
+                                   Carbon::now()->firstOfMonth(),
+                                   Carbon::now()->endOfMonth()
+                              ]);
+                         })
+                         ->get();
+               } else {
+                    $data = TransactionsIn::with('inventory:id,name,image,price,base_price')
+                         ->select('price', 'quantity', 'inventory_id', 'created_at', 'transaction_code', 'payment_method')
+                         ->where('instance_id', $request->instance_id)
+                         ->when($request->start_date && $request->end_date, function ($q) use ($request) {
+                              $q->whereBetween('created_at', [
+                                   $request->start_date . " 00:00:00",
+                                   $request->end_date . ' 23:59:59'
+                              ]);
+                         })
+                         ->when(!$request->start_date && !$request->end_date, function ($q) {
+                              $q->whereBetween('created_at', [
+                                   Carbon::now()->firstOfMonth(),
+                                   Carbon::now()->endOfMonth()
+                              ]);
+                         })
+                         ->get();
                }
 
                return response()->json([

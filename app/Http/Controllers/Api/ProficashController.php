@@ -23,6 +23,72 @@ use App\Http\Controllers\Controller;
 
 class ProficashController extends Controller
 {
+     public function summary(Request $request)
+     {
+          $userData = ItsHelper::verifyToken($request->token);
+          $request->merge([
+               // 'instance_id' => $userData->instance->id,
+               'user_id' => $userData->id,
+          ]);
+
+          $success = true;
+          $errors = '';
+          $data = [];
+
+          try {
+               $dataUser = User::select('name', 'sallary')->where('instance_code', $request->instance_code)->where('is_owner', 0)->get();
+               $dataTransactionIn = TransactionsIn::with('inventory:id,name,base_price,operational_price')->select('id', 'inventory_id', 'price')
+                    ->whereIn('instance_id', $userData->instance->pluck('id')->toArray())
+                    ->groupBy('name')->get();
+               $dataTransactionOut = TransactionsIn::select('name')
+                    ->whereIn('instance_id', [$request->instance_id])
+                    ->groupBy('name')
+                    ->when($request->start_date && $request->end_date, function ($q) use ($request) {
+                         $q->whereBetween('created_at', [
+                              $request->start_date . " 00:00:00",
+                              $request->end_date . ' 23:59:59'
+                         ]);
+                    })
+                    ->when(!$request->start_date && !$request->end_date, function ($q) {
+                         $q->whereBetween('created_at', [
+                              Carbon::now()->firstOfMonth(),
+                              Carbon::now()->endOfMonth()
+                         ]);
+                    })
+                    ->get();
+
+               $sales = $dataTransactionIn->sum(function ($item) {
+                    return $item->price * $item->quantity;
+               });
+               $modal = $dataTransactionIn->sum(function ($item) {
+                    return optional($item->inventory)->base_price + optional($item->inventory)->operational_price;
+               });
+               $profit = $sales - $modal;
+
+               $data = [
+                    'total_sales' => $sales,
+                    'total_modal' => $modal,
+                    'total_spending' => clone $dataTransactionOut->sum('price' * 'quantity'),
+                    'employee_sallary' => $dataUser->sum('sallary'),
+                    'total_sold_items' => clone $dataTransactionIn->sum('quantity'),
+                    'total_profit' => $profit,
+                    'profit_percentage' => ($profit / $userData->target_per_month) * 100,
+                    'target_per_month' => $userData->target_per_month
+               ];
+
+               return response()->json([
+                    'success' => $success,
+                    'message' => $errors ?: "Successfully get common outcome items",
+                    'data' => $data,
+               ], 200);
+          } catch (\Throwable $th) {
+               return response()->json([
+                    'success' => false,
+                    'message' => $th->getMessage(),
+               ], 500);
+          }
+     }
+
      public function commonSpendingItems(Request $request)
      {
           $userData = ItsHelper::verifyToken($request->token);

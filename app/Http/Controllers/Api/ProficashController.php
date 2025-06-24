@@ -37,12 +37,11 @@ class ProficashController extends Controller
 
           try {
                $dataUser = User::select('name', 'sallary')->where('instance_code', $request->instance_code)->where('is_owner', 0)->get();
-               $dataTransactionIn = TransactionsIn::with('inventory:id,name,base_price,operational_price')->select('id', 'inventory_id', 'price')
+               $dataTransactionIn = TransactionsIn::with('inventory:id,base_price,operational_price')->select('id', 'inventory_id', 'price', 'quantity')
                     ->whereIn('instance_id', $userData->instance->pluck('id')->toArray())
-                    ->groupBy('name')->get();
-               $dataTransactionOut = TransactionsIn::select('name')
-                    ->whereIn('instance_id', [$request->instance_id])
-                    ->groupBy('name')
+                    ->get();
+               $dataTransactionOut = TransactionsIn::select('price', 'quantity')
+                    ->whereIn('instance_id', $userData->instance->pluck('id')->toArray())
                     ->when($request->start_date && $request->end_date, function ($q) use ($request) {
                          $q->whereBetween('created_at', [
                               $request->start_date . " 00:00:00",
@@ -68,11 +67,15 @@ class ProficashController extends Controller
                $data = [
                     'total_sales' => $sales,
                     'total_modal' => $modal,
-                    'total_spending' => clone $dataTransactionOut->sum('price' * 'quantity'),
+                    'total_spending' => $dataTransactionOut->sum(function ($item) {
+                         return $item->price * $item->quantity;
+                    }),
                     'employee_sallary' => $dataUser->sum('sallary'),
-                    'total_sold_items' => clone $dataTransactionIn->sum('quantity'),
+                    'total_sold_items' => $dataTransactionIn->sum('quantity'),
                     'total_profit' => $profit,
-                    'profit_percentage' => ($profit / $userData->target_per_month) * 100,
+                    'profit_percentage' => $userData->target_per_month
+                         ? ($profit / $userData->target_per_month) * 100
+                         : 0,
                     'target_per_month' => $userData->target_per_month
                ];
 

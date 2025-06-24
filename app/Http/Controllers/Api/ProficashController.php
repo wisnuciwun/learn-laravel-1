@@ -39,8 +39,20 @@ class ProficashController extends Controller
                $dataUser = User::select('name', 'sallary')->where('instance_code', $request->instance_code)->where('is_owner', 0)->get();
                $dataTransactionIn = TransactionsIn::with('inventory:id,base_price,operational_price')->select('id', 'inventory_id', 'price', 'quantity')
                     ->whereIn('instance_id', $userData->instance->pluck('id')->toArray())
+                    ->when($request->start_date && $request->end_date, function ($q) use ($request) {
+                         $q->whereBetween('created_at', [
+                              $request->start_date . " 00:00:00",
+                              $request->end_date . ' 23:59:59'
+                         ]);
+                    })
+                    ->when(!$request->start_date && !$request->end_date, function ($q) {
+                         $q->whereBetween('created_at', [
+                              Carbon::now()->firstOfMonth(),
+                              Carbon::now()->endOfMonth()
+                         ]);
+                    })
                     ->get();
-               $dataTransactionOut = TransactionsIn::select('price', 'quantity')
+               $dataTransactionOut = TransactionsOut::select('price', 'quantity', 'instance_id')
                     ->whereIn('instance_id', $userData->instance->pluck('id')->toArray())
                     ->when($request->start_date && $request->end_date, function ($q) use ($request) {
                          $q->whereBetween('created_at', [

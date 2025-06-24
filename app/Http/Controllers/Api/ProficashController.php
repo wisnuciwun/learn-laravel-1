@@ -183,6 +183,8 @@ class ProficashController extends Controller
                     'user_id' => $request->user_id,
                     'instance_id' => $request->instance_id,
                     'transaction_code' => $transactionCode,
+                    'created_at' => now(),
+                    'updated_at' => now(),
                ];
           })->toArray();
 

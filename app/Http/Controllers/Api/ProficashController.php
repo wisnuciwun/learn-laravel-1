@@ -209,15 +209,7 @@ class ProficashController extends Controller
                return response()->json([
                     'success' => $success,
                     'message' => $errors ?: "Successfully get transaction",
-                    'data' => [
-                         'transactions' => $data,
-                         'highlight' => [
-                              'total_sales' => $totalSales,
-                              'total_base_price' => $totalBasePrice,
-                              'employee_sallary' => 0,
-                              'additional_cost' => 0
-                         ]
-                    ],
+                    'data' => $data,
                ], $success ? 200 : 400);
           } catch (\Throwable $th) {
                return response()->json([

@@ -170,7 +170,7 @@ class ProficashController extends Controller
           $transactionCode = ItsHelper::generateTransactionCode($userData->instance->instance_code, true);
           $validated = $request->validate([
                'transactions' => 'required|array',
-               'transactions.*.name' => 'required|integer',
+               'transactions.*.name' => 'required|string',
                'transactions.*.price' => 'required|integer',
                'transactions.*.quantity' => 'required|integer',
           ]);

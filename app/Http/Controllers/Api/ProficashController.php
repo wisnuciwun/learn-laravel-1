@@ -175,11 +175,14 @@ class ProficashController extends Controller
                'transactions.*.quantity' => 'required|integer',
           ]);
 
-          $dataToInsert = collect($validated['transactions'])->map(function ($item) {
+          $dataToInsert = collect($validated['transactions'])->map(function ($item) use ($request, $transactionCode) {
                return [
                     'name' => $item['name'],
                     'price' => $item['price'],
                     'quantity' => $item['quantity'],
+                    'user_id' => $request->user_id,
+                    'instance_id' => $request->instance_id,
+                    'transaction_code' => $transactionCode,
                ];
           })->toArray();
 

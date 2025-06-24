@@ -73,9 +73,9 @@ class ProficashController extends Controller
                     'employee_sallary' => $dataUser->sum('sallary'),
                     'total_sold_items' => $dataTransactionIn->sum('quantity'),
                     'total_profit' => $profit,
-                    'profit_percentage' => $userData->target_per_month
+                    'profit_percentage' => number_format($userData->target_per_month
                          ? ($profit / $userData->target_per_month) * 100
-                         : 0,
+                         : 0, 2),
                     'target_per_month' => $userData->target_per_month
                ];
 

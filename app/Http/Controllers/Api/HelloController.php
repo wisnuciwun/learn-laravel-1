@@ -11,6 +11,7 @@ use App\Models\Fianut\Texts;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Fianut\User;
 use Illuminate\Support\Str;
@@ -125,12 +126,32 @@ class HelloController extends Controller
                // save image bulk
                $imagePaths = [];
                if ($request->hasFile('img_closing')) {
+                    // 1. Find existing image record
+                    $existingImage = Images::where('name', 'hello_img_closing')
+                         ->where('instance_code', $request->instance_code)
+                         ->first();
+
+                    // 2. If exists, delete old files from storage
+                    if ($existingImage) {
+                         $oldPaths = explode(',', $existingImage->img_path);
+                         foreach ($oldPaths as $oldPath) {
+                              Storage::delete($oldPath);
+                         }
+
+                         // Option A: Update the existing record later
+                         // Option B: Delete and re-create (you choose one)
+                         $existingImage->delete();
+                    }
+
+                    // 3. Save new files
                     foreach ($request->file('img_closing') as $image) {
                          $path = $image->store('public/fianut/client');
                          $imagePaths[] = $path;
                     }
+
                     $implodedImagePaths = implode(',', $imagePaths);
 
+                    // 4. Save the new DB record
                     Images::create([
                          'name' => 'hello_img_closing',
                          'instance_code' => $request->instance_code,

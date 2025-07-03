@@ -94,7 +94,9 @@ class InventoryController extends Controller
                     } else {
                          $data = $inventories->toArray();
                          foreach ($inventories as $key => $value) {
-                              Storage::delete($value->image);
+                              if($value->image){
+                                   Storage::delete($value->image);
+                              }
                          }
 
                          Inventory::whereIn('id', $inventories->pluck('id'))->delete();

@@ -74,7 +74,8 @@ class ProficashController extends Controller
                $modal = $dataTransactionIn->sum(function ($item) {
                     return optional($item->inventory)->base_price + optional($item->inventory)->operational_price;
                });
-               $profit = $sales - $modal;
+               $employee_sallary = $dataUser->sum('sallary');
+               $profit = $sales - $modal - $employee_sallary;
 
                $data = [
                     'total_sales' => $sales,
@@ -82,7 +83,7 @@ class ProficashController extends Controller
                     'total_spending' => $dataTransactionOut->sum(function ($item) {
                          return $item->price * $item->quantity;
                     }),
-                    'employee_sallary' => $dataUser->sum('sallary'),
+                    'employee_sallary' => $employee_sallary,
                     'total_sold_items' => $dataTransactionIn->sum('quantity'),
                     'total_profit' => $profit,
                     'profit_percentage' => number_format($userData->target_per_month

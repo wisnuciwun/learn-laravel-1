@@ -597,6 +597,7 @@ class AdminController extends Controller
                $dataInstance = Instances::where('id', $request->instance_id)->first();
                $dataUser = User::where('id', $request->user_id)->first();
                $dataApp = Apps::where('id', $request->app_id)->first();
+               $dataUserPriviledge = UserPriviledges::where('user_id', $request->user_id)->first();
                $dataToSave = [
                     'app_id' => $validatedData['app_id'],
                     'instance_id' => $validatedData['instance_id'],
@@ -612,11 +613,9 @@ class AdminController extends Controller
                     $dataUser->update($dataUserToSave);
                }
 
-               if ($request->id) {
-                    $data = UserPriviledges::where('id', $request->id)->first();
-
-                    if ($data && $dataApp && $dataInstance && $dataUser) {
-                         $data->update($dataToSave);
+               if ($dataUserPriviledge) {
+                    if ($dataUserPriviledge && $dataApp && $dataInstance && $dataUser) {
+                         $dataUserPriviledge->update($dataToSave);
                     } else {
                          $success = false;
                          $errors = 'Required data not found';

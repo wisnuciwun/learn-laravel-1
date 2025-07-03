@@ -173,7 +173,7 @@ class InstanceController extends Controller
 
                          if ($request->hasFile('img_instance_logo') && $request->file('img_instance_logo')->isValid()) {
                               if (!empty($dataInstanceSetting->img_instance_logo)) {
-                                   $image = ItsHelper::saveImage('client', true, $data->img_instance_logo, $request, 'img_instance_logo');
+                                   $image = ItsHelper::saveImage('client', true, $dataInstanceSetting->img_instance_logo, $request, 'img_instance_logo');
                               } else {
                                    $image = ItsHelper::saveImage('client', false, null, $request, 'img_instance_logo');
                               }

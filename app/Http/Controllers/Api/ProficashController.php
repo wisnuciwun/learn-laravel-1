@@ -36,7 +36,7 @@ class ProficashController extends Controller
           $data = [];
 
           try {
-               $dataUser = User::select('name', 'sallary')->where('instance_code', $request->instance_code)->where('is_owner', 0)->get();
+               $dataUser = User::select('name', 'sallary', 'instance_code')->where('instance_code', $request->instance_code)->where('is_owner', 0)->get();
                $dataTransactionIn = TransactionsIn::with('inventory:id,base_price,operational_price')->select('id', 'inventory_id', 'price', 'quantity')
                     ->whereIn('instance_id', $userData->instance->pluck('id')->toArray())
                     ->when($request->start_date && $request->end_date, function ($q) use ($request) {
@@ -82,9 +82,7 @@ class ProficashController extends Controller
                     'total_spending' => $dataTransactionOut->sum(function ($item) {
                          return $item->price * $item->quantity;
                     }),
-                    'employee_sallary' => $dataUser->sum(function ($user) {
-                         return (float) $user->sallary;
-                    }),
+                    'employee_sallary' => $dataUser,
                     'total_sold_items' => $dataTransactionIn->sum('quantity'),
                     'total_profit' => $profit,
                     'profit_percentage' => number_format($userData->target_per_month

@@ -82,7 +82,9 @@ class ProficashController extends Controller
                     'total_spending' => $dataTransactionOut->sum(function ($item) {
                          return $item->price * $item->quantity;
                     }),
-                    'employee_sallary' => $dataUser->sum('sallary'),
+                    'employee_sallary' => $dataUser->sum(function ($user) {
+                         return (float) $user->sallary;
+                    }),
                     'total_sold_items' => $dataTransactionIn->sum('quantity'),
                     'total_profit' => $profit,
                     'profit_percentage' => number_format($userData->target_per_month

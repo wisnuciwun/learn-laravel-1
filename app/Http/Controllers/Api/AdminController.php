@@ -863,7 +863,7 @@ class AdminController extends Controller
                               $dataTransaction->update($dataToSave);
 
                               $isAlreadyPriviledged = UserPriviledges::where('user_id', $dataTransaction->user_id)->where('app_id', $dataTransaction->app_id)->first();
-                              $idRoleAppAdmin = Roles::where('name', 'app_admin')->first();
+                              $idRoleAppAdmin = Roles::where('name', 'Admin')->first();
 
                               if (!$isAlreadyPriviledged) {
                                    $dataInstance = Instances::where('instance_code', $dataTransaction->instance_code)->first();

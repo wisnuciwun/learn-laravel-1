@@ -191,7 +191,7 @@ class InstanceController extends Controller
                     $dataInstancePriviledge = InstancePriviledges::where('instance_code', $request->instance_code)->first();
 
                     if ($dataInstancePriviledge && $request->is_owner == 1) {
-                         $idRoleAppAdmin = Roles::where('name', 'app_admin')->first();
+                         $idRoleAppAdmin = Roles::where('name', 'Admin')->first();
                          $dataToSave['instance_code'] = $request->instance_code;
                          $dataToSave['user_id'] = $request->user_id;
 

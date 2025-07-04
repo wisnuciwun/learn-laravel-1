@@ -118,8 +118,10 @@ class AuthController extends Controller
 
         $validReferralCode = null;
 
-        if (!$request->referral_code) {
-            $validReferralCode = User::where('referral_code', $request->referral_code)->select('referral_code')->first();
+        if (!empty($request->referral_code)) {
+            $validReferralCode = User::where('referral_code', $request->referral_code)
+                ->select('referral_code')
+                ->first();
         }
 
         $user = User::create([
@@ -128,11 +130,11 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
             'token' => $token,
             'is_owner' => empty($request->instance_code) ? 1 : 0,
-            'instance_code' => !$request->instance_code ? $instance_code : $request->instance_code,
+            'instance_code' => empty($request->instance_code) ? $instance_code : $request->instance_code,
             'nickname' => explode(' ', trim($request->name))[0],
             'active' => 1,
             'gender' => $request->gender,
-            'referred_by' => $validReferralCode->referral_code,
+            'referred_by' => $validReferralCode ? $validReferralCode->referral_code : null,
             'referral_code' => ItsHelper::generateReferralCode($request->name)
         ]);
 

@@ -25,6 +25,28 @@ use Storage;
 
 class AdminController extends Controller
 {
+     public function texts(Request $request)
+     {
+          ItsHelper::verifyToken($request->token);
+
+          try {
+               $res = Texts::where('app_id', $request->app_id)
+                    ->when($request->keyword, function ($q) use ($request) {
+                         $q->where('name', 'like', "%{$request->keyword}%");
+                    })->get();
+
+               return response()->json([
+                    'success' => true,
+                    'message' => 'Get text data successful',
+                    'data' => $res,
+               ], 200);
+          } catch (\Throwable $th) {
+               return response()->json([
+                    'success' => false,
+                    'message' => $th->getMessage(),
+               ], 500);
+          }
+     }
      public function showImgSystem($imageName)
      {
           $path = storage_path("app/public/fianut/system/{$imageName}");

@@ -707,13 +707,15 @@ class AdminController extends Controller
                'user_id' => $userData->id
           ]);
 
+          $success = true;
+          $errors = '';
+          $data = [];
+
           $payments = $request->input('payments');
 
           if (!is_array($payments) || count($payments) === 0) {
                return response()->json(['message' => 'No payment data provided.'], 400);
           }
-
-          $savedPayments = [];
 
           DB::beginTransaction();
 
@@ -730,8 +732,8 @@ class AdminController extends Controller
                     if ($validator->fails()) {
                          DB::rollBack();
                          return response()->json([
+                              'success' => false,
                               'message' => 'Validation failed for one or more payments.',
-                              'errors' => $validator->errors(),
                          ], 422);
                     }
 
@@ -745,20 +747,19 @@ class AdminController extends Controller
                     ];
 
                     $created = AppPayments::create($dataToSave);
-                    $savedPayments[] = $created;
+                    $data[] = $created;
                }
 
                DB::commit();
                return response()->json([
-                    'message' => 'Bulk payment requests created successfully.',
-                    'data' => $savedPayments,
-               ]);
-
-          } catch (\Throwable $e) {
-               DB::rollBack();
+                    'success' => $success,
+                    'message' => $errors ?: "Successfully request payment",
+                    'data' => $data,
+               ], $success ? 200 : 400);
+          } catch (\Throwable $th) {
                return response()->json([
-                    'message' => 'An error occurred while processing payments.',
-                    'error' => $e->getMessage(),
+                    'success' => false,
+                    'message' => $th->getMessage(),
                ], 500);
           }
      }

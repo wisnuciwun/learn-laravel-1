@@ -899,7 +899,7 @@ class AdminController extends Controller
                               ->orWhereDate('expired_at', '>=', Carbon::now()->subDays(7));
                     })
                     ->get()
-                    ->map(function ($privilege) use ($startOfMonth, $endOfMonth, $employeeData) {
+                    ->map(function ($privilege) use ($startOfMonth, $endOfMonth, &$employeeData) {
                          // Step 1: Filter latest payment(s) by matching app_id
                          $filteredPayments = $privilege->payments
                               ->where('app_id', $privilege->app_id)

@@ -918,8 +918,8 @@ class AdminController extends Controller
                          // Step 3: Count users and calculate bill
                          $userCount = $users->count();
                          $employeeData = $userCount;
-                         $pricePerUser = optional($privilege->appPricing)->price ?? 0;
-                         $shouldPay = $pricePerUser * max($userCount, 1);
+                         $price = optional($privilege->appPricing)->price ?? 0;
+                         $shouldPay = $price * ($userCount != 0 ? $userCount : 1);
 
                          // Step 4: Add shouldPay to the result
                          $privilege->should_pay = $shouldPay;

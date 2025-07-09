@@ -904,8 +904,9 @@ class AdminController extends Controller
                          // Step 1: Filter latest payment(s) by matching app_id
                          $filteredPayments = $privilege->payments
                               ->where('app_id', $privilege->app_id)
-                              ->sortByDesc('created_at');
-
+                              ->sortByDesc('created_at')
+                              ->values(); // re
+     
                          // Step 2: Get related non-owner users for the same instance and app
                          $users = User::withTrashed()
                               ->where('instance_code', $privilege->instance_code)

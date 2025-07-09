@@ -8,12 +8,14 @@ use App\Models\Fianut\Apps;
 use App\Models\Fianut\InstancePriviledges;
 use App\Models\Fianut\Instances;
 use App\Models\Fianut\InstanceTypes;
+use App\Models\Fianut\Inventory;
 use App\Models\Fianut\Roles;
 use App\Models\Fianut\Settings;
 use App\Models\Fianut\Texts;
 use App\Models\Fianut\UserPriviledges;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -696,6 +698,71 @@ class AdminController extends Controller
           }
      }
 
+     public function bulkRequestPayment(Request $request)
+     {
+          $userData = ItsHelper::verifyToken($request->token);
+          $request->merge([
+               'instance_code' => $userData->instance->instance_code,
+               'instance_id' => $userData->instance->id,
+               'user_id' => $userData->id
+          ]);
+
+          $payments = $request->input('payments');
+
+          if (!is_array($payments) || count($payments) === 0) {
+               return response()->json(['message' => 'No payment data provided.'], 400);
+          }
+
+          $savedPayments = [];
+
+          DB::beginTransaction();
+
+          try {
+               $instanceCode = $request->instance_code ?? 'GEN';
+               $transactionId = ItsHelper::generateTransactionCode($instanceCode);
+
+               foreach ($payments as $payment) {
+                    $validator = Validator::make($payment, [
+                         'app_id' => 'required|exists:apps,id',
+                         'app_pricings_id' => 'required|exists:app_pricings,id',
+                    ]);
+
+                    if ($validator->fails()) {
+                         DB::rollBack();
+                         return response()->json([
+                              'message' => 'Validation failed for one or more payments.',
+                              'errors' => $validator->errors(),
+                         ], 422);
+                    }
+
+                    $dataToSave = [
+                         'user_id' => $request->user_id,
+                         'instance_code' => $instanceCode,
+                         'app_id' => $payment['app_id'],
+                         'app_pricings_id' => $payment['app_pricings_id'],
+                         'transaction_id' => $transactionId,
+                         'confirm_payment' => null,
+                    ];
+
+                    $created = AppPayments::create($dataToSave);
+                    $savedPayments[] = $created;
+               }
+
+               DB::commit();
+               return response()->json([
+                    'message' => 'Bulk payment requests created successfully.',
+                    'data' => $savedPayments,
+               ]);
+
+          } catch (\Throwable $e) {
+               DB::rollBack();
+               return response()->json([
+                    'message' => 'An error occurred while processing payments.',
+                    'error' => $e->getMessage(),
+               ], 500);
+          }
+     }
+
      public function requestPayment(Request $request)
      {
           $userData = ItsHelper::verifyToken($request->token);
@@ -802,122 +869,77 @@ class AdminController extends Controller
           }
      }
 
-     public function confirmPayment(Request $request)
+     public function listPayment(Request $request)
      {
-          ItsHelper::verifyAsAdmin($request->token);
+          $userData = ItsHelper::verifyToken($request->token);
+          $request->merge([
+               'instance_code' => $userData->instance->instance_code,
+               'instance_id' => $userData->instance->id,
+               'user_id' => $userData->id
+          ]);
 
           $success = true;
           $errors = '';
           $data = [];
 
-          $validatedData = $request->validate([
-               'transaction_id' => 'required',
-               'confirm_payment' => 'required',
-               'amount' => 'required|integer'
-          ]);
+          $targetMonth = Carbon::now()->subMonth();
+          $startOfMonth = $targetMonth->copy()->startOfMonth();
+          $endOfMonth = $targetMonth->copy()->endOfMonth();
 
           try {
-               $dataTransaction = AppPayments::with(['appPricing'])
-                    ->where('transaction_id', $request->transaction_id)
-                    ->whereNull('confirm_payment')
-                    ->latest()
-                    ->first();
+               $inventoryData = Inventory::where('instance_code', $request->instance_code)->count();
+               $instanceData = Instances::where('instance_code', $request->instance_code)->count();
+               $employeeData = 0;
 
-               $targetMonth = Carbon::now()->subMonth(); // or use Carbon::parse('2025-06-01') for June
-               $startOfMonth = $targetMonth->copy()->startOfMonth();
-               $endOfMonth = $targetMonth->copy()->endOfMonth();
-
-               $dataUsers = User::withTrashed()
-                    ->with([
-                         'userPriviledges' => function ($q) use ($dataTransaction) {
-                              $q->where('app_id', $dataTransaction->app_id);
-                         }
-                    ])
-                    ->whereHas('userPriviledges', function ($q) use ($dataTransaction) {
-                         $q->where('app_id', $dataTransaction->app_id);
+               $data = InstancePriviledges::with(['app', 'payment.appPricing'])
+                    ->where('instance_code', $request->instance_code)
+                    ->where(function ($query) {
+                         $query
+                              ->whereDate('expired_at', '<=', Carbon::now()->addDays(7))
+                              ->orWhereDate('expired_at', '>=', Carbon::now()->subDays(7));
                     })
-                    ->where('instance_code', $dataTransaction->instance_code)
-                    ->where('is_owner', '!=', 1)
-                    ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
-                    ->whereBetween('deleted_at', [$startOfMonth, $endOfMonth])
-                    ->select('id', 'name')
-                    ->get();
+                    ->get()
+                    ->map(function ($privilege) use ($startOfMonth, $endOfMonth, $employeeData) {
 
-               $dataToSave = [
-                    'confirm_payment' => $validatedData['confirm_payment'],
+                         // Step 2: Get related non-owner users for that app/instance
+                         $users = User::withTrashed()
+                              ->where('instance_code', $privilege->instance_code)
+                              ->where('is_owner', '!=', 1)
+                              ->whereHas('userPriviledges', function ($q) use ($privilege) {
+                              $q->where('app_id', $privilege->app_id);
+                         })
+                              ->where(function ($q) use ($startOfMonth, $endOfMonth) {
+                              $q->whereNull('deleted_at') // still active
+                                   ->orWhereBetween('deleted_at', [$startOfMonth, $endOfMonth]);
+                         })
+                              ->select('id')
+                              ->get();
+
+                         // Step 3: Count users and calculate bill
+                         $userCount = $users->count();
+                         $employeeData = $userCount;
+                         $pricePerUser = optional($privilege->appPricing)->price ?? 0;
+                         $shouldPay = $pricePerUser * max($userCount, 1);
+
+                         // Step 4: Add shouldPay to the result
+                         $privilege->should_pay = $shouldPay;
+
+                         return $privilege;
+                    });
+
+               $summary = [
+                    'employees' => $employeeData,
+                    'products' => $inventoryData,
+                    'instances' => $instanceData
                ];
-
-               $userCount = (clone $dataUsers)->count();
-               $price = optional($dataTransaction->appPricing)->price ?? 0;
-               $shouldPay = $price * ($userCount != 0 ? $userCount : 1);
-
-               if ($request->amount == $shouldPay) {
-                    if ($dataTransaction) {
-                         if ($validatedData['confirm_payment'] == 1) {
-                              $dataInstancePriviledgesToSave = [
-                                   'expired_at' => Carbon::parse($dataInstancePriviledges->expired_at ?? now())->addDays(30)
-                              ];
-                              $dataInstancePriviledges = InstancePriviledges::
-                                   where('instance_code', $dataTransaction->instance_code)
-                                   ->where('app_id', $dataTransaction->app_id)
-                                   ->get();
-                              $dataInstancePriviledges->each(function ($item) use ($dataInstancePriviledgesToSave) {
-                                   $item->update($dataInstancePriviledgesToSave);
-                              });
-
-                              // referral poin system
-                              $dataOwnerUser = User::select('name', 'referred_by')
-                                   ->where('id', $dataTransaction->user_id)
-                                   ->whereNotNull('referred_by')
-                                   ->first();
-
-                              if ($dataOwnerUser) {
-                                   $dataReferral = User::select('name', 'poins')
-                                        ->where('referral_code', $dataOwnerUser->referred_by)
-                                        ->first();
-
-                                   if ($dataReferral) {
-                                        $dataReferral->increment('poins', $shouldPay * 0.1); // Make sure to specify the column name here
-                                   }
-                              }
-
-                              $dataTransaction->update($dataToSave);
-
-                              $isAlreadyPriviledged = UserPriviledges::where('user_id', $dataTransaction->user_id)->where('app_id', $dataTransaction->app_id)->first();
-                              $idRoleAppAdmin = Roles::where('name', 'Admin')->first();
-
-                              if (!$isAlreadyPriviledged) {
-                                   $dataInstance = Instances::where('instance_code', $dataTransaction->instance_code)->first();
-
-                                   $dataNewPriviledge = [
-                                        'user_id' => $dataTransaction->user_id,
-                                        'role_id' => $idRoleAppAdmin->id,
-                                        'instance_id' => $dataInstance->id,
-                                        'app_id' => $dataTransaction->app_id,
-                                   ];
-
-                                   UserPriviledges::create(
-                                        $dataNewPriviledge
-                                   );
-                              }
-                         } else {
-                              $success = true;
-                              $errors = 'Transaction has been canceled';
-                         }
-                    } else {
-                         $success = false;
-                         $errors = 'Transaction ID data not found or has been confirmed';
-                    }
-               } else {
-                    // $userNames = $dataUsers->pluck('name')->toArray();
-                    $success = false;
-                    $errors = "Insufficient amount, active users is more than 1. You must pay $shouldPay";
-               }
 
                return response()->json([
                     'success' => $success,
-                    'message' => $errors ?: "Successfully confirm payment",
-                    'data' => $data,
+                    'message' => $errors ?: "Successfully fetch payment",
+                    'data' => [
+                         'bills' => $data,
+                         'summary' => $summary
+                    ],
                ], $success ? 200 : 400);
           } catch (\Throwable $th) {
                return response()->json([
@@ -926,6 +948,259 @@ class AdminController extends Controller
                ], 500);
           }
      }
+
+     // public function confirmPayment(Request $request)
+     // {
+     //      ItsHelper::verifyAsAdmin($request->token);
+
+     //      $success = true;
+     //      $errors = '';
+     //      $data = [];
+
+     //      $validatedData = $request->validate([
+     //           'transaction_id' => 'required',
+     //           'confirm_payment' => 'required',
+     //           'amount' => 'required|integer'
+     //      ]);
+
+     //      try {
+     //           $dataTransaction = AppPayments::with(['appPricing'])
+     //                ->where('transaction_id', $request->transaction_id)
+     //                ->whereNull('confirm_payment')
+     //                ->latest()
+     //                ->first();
+
+     //           $targetMonth = Carbon::now()->subMonth(); // or use Carbon::parse('2025-06-01') for June
+     //           $startOfMonth = $targetMonth->copy()->startOfMonth();
+     //           $endOfMonth = $targetMonth->copy()->endOfMonth();
+
+     //           $dataUsers = User::withTrashed()
+     //                ->with([
+     //                     'userPriviledges' => function ($q) use ($dataTransaction) {
+     //                          $q->where('app_id', $dataTransaction->app_id);
+     //                     }
+     //                ])
+     //                ->whereHas('userPriviledges', function ($q) use ($dataTransaction) {
+     //                     $q->where('app_id', $dataTransaction->app_id);
+     //                })
+     //                ->where('instance_code', $dataTransaction->instance_code)
+     //                ->where('is_owner', '!=', 1)
+     //                ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
+     //                ->whereBetween('deleted_at', [$startOfMonth, $endOfMonth])
+     //                ->select('id', 'name')
+     //                ->get();
+
+     //           $dataToSave = [
+     //                'confirm_payment' => $validatedData['confirm_payment'],
+     //           ];
+
+     //           $userCount = (clone $dataUsers)->count();
+     //           $price = optional($dataTransaction->appPricing)->price ?? 0;
+     //           $shouldPay = $price * ($userCount != 0 ? $userCount : 1);
+
+     //           if ($request->amount == $shouldPay) {
+     //                if ($dataTransaction) {
+     //                     if ($validatedData['confirm_payment'] == 1) {
+     //                          $dataInstancePriviledgesToSave = [
+     //                               'expired_at' => Carbon::parse($dataInstancePriviledges->expired_at ?? now())->addDays(30)
+     //                          ];
+     //                          $dataInstancePriviledges = InstancePriviledges::
+     //                               where('instance_code', $dataTransaction->instance_code)
+     //                               ->where('app_id', $dataTransaction->app_id)
+     //                               ->get();
+     //                          $dataInstancePriviledges->each(function ($item) use ($dataInstancePriviledgesToSave) {
+     //                               $item->update($dataInstancePriviledgesToSave);
+     //                          });
+
+     //                          // referral poin system
+     //                          $dataOwnerUser = User::select('name', 'referred_by')
+     //                               ->where('id', $dataTransaction->user_id)
+     //                               ->whereNotNull('referred_by')
+     //                               ->first();
+
+     //                          if ($dataOwnerUser) {
+     //                               $dataReferral = User::select('name', 'poins')
+     //                                    ->where('referral_code', $dataOwnerUser->referred_by)
+     //                                    ->first();
+
+     //                               if ($dataReferral) {
+     //                                    $dataReferral->increment('poins', $shouldPay * 0.1); // Make sure to specify the column name here
+     //                               }
+     //                          }
+
+     //                          $dataTransaction->update($dataToSave);
+
+     //                          $isAlreadyPriviledged = UserPriviledges::where('user_id', $dataTransaction->user_id)->where('app_id', $dataTransaction->app_id)->first();
+     //                          $idRoleAppAdmin = Roles::where('name', 'Admin')->first();
+
+     //                          if (!$isAlreadyPriviledged) {
+     //                               $dataInstance = Instances::where('instance_code', $dataTransaction->instance_code)->first();
+
+     //                               $dataNewPriviledge = [
+     //                                    'user_id' => $dataTransaction->user_id,
+     //                                    'role_id' => $idRoleAppAdmin->id,
+     //                                    'instance_id' => $dataInstance->id,
+     //                                    'app_id' => $dataTransaction->app_id,
+     //                               ];
+
+     //                               UserPriviledges::create(
+     //                                    $dataNewPriviledge
+     //                               );
+     //                          }
+     //                     } else {
+     //                          $success = true;
+     //                          $errors = 'Transaction has been canceled';
+     //                     }
+     //                } else {
+     //                     $success = false;
+     //                     $errors = 'Transaction ID data not found or has been confirmed';
+     //                }
+     //           } else {
+     //                // $userNames = $dataUsers->pluck('name')->toArray();
+     //                $success = false;
+     //                $errors = "Insufficient amount, active users is more than 1. You must pay $shouldPay";
+     //           }
+
+     //           return response()->json([
+     //                'success' => $success,
+     //                'message' => $errors ?: "Successfully confirm payment",
+     //                'data' => $data,
+     //           ], $success ? 200 : 400);
+     //      } catch (\Throwable $th) {
+     //           return response()->json([
+     //                'success' => false,
+     //                'message' => $th->getMessage(),
+     //           ], 500);
+     //      }
+     // }
+
+     public function confirmPayment(Request $request)
+     {
+          ItsHelper::verifyAsAdmin($request->token);
+
+          $validatedData = $request->validate([
+               'transaction_id' => 'required',
+               'confirm_payment' => 'required|boolean',
+               'amount' => 'required|integer'
+          ]);
+
+          try {
+               $transactionId = $validatedData['transaction_id'];
+               $confirmPayment = $validatedData['confirm_payment'];
+
+               // Get all unconfirmed transactions for this transaction_id
+               $transactions = AppPayments::with('appPricing')
+                    ->where('transaction_id', $transactionId)
+                    ->whereNull('confirm_payment')
+                    ->get();
+
+               if ($transactions->isEmpty()) {
+                    return response()->json([
+                         'success' => false,
+                         'message' => 'Transaction ID not found or already confirmed.',
+                    ], 404);
+               }
+
+               $totalShouldPay = 0;
+
+               // Loop through each app payment
+               foreach ($transactions as $dataTransaction) {
+                    $targetMonth = Carbon::now()->subMonth();
+                    $startOfMonth = $targetMonth->copy()->startOfMonth();
+                    $endOfMonth = $targetMonth->copy()->endOfMonth();
+
+                    $dataUsers = User::withTrashed()
+                         ->with([
+                              'userPriviledges' => function ($q) use ($dataTransaction) {
+                                   $q->where('app_id', $dataTransaction->app_id);
+                              }
+                         ])
+                         ->whereHas('userPriviledges', function ($q) use ($dataTransaction) {
+                              $q->where('app_id', $dataTransaction->app_id);
+                         })
+                         ->where('instance_code', $dataTransaction->instance_code)
+                         ->where('is_owner', '!=', 1)
+                         ->where(function ($q) use ($startOfMonth, $endOfMonth) {
+                              $q->whereNull('deleted_at')
+                                   ->orWhereBetween('deleted_at', [$startOfMonth, $endOfMonth]);
+                         })
+                         ->get();
+
+                    $userCount = $dataUsers->count();
+                    $price = optional($dataTransaction->appPricing)->price ?? 0;
+                    $shouldPay = $price * max($userCount, 1);
+                    $totalShouldPay += $shouldPay;
+               }
+
+               // Check if amount is sufficient
+               if ((int) $request->amount !== (int) $totalShouldPay) {
+                    return response()->json([
+                         'success' => false,
+                         'message' => "Insufficient amount, expected total payment is Rp " . number_format($totalShouldPay, 0, ',', '.'),
+                    ], 400);
+               }
+
+               // Proceed to confirm all transactions
+               foreach ($transactions as $dataTransaction) {
+                    $dataTransaction->update([
+                         'confirm_payment' => $confirmPayment,
+                    ]);
+
+                    // Extend privilege period
+                    $dataInstancePriviledges = InstancePriviledges::where('instance_code', $dataTransaction->instance_code)
+                         ->where('app_id', $dataTransaction->app_id)
+                         ->get();
+
+                    $dataInstancePriviledges->each(function ($item) {
+                         $item->update([
+                              'expired_at' => Carbon::parse($item->expired_at ?? now())->addDays(30)
+                         ]);
+                    });
+
+                    // Referral bonus
+                    $dataOwnerUser = User::select('name', 'referred_by')
+                         ->where('id', $dataTransaction->user_id)
+                         ->whereNotNull('referred_by')
+                         ->first();
+
+                    if ($dataOwnerUser) {
+                         $dataReferral = User::where('referral_code', $dataOwnerUser->referred_by)->first();
+                         if ($dataReferral) {
+                              $price = optional($dataTransaction->appPricing)->price ?? 0;
+                              $dataReferral->increment('poins', $price * 0.1);
+                         }
+                    }
+
+                    // Ensure privilege exists
+                    $alreadyPrivileged = UserPriviledges::where('user_id', $dataTransaction->user_id)
+                         ->where('app_id', $dataTransaction->app_id)
+                         ->first();
+
+                    if (!$alreadyPrivileged) {
+                         $adminRole = Roles::where('name', 'Admin')->first();
+                         $instance = Instances::where('instance_code', $dataTransaction->instance_code)->first();
+
+                         UserPriviledges::create([
+                              'user_id' => $dataTransaction->user_id,
+                              'role_id' => $adminRole->id,
+                              'instance_id' => $instance->id,
+                              'app_id' => $dataTransaction->app_id,
+                         ]);
+                    }
+               }
+
+               return response()->json([
+                    'success' => true,
+                    'message' => 'All payments confirmed successfully.',
+               ]);
+          } catch (\Throwable $e) {
+               return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+               ], 500);
+          }
+     }
+
 
      public function manageRole(Request $request)
      {

@@ -899,7 +899,7 @@ class AdminController extends Controller
                               ->orWhereDate('expired_at', '>=', Carbon::now()->subDays(7));
                     })
                     ->get()
-                    ->map(function ($privilege) use ($startOfMonth, $endOfMonth) {
+                    ->map(function ($privilege) use ($startOfMonth, $endOfMonth, $employeeData) {
                          // Step 1: Filter latest payment(s) by matching app_id
                          $filteredPayments = $privilege->payments
                               ->where('app_id', $privilege->app_id)
@@ -921,12 +921,14 @@ class AdminController extends Controller
 
                          // Step 3: Calculate shouldPay
                          $employeeCount = $users->count();
+                         $employeeData += $employeeCount;
                          $price = optional($privilege->appPricing)->price ?? 0;
 
                          $shouldPay = $price * ($employeeCount <= 1 ? 1 : $employeeCount);
 
                          // Step 4: Attach fields back to model
                          $privilege->should_pay = $shouldPay;
+                         $privilege->employees = $employeeCount;
                          $privilege->setRelation('payments', $filteredPayments);
 
                          return $privilege;

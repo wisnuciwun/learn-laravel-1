@@ -891,7 +891,7 @@ class AdminController extends Controller
                $instanceData = Instances::where('instance_code', $request->instance_code)->count();
                $employeeData = 0;
 
-               $data = InstancePriviledges::with(['app', 'payment.appPricing'])
+               $data = InstancePriviledges::with(['app', 'payments.appPricing'])
                     ->where('instance_code', $request->instance_code)
                     ->where(function ($query) {
                          $query
@@ -901,11 +901,11 @@ class AdminController extends Controller
                     ->get()
                     ->map(function ($privilege) use ($startOfMonth, $endOfMonth, $employeeData) {
 
-                         $latestPayment = $privilege->payments
-                              ->where('app_id', $privilege->app_id)
-                              ->sortByDesc('created_at')
-                              ->first();
-
+                         // $latestPayment = $privilege->payments
+                         //      ->where('app_id', $privilege->app_id)
+                         //      ->sortByDesc('created_at')
+                         //      ->first();
+     
                          // Step 2: Get related non-owner users for that app/instance
                          $users = User::withTrashed()
                               ->where('instance_code', $privilege->instance_code)
@@ -928,8 +928,8 @@ class AdminController extends Controller
 
                          // Step 4: Add shouldPay to the result
                          $privilege->should_pay = $shouldPay;
-                         $privilege->setRelation('payment', $latestPayment);
-
+                         // $privilege->setRelation('payment', $latestPayment);
+     
                          return $privilege;
                     });
 

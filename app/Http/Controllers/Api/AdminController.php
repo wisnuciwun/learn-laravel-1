@@ -891,7 +891,7 @@ class AdminController extends Controller
                $instanceData = Instances::where('instance_code', $request->instance_code)->count();
                $employeeData = 0;
 
-               $data = InstancePriviledges::with(['app', 'payments.appPricing'])
+               $data = InstancePriviledges::with(['app', 'appPricing', 'payments'])
                     ->where('instance_code', $request->instance_code)
                     ->where(function ($query) {
                          $query
@@ -899,13 +899,13 @@ class AdminController extends Controller
                               ->orWhereDate('expired_at', '>=', Carbon::now()->subDays(7));
                     })
                     ->get()
-                    ->map(function ($privilege) use ($startOfMonth, $endOfMonth, $employeeData) {
-
+                    ->map(function ($privilege) use ($startOfMonth, $endOfMonth) {
+                         // Step 1: Filter latest payment(s) by matching app_id
                          $filteredPayments = $privilege->payments
                               ->where('app_id', $privilege->app_id)
                               ->sortByDesc('created_at');
 
-                         // Step 2: Get related non-owner users for that app/instance
+                         // Step 2: Get related non-owner users for the same instance and app
                          $users = User::withTrashed()
                               ->where('instance_code', $privilege->instance_code)
                               ->where('is_owner', '!=', 1)
@@ -919,22 +919,19 @@ class AdminController extends Controller
                               ->select('id')
                               ->get();
 
-                         // Step 3: Count users and calculate bill
-                         $employeeCount = $users->count(); // count employees only
+                         // Step 3: Calculate shouldPay
+                         $employeeCount = $users->count();
                          $price = optional($privilege->appPricing)->price ?? 0;
 
-                         if ($employeeCount <= 1) {
-                              $shouldPay = $price * 1; // only 1 user billed
-                         } else {
-                              $shouldPay = $price * $employeeCount; // billed by number of employees
-                         }
+                         $shouldPay = $price * ($employeeCount <= 1 ? 1 : $employeeCount);
 
-                         // Step 4: Add shouldPay to the result
+                         // Step 4: Attach fields back to model
                          $privilege->should_pay = $shouldPay;
                          $privilege->setRelation('payments', $filteredPayments);
 
                          return $privilege;
                     });
+
 
                $summary = [
                     'employees' => $employeeData,

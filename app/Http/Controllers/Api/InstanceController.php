@@ -49,6 +49,9 @@ class InstanceController extends Controller
           $instanceCode = $userData->instance->instance_code;
 
           try {
+               $dataApp = Apps::where('name' . $request->app_name)->select('id')->first();
+               $dataInstancePriviledge = InstancePriviledges::where('instance_code', $instanceCode)->where('app_id', $dataApp->id)->first();
+
                if ($userData->is_owner == 1) {
                     $dataUser = User::where('id', $userId)->first();
                     $dataInstance = Instances::where('instance_code', $instanceCode)->get();
@@ -67,6 +70,7 @@ class InstanceController extends Controller
                          'user' => $dataUser,
                          'instance' => $dataInstance,
                          'instance_settings' => $dataInstanceSettings,
+                         'instance_priviledge' => $dataInstancePriviledge,
                          'role' => $dataRole,
                     ],
                ], 200);

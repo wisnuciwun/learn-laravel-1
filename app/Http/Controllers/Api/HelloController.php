@@ -32,7 +32,7 @@ class HelloController extends Controller
                     ->select('slug', 'instance_code', 'hello_template_id', 'title', 'slogan', 'promotion', 'third_party_links', 'img_heading', 'phone', 'closing_text', 'img_instance_logo')->first();
                $dataInstance = Instances::where('instance_code', $dataInstanceSetting->instance_code)->select('address')->first();
                $res = Texts::where('name', 'app_hello_template')->where('id', $dataInstanceSetting->hello_template_id)->first();
-               $dataImgClosing = ItsHelper::getImages('hello_img_closing');
+               $dataImgClosing = ItsHelper::getImages('hello_img_closing', $dataInstanceSetting->instance_code);
 
                return response()->json([
                     'success' => true,

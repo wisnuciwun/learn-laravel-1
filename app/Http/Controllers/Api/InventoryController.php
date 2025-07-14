@@ -94,7 +94,7 @@ class InventoryController extends Controller
                     } else {
                          $data = $inventories->toArray();
                          foreach ($inventories as $key => $value) {
-                              if($value->image){
+                              if ($value->image) {
                                    Storage::delete($value->image);
                               }
                          }
@@ -153,8 +153,9 @@ class InventoryController extends Controller
                     'minimum_stock' => $request->minimum_stock,
                     'dummy_stock' => $request->dummy_stock,
                     'promotion_id' => $request->promotion_id,
-                    'variant' => $request->variant
-               ], fn($value) => !empty($value));
+                    'variant' => $request->variant,
+                    'variant_price' => $request->variant_price
+               ], fn($value) => !isset($value));
 
                if ($request->id) {
                     $data = Inventory::where('id', $request->id)->first();

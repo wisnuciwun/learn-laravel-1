@@ -157,7 +157,7 @@ class InventoryController extends Controller
                     'promotion_id' => $request->promotion_id,
                     'variant' => $request->variant,
                     'variant_price' => $request->variant_price
-               ], fn($value) => !isset($value));
+               ], fn($value) => !empty($value));
 
                if ($request->id) {
                     $data = Inventory::where('id', $request->id)->first();

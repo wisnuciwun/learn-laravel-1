@@ -37,7 +37,7 @@ class ProficashController extends Controller
 
           try {
                $dataUser = User::select('name', 'sallary')->where('instance_code', $request->instance_code)->where('is_owner', 0)->get();
-               $dataTransactionIn = TransactionsIn::with('inventory:id,base_price,operational_price')->select('id', 'inventory_id', 'price', 'quantity')
+               $dataTransactionIn = TransactionsIn::with('inventory:id,base_price,operational_price')->select('id', 'inventory_id', 'price', 'quantity', 'name')
                     ->whereIn('instance_id', $userData->instance->pluck('id')->toArray())
                     ->when($request->start_date && $request->end_date, function ($q) use ($request) {
                          $q->whereBetween('created_at', [
@@ -52,7 +52,7 @@ class ProficashController extends Controller
                          ]);
                     })
                     ->get();
-               $dataTransactionOut = TransactionsOut::select('price', 'quantity', 'instance_id')
+               $dataTransactionOut = TransactionsOut::select('price', 'quantity', 'instance_id', 'name')
                     ->whereIn('instance_id', $userData->instance->pluck('id')->toArray())
                     ->when($request->start_date && $request->end_date, function ($q) use ($request) {
                          $q->whereBetween('created_at', [
@@ -192,7 +192,7 @@ class ProficashController extends Controller
           try {
                if ($userData->is_owner == 1) {
                     $data = TransactionsIn::with('inventory:id,name,image,price,base_price')
-                         ->select('price', 'quantity', 'inventory_id', 'instance_id', 'created_at', 'transaction_code', 'payment_method')
+                         ->select('price', 'quantity', 'inventory_id', 'instance_id', 'created_at', 'transaction_code', 'payment_method', 'name')
                          ->whereIn('instance_id', $userData->instance->pluck('id')->toArray())
                          ->when($request->start_date && $request->end_date, function ($q) use ($request) {
                               $q->whereBetween('created_at', [
@@ -209,7 +209,7 @@ class ProficashController extends Controller
                          ->get();
                } else {
                     $data = TransactionsIn::with('inventory:id,name,image,price,base_price')
-                         ->select('price', 'quantity', 'inventory_id', 'created_at', 'transaction_code', 'payment_method')
+                         ->select('price', 'quantity', 'inventory_id', 'created_at', 'transaction_code', 'payment_method', 'name')
                          ->where('instance_id', $request->instance_id)
                          ->when($request->start_date && $request->end_date, function ($q) use ($request) {
                               $q->whereBetween('created_at', [
@@ -308,6 +308,7 @@ class ProficashController extends Controller
                'transactions.*.price' => 'required|integer',
                'transactions.*.quantity' => 'required|integer',
                'transactions.*.payment_method' => 'required|string|max:15',
+               'transactions.*.name',
           ]);
 
           $dataToInsert = collect($validated['transactions'])->map(function ($item) use ($userData, $transactionCode) {
@@ -316,6 +317,7 @@ class ProficashController extends Controller
                     'transaction_code' => $transactionCode,
                     'user_id' => $userData->id,
                     'inventory_id' => $item['inventory_id'],
+                    'name' => $item['name'],
                     'price' => $item['price'],
                     'quantity' => $item['quantity'],
                     'payment_method' => $item['payment_method'],

@@ -19,6 +19,31 @@ use App\Http\Controllers\Controller;
 
 class HelloController extends Controller
 {
+     public function shopList(Request $request)
+     {
+          try {
+               $data = InstanceSettings::
+                    when($request->slug != '', function ($q) use ($request) {
+                         $q->where('slug', $request->slug);
+                    })
+                    ->when($request->instance_code != '', function ($q) use ($request) {
+                         $q->where('instance_code', $request->instance_code);
+                    })
+                    ->select('slug', 'instance_code', 'hello_template_id', 'title', 'slogan', 'promotion', 'third_party_links', 'img_heading', 'phone', 'closing_text', 'img_instance_logo')->first();
+
+               return response()->json([
+                    'success' => true,
+                    'message' => 'Get shop list successful',
+                    'data' => $data,
+               ], 200);
+          } catch (\Throwable $th) {
+               return response()->json([
+                    'success' => false,
+                    'message' => $th->getMessage(),
+               ], 500);
+          }
+     }
+
      public function showcase(Request $request)
      {
           try {

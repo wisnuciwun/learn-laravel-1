@@ -29,7 +29,7 @@ class HelloController extends Controller
                     ->when($request->instance_code != '', function ($q) use ($request) {
                          $q->where('instance_code', $request->instance_code);
                     })
-                    ->select('slug', 'title', 'slogan', 'promotion', 'img_heading', 'phone', 'closing_text', 'img_instance_logo')->first();
+                    ->select('slug', 'title', 'slogan', 'promotion', 'img_heading', 'phone', 'closing_text', 'img_instance_logo')->get();
 
                return response()->json([
                     'success' => true,

@@ -256,7 +256,7 @@ class InstanceController extends Controller
                     'user_id' => $userData->id,
                ]);
 
-               $data = InstancePriviledges::with(['instances'])->where('id', $request->instance_code)->first();
+               $data = InstancePriviledges::with(['instances'])->where('instance_code', $request->instance_code)->first();
 
                return response()->json([
                     'success' => true,
@@ -291,19 +291,26 @@ class InstanceController extends Controller
 
           try {
                if ($userData->is_owner == 1) {
-                    $instance = Instances::whereIn('id', $validatedData['id'])
-                         ->get();
-                    $userPriviledges = UserPriviledges::whereIn('id', $validatedData['id'])
-                         ->get();
+                    $instance = Instances::whereIn('id', $validatedData['id'])->get();
+
+                    // user priviledges are linked by instance_id, not by their own id
+                    $userPriviledges = UserPriviledges::whereIn('instance_id', $validatedData['id'])->get();
 
                     if ($instance->isEmpty() && $userPriviledges->isEmpty()) {
                          $success = false;
-                         $errors = 'No instance found to delete.';
+                         $errors = 'No instance or related priviledges found to delete.';
                     } else {
                          $data = $instance->toArray();
 
-                         Instances::whereIn('id', $instance->pluck('id'))->delete();
-                         UserPriviledges::whereIn('id', $userPriviledges->pluck('id'))->delete();
+                         // delete instances (if any)
+                         if ($instance->isNotEmpty()) {
+                              Instances::whereIn('id', $instance->pluck('id'))->delete();
+                         }
+
+                         // delete user priviledges that belong to those instances
+                         if ($userPriviledges->isNotEmpty()) {
+                              UserPriviledges::whereIn('instance_id', $instance->pluck('id'))->delete();
+                         }
                     }
 
                } else {

@@ -77,20 +77,23 @@ class ProficashController extends Controller
                $employee_sallary = $dataUser->sum('sallary');
                $profit = $sales - $modal - $employee_sallary;
 
-               $data = [
-                    'total_sales' => $sales,
-                    'total_modal' => $modal,
-                    'total_spending' => $dataTransactionOut->sum(function ($item) {
-                         return $item->price * $item->quantity;
-                    }),
-                    'employee_sallary' => $employee_sallary,
-                    'total_sold_items' => $dataTransactionIn->sum('quantity'),
-                    'total_profit' => $profit,
-                    'profit_percentage' => number_format($userData->target_per_month
-                         ? ($profit / $userData->target_per_month) * 100
-                         : 0, 2),
-                    'target_per_month' => $userData->target_per_month
-               ];
+                $total_spending = $dataTransactionOut->sum(function ($item) {
+                     return $item->price * $item->quantity;
+                });
+
+                $target = $userData->target_per_month ?? 0;
+                $profit_percentage = $target > 0 ? number_format(($profit / $target) * 100, 2) : '0.00';
+
+                $data = [
+                     'total_sales' => $sales,
+                     'total_modal' => $modal,
+                     'total_spending' => $total_spending,
+                     'employee_sallary' => $employee_sallary,
+                     'total_sold_items' => $dataTransactionIn->sum('quantity'),
+                     'total_profit' => $profit,
+                     'profit_percentage' => $profit_percentage,
+                     'target_per_month' => $userData->target_per_month
+                ];
 
                return response()->json([
                     'success' => $success,
@@ -282,7 +285,7 @@ class ProficashController extends Controller
                     $image = ItsHelper::saveImage('client', false, null, $request);
                     $dataTextToSave['data'] = $image;
                }
-               Texts::create($dataTextToSave)->save();
+                Texts::create($dataTextToSave);
 
                return response()->json([
                     'success' => true,
@@ -411,10 +414,17 @@ class ProficashController extends Controller
                } else {
                     $data = $transactions->toArray();
                     TransactionsOut::whereIn('transaction_code', $transactions->pluck('transaction_code'))->delete();
-                    $dataText = Texts::where('name', $validatedData['transaction_code'])->first();
 
-                    Storage::delete($dataText->data);
-                    $dataText->delete();
+                    // remove associated text/receipt if present
+                    $dataText = Texts::whereIn('name', $transactions->pluck('transaction_code')->toArray())->get();
+                    foreach ($dataText as $dt) {
+                         if ($dt && !empty($dt->data)) {
+                              Storage::delete($dt->data);
+                         }
+                         if ($dt) {
+                              $dt->delete();
+                         }
+                    }
                }
 
                return response()->json([

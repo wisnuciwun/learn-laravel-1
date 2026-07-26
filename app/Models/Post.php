@@ -21,7 +21,7 @@ class Post extends Model
 
     public function image()
     {
-        return $this->hasMany('App/Image', 'post_id');
+        return $this->hasMany(\App\Models\Image::class, 'post_id');
     }
 
 }

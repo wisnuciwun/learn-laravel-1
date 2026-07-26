@@ -36,9 +36,13 @@ class InventoryController extends Controller
                     $q->orWhere('price', 'like', "%{$request->keyword}%");
                     $q->orWhere('variant_price', 'like', "%{$request->keyword}%");
                })
-                    ->when($request->sort_by != '', function ($q) use ($request) {
-                         $q->orderBy($request->sort_by);
-                    })
+                     ->when($request->sort_by != '', function ($q) use ($request) {
+                          // whitelist allowed sort columns to avoid SQL injection
+                          $allowed = ['name', 'price', 'created_at', 'stock', 'id'];
+                          if (in_array($request->sort_by, $allowed)) {
+                               $q->orderBy($request->sort_by);
+                          }
+                     })
                     ->when($request->sort_by == '', function ($q) use ($request) {
                          $q->orderByDesc('created_at');
                     })

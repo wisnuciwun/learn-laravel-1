@@ -69,6 +69,15 @@ class AuthController extends Controller
 
         $googleUser = $response->json();
 
+        // require email to be verified by Google
+        if (empty($googleUser['email_verified']) || $googleUser['email_verified'] !== 'true' && $googleUser['email_verified'] !== true) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Google email not verified.',
+                'errors' => 'Email not verified by Google.',
+            ], 403);
+        }
+
         // 2. Get email and name from token
         $email = $googleUser['email'];
         $name = $googleUser['name'] ?? 'Google User';
@@ -143,7 +152,7 @@ class AuthController extends Controller
                 'name' => $request->instance_name,
                 'instance_code' => $instance_code,
                 'user_id' => $user->id
-            ])->save();
+            ]);
 
             $slug = ItsHelper::createSlug($request->instance_name, 'instance_settings');
 
@@ -152,7 +161,7 @@ class AuthController extends Controller
                 'instance_code' => $instance_code,
                 'instance_type' => $request->instance_type,
                 'slug' => $slug
-            ])->save();
+            ]);
         }
 
         return response()->json([

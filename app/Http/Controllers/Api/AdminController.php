@@ -99,8 +99,10 @@ class AdminController extends Controller
                     ->when($request->sort_by, function ($q) use ($request) {
                          $q->orderBy($request->sort_by);
                     })
-                    ->where('instance_code', $request->instance_code)
-                    ->orWhereNull('instance_code') // universal roles
+->where(function ($q) use ($request) {
+                         $q->where('instance_code', $request->instance_code)
+                           ->orWhereNull('instance_code'); // universal roles
+                     })
                     ->get();
 
                return response()->json([
@@ -323,17 +325,20 @@ class AdminController extends Controller
 
           try {
                // filter payload
-               $dataToSave = array_filter([
-                    'name' => $request->name,
-                    'gender' => $request->gender,
-                    'nickname' => $request->nickname,
-                    'address' => $request->address,
-                    'view_type' => $request->view_type,
-                    'email_report' => $request->email_report,
-                    'target_per_month' => $request->target_per_month,
-                    'email' => $request->email,
-                    'password' => $request->password,
-               ], fn($value) => !empty($value));
+$dataToSave = array_filter([
+                     'name' => $request->name,
+                     'gender' => $request->gender,
+                     'nickname' => $request->nickname,
+                     'address' => $request->address,
+                     'view_type' => $request->view_type,
+                     'email_report' => $request->email_report,
+                     'target_per_month' => $request->target_per_month,
+                     'email' => $request->email,
+                ], fn($value) => !empty($value));
+
+                if ($request->filled('password')) {
+                     $dataToSave['password'] = Hash::make($request->password);
+                }
 
                $data = User::where('id', $request->id)->first();
 
@@ -674,15 +679,15 @@ class AdminController extends Controller
                $res = AppPayments::when($request->keyword, function ($q) use ($request) {
                     $q->where('transaction_id', 'like', "%{$request->keyword}%");
                })
-                    ->when($request->app_id, function ($q) use ($request) {
-                         $q->where($request->app_id);
-                    })
-                    ->when($request->user_id, function ($q) use ($request) {
-                         $q->where($request->user_id);
-                    })
-                    ->when($request->instance_code, function ($q) use ($request) {
-                         $q->where($request->instance_code);
-                    })
+->when($request->app_id, function ($q) use ($request) {
+                          $q->where('app_id', $request->app_id);
+                     })
+                     ->when($request->user_id, function ($q) use ($request) {
+                          $q->where('user_id', $request->user_id);
+                     })
+                     ->when($request->instance_code, function ($q) use ($request) {
+                          $q->where('instance_code', $request->instance_code);
+                     })
                     ->get();
 
                return response()->json([
@@ -827,35 +832,46 @@ class AdminController extends Controller
                     }
                }
 
-               // Step 3: Prevent duplicate pending payments
-               $exists = AppPayments::where('user_id', $request->user_id)
-                    ->where('instance_code', $request->instance_code)
-                    ->where('app_id', $request->app_id)
-                    ->whereNull('confirm_payment')
-                    ->exists();
+                // Step 3: Prevent duplicate pending payments - make atomic
+                $result = DB::transaction(function () use ($request, $validatedData) {
+                     // Lock any matching pending payments for this user/app/instance
+                     $pending = AppPayments::where('user_id', $request->user_id)
+                          ->where('instance_code', $request->instance_code)
+                          ->where('app_id', $request->app_id)
+                          ->whereNull('confirm_payment')
+                          ->lockForUpdate()
+                          ->get();
 
-               if ($exists) {
-                    return response()->json([
-                         'success' => false,
-                         'errors' => 'There is already a pending payment for this app.',
-                    ], 409);
-               }
+                     if ($pending->isNotEmpty()) {
+                          return ['exists' => true];
+                     }
 
-               // Step 4: Generate unique transaction_id
-               $instanceCode = $request->instance_code ?? 'GEN'; // fallback if instance_code is missing
-               $transactionId = ItsHelper::generateTransactionCode($instanceCode);
+                     // Step 4: Generate unique transaction_id
+                     $instanceCode = $request->instance_code ?? 'GEN'; // fallback if instance_code is missing
+                     $transactionId = ItsHelper::generateTransactionCode($instanceCode);
 
-               // Step 5: Save payment request
-               $dataToSave = [
-                    'user_id' => $validatedData['user_id'],
-                    'instance_code' => $validatedData['instance_code'],
-                    'app_id' => $validatedData['app_id'],
-                    'app_pricings_id' => $validatedData['app_pricings_id'],
-                    'transaction_id' => $transactionId,
-                    'confirm_payment' => null,
-               ];
+                     // Step 5: Save payment request (atomic)
+                     $dataToSave = [
+                          'user_id' => $validatedData['user_id'],
+                          'instance_code' => $validatedData['instance_code'],
+                          'app_id' => $validatedData['app_id'],
+                          'app_pricings_id' => $validatedData['app_pricings_id'],
+                          'transaction_id' => $transactionId,
+                          'confirm_payment' => null,
+                     ];
 
-               $data = AppPayments::create($dataToSave);
+                     $created = AppPayments::create($dataToSave);
+                     return ['exists' => false, 'created' => $created];
+                });
+
+                if (!empty($result['exists']) && $result['exists'] === true) {
+                     return response()->json([
+                          'success' => false,
+                          'errors' => 'There is already a pending payment for this app.',
+                     ], 409);
+                }
+
+                $data = $result['created'] ?? null;
 
                return response()->json([
                     'success' => $success,
@@ -894,11 +910,9 @@ class AdminController extends Controller
 
                $data = InstancePriviledges::with(['app', 'appPricing', 'payments'])
                     ->where('instance_code', $request->instance_code)
-                    ->where(function ($query) {
-                         $query
-                              ->whereDate('expired_at', '<=', Carbon::now()->addDays(7))
-                              ->orWhereDate('expired_at', '>=', Carbon::now()->subDays(7));
-                    })
+->where(function ($query) {
+                          $query->whereDate('expired_at', '<=', Carbon::now()->addDays(7));
+                     })
                     ->get()
                     ->map(function ($privilege) use ($startOfMonth, $endOfMonth, &$employeeData) {
                          // Step 1: Filter latest payment(s) by matching app_id
@@ -1094,134 +1108,151 @@ class AdminController extends Controller
                'amount' => 'required|integer'
           ]);
 
-          try {
-               $transactionId = $validatedData['transaction_id'];
-               $confirmPayment = $validatedData['confirm_payment'];
+           try {
+                $transactionId = $validatedData['transaction_id'];
+                $confirmPayment = $validatedData['confirm_payment'];
 
-               // Get all unconfirmed transactions for this transaction_id
-               $transactions = AppPayments::with('appPricing')
-                    ->where('transaction_id', $transactionId)
-                    ->whereNull('confirm_payment')
-                    ->get();
+                // Get all unconfirmed transactions for this transaction_id
+                $transactions = AppPayments::with('appPricing')
+                     ->where('transaction_id', $transactionId)
+                     ->whereNull('confirm_payment')
+                     ->get();
 
-               if ($transactions->isEmpty()) {
-                    return response()->json([
-                         'success' => false,
-                         'message' => 'Transaction ID not found or already confirmed.',
-                    ], 404);
-               }
+                if ($transactions->isEmpty()) {
+                     return response()->json([
+                          'success' => false,
+                          'message' => 'Transaction ID not found or already confirmed.',
+                     ], 404);
+                }
 
-               $totalShouldPay = 0;
+                $totalShouldPay = 0;
 
-               // Loop through each app payment
-               foreach ($transactions as $dataTransaction) {
-                    $targetMonth = Carbon::now()->subMonth();
-                    $startOfMonth = $targetMonth->copy()->startOfMonth();
-                    $endOfMonth = $targetMonth->copy()->endOfMonth();
+                // First: compute expected total
+                foreach ($transactions as $dataTransaction) {
+                     $targetMonth = Carbon::now()->subMonth();
+                     $startOfMonth = $targetMonth->copy()->startOfMonth();
+                     $endOfMonth = $targetMonth->copy()->endOfMonth();
 
-                    $dataUsers = User::withTrashed()
-                         ->with([
-                              'userPriviledges' => function ($q) use ($dataTransaction) {
-                                   $q->where('app_id', $dataTransaction->app_id);
-                              }
-                         ])
-                         ->whereHas('userPriviledges', function ($q) use ($dataTransaction) {
-                              $q->where('app_id', $dataTransaction->app_id);
-                         })
-                         ->where('instance_code', $dataTransaction->instance_code)
-                         ->where('is_owner', '!=', 1)
-                         ->where(function ($q) use ($startOfMonth, $endOfMonth) {
-                              $q->whereNull('deleted_at')
-                                   ->orWhereBetween('deleted_at', [$startOfMonth, $endOfMonth]);
-                         })
-                         ->get();
+                     $dataUsers = User::withTrashed()
+                          ->with([
+                               'userPriviledges' => function ($q) use ($dataTransaction) {
+                                    $q->where('app_id', $dataTransaction->app_id);
+                               }
+                          ])
+                          ->whereHas('userPriviledges', function ($q) use ($dataTransaction) {
+                               $q->where('app_id', $dataTransaction->app_id);
+                          })
+                          ->where('instance_code', $dataTransaction->instance_code)
+                          ->where('is_owner', '!=', 1)
+                          ->where(function ($q) use ($startOfMonth, $endOfMonth) {
+                               $q->whereNull('deleted_at')
+                                    ->orWhereBetween('deleted_at', [$startOfMonth, $endOfMonth]);
+                          })
+                          ->get();
 
-                    $userCount = $dataUsers->count();
-                    $price = optional($dataTransaction->appPricing)->price ?? 0;
-                    $shouldPay = $price * max($userCount, 1);
-                    $totalShouldPay += $shouldPay;
-               }
+                     $userCount = $dataUsers->count();
+                     $price = optional($dataTransaction->appPricing)->price ?? 0;
+                     $shouldPay = $price * max($userCount, 1);
+                     $totalShouldPay += $shouldPay;
+                }
 
-               // Check if amount is sufficient
-               if ((int) $request->amount !== (int) $totalShouldPay) {
-                    return response()->json([
-                         'success' => false,
-                         'message' => "Insufficient amount, expected total payment is Rp " . number_format($totalShouldPay, 0, ',', '.'),
-                    ], 400);
-               }
+                // Check if amount is sufficient
+                if ((int) $request->amount !== (int) $totalShouldPay) {
+                     return response()->json([
+                          'success' => false,
+                          'message' => "Insufficient amount, expected total payment is Rp " . number_format($totalShouldPay, 0, ',', '.'),
+                     ], 400);
+                }
 
-               // Proceed to confirm all transactions
-               foreach ($transactions as $dataTransaction) {
-                    $dataTransaction->update([
-                         'confirm_payment' => $confirmPayment,
-                    ]);
+                // Wrap DB operations in a transaction to keep data consistent
+                DB::transaction(function () use ($transactions, $confirmPayment) {
+                     foreach ($transactions as $dataTransaction) {
+                          // mark as confirmed
+                          $dataTransaction->update([
+                               'confirm_payment' => $confirmPayment,
+                          ]);
 
-                    // Extend privilege period
-                    $dataInstancePriviledges = InstancePriviledges::where('instance_code', $dataTransaction->instance_code)
-                         ->where('app_id', $dataTransaction->app_id)
-                         ->get();
+                          // Extend privilege period
+                          $dataInstancePriviledges = InstancePriviledges::where('instance_code', $dataTransaction->instance_code)
+                               ->where('app_id', $dataTransaction->app_id)
+                               ->get();
 
-                    $dataInstancePriviledges->each(function ($item) {
-                         $item->update([
-                              'expired_at' => Carbon::parse($item->expired_at ?? now())->addDays(30)
-                         ]);
-                    });
+                          $dataInstancePriviledges->each(function ($item) {
+                               $item->update([
+                                    'expired_at' => Carbon::parse($item->expired_at ?? now())->addDays(30)
+                               ]);
+                          });
 
-                    // Referral bonus
-                    $dataOwnerUser = User::select('name', 'referred_by')
-                         ->where('id', $dataTransaction->user_id)
-                         ->whereNotNull('referred_by')
-                         ->first();
+                          // Referral bonus
+                          $dataOwnerUser = User::select('name', 'referred_by')
+                               ->where('id', $dataTransaction->user_id)
+                               ->whereNotNull('referred_by')
+                               ->first();
 
-                    if ($dataOwnerUser) {
-                         $dataReferral = User::where('referral_code', $dataOwnerUser->referred_by)->first();
-                         if ($dataReferral) {
-                              $price = optional($dataTransaction->appPricing)->price ?? 0;
-                              $dataReferral->increment('poins', $price * 0.1);
-                         }
-                    }
+                          if ($dataOwnerUser) {
+                               $dataReferral = User::where('referral_code', $dataOwnerUser->referred_by)->first();
+                               if ($dataReferral) {
+                                    $price = optional($dataTransaction->appPricing)->price ?? 0;
+                                    $dataReferral->increment('poins', $price * 0.1);
+                               }
+                          }
 
-                    // Ensure privilege exists
-                    $alreadyPrivileged = UserPriviledges::where('user_id', $dataTransaction->user_id)
-                         ->where('app_id', $dataTransaction->app_id)
-                         ->first();
+                          // Ensure privilege exists
+                          $alreadyPrivileged = UserPriviledges::where('user_id', $dataTransaction->user_id)
+                               ->where('app_id', $dataTransaction->app_id)
+                               ->first();
 
-                    if (!$alreadyPrivileged) {
-                         $adminRole = Roles::where('name', 'Admin')->first();
-                         $instance = Instances::where('instance_code', $dataTransaction->instance_code)->first();
+                          if (!$alreadyPrivileged) {
+                               $adminRole = Roles::where('name', 'Admin')->first();
+                               $instance = Instances::where('instance_code', $dataTransaction->instance_code)->first();
 
-                         UserPriviledges::create([
-                              'user_id' => $dataTransaction->user_id,
-                              'role_id' => $adminRole->id,
-                              'instance_id' => $instance->id,
-                              'app_id' => $dataTransaction->app_id,
-                         ]);
-                    }
-               }
+                               // defensive checks
+                               if (!$adminRole || !$instance) {
+                                    // do not throw — skip creating privilege if required records missing
+                                    continue;
+                               }
 
-               return response()->json([
-                    'success' => true,
-                    'message' => 'All payments confirmed successfully.',
-               ]);
-          } catch (\Throwable $e) {
-               return response()->json([
-                    'success' => false,
-                    'message' => $e->getMessage(),
-               ], 500);
-          }
+                               UserPriviledges::create([
+                                    'user_id' => $dataTransaction->user_id,
+                                    'role_id' => $adminRole->id,
+                                    'instance_id' => $instance->id,
+                                    'app_id' => $dataTransaction->app_id,
+                               ]);
+                          }
+                     }
+                });
+
+                return response()->json([
+                     'success' => true,
+                     'message' => 'All payments confirmed successfully.',
+                ]);
+           } catch (\Throwable $e) {
+                return response()->json([
+                     'success' => false,
+                     'message' => $e->getMessage(),
+                ], 500);
+           }
      }
 
 
      public function manageRole(Request $request)
      {
-          $userData = ItsHelper::verifyToken($request->token);
-          if ($userData->name != '8uset9w4dmin') {
-               $request->merge([
-                    'instance_id' => $userData->instance->id,
-                    'instance_code' => $userData->instance_code,
-                    'user_id' => $userData->id,
-               ]);
-          }
+           $userData = ItsHelper::verifyToken($request->token);
+
+           // If user is not an Admin, restrict instance scope to their instance
+           $isAdmin = UserPriviledges::where('user_id', $userData->id)
+                ->whereHas('role', function ($q) {
+                     $q->where('name', 'Admin');
+                })
+                ->exists();
+
+           if (!$isAdmin) {
+                $request->merge([
+                     'instance_id' => $userData->instance->id,
+                     'instance_code' => $userData->instance_code,
+                     'user_id' => $userData->id,
+                ]);
+           }
 
           $success = true;
           $errors = '';

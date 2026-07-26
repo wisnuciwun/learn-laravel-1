@@ -84,7 +84,9 @@ class PagesController extends Controller
             $stores = PsrFoods::select('id', 'store_name', 'owner', 'address', 'phone', 'product_images_url', 'description', 'tags', 'slug')
                 ->orderBy('created_at', 'desc')
                 ->when($request->keyword, function ($query, $searchKeyword) {
-                    $query->where('store_name', 'like', "%$searchKeyword%")->orWhere('tags', 'like', "%$searchKeyword%")->orWhere('owner', 'like', "%$searchKeyword%");
+                    $query->where('store_name', 'like', "%{$searchKeyword}%")
+                        ->orWhere('tags', 'like', "%{$searchKeyword}%")
+                        ->orWhere('owner', 'like', "%{$searchKeyword}%");
                 })
                 ->get();
 
@@ -104,7 +106,6 @@ class PagesController extends Controller
     {
         try {
             $store = PsrFoods::where('slug', $slug)->first();
-            $store->keypass = isset($store->keypass) ? true : false;
 
             if (!$store) {
                 return response()->json([
@@ -112,6 +113,8 @@ class PagesController extends Controller
                     'message' => 'Store not found.',
                 ], 404);
             }
+
+            $store->keypass = isset($store->keypass) ? true : false;
 
             return response()->json([
                 'success' => true,

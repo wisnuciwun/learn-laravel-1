@@ -109,7 +109,7 @@ class PostController extends Controller
             ->select('*')
             ->where('x_posts.folio_name', 'ilike', '%' . $request->input('keyword') . '%')
             ->where('x_posts.hashtags', 'ilike', '%' . $request->input('framework') . '%')
-            ->where('cars.hashtags', 'ilike', '%' . $request->input('scope') . '%')
+            ->where('x_posts.hashtags', 'ilike', '%' . $request->input('scope') . '%')
             ->get();
 
         return view('posts.index', compact('data'));

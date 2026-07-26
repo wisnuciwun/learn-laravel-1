@@ -11,9 +11,14 @@ use Illuminate\Support\Str;
 
 class ItsHelper
 {
-     public static function verifyToken(string $token)
-     {
-          $verified = User::with(['instance'])->whereNotNull('token')->where('token', $token)->first();
+    public static function verifyToken(string $token)
+    {
+           // ensure token belongs to an active user and load the instance relation
+           $verified = User::with(['instance'])
+                ->whereNotNull('token')
+                ->where('token', $token)
+                ->where('active', 1)
+                ->first();
 
           if (!$verified) {
                abort(401, 'Hi, I need token please');
@@ -22,14 +27,20 @@ class ItsHelper
           return $verified;
      }
 
-     public static function verifyAsAdmin(string $token): void
-     {
-          $verified = User::where('token', $token)->whereNotNull('token')->where('name', '8uset9w4dmin')->first();
+    public static function verifyAsAdmin(string $token): void
+    {
+           // Verify the token and ensure the user has an Admin role via user priviledges
+           $verified = User::where('token', $token)
+                ->whereNotNull('token')
+                ->whereHas('userPriviledges.role', function ($q) {
+                     $q->where('name', 'Admin');
+                })
+                ->first();
 
-          if (!$verified) {
-               abort(401, 'Hi, I need token please');
-          }
-     }
+           if (!$verified) {
+                abort(401, 'Admin privileges required');
+           }
+    }
 
 
      public static function generateTransactionCode(string $instanceCode, bool $short = false): string
@@ -102,12 +113,15 @@ class ItsHelper
                }
 
                return $path;
-          }
+           }
+
+           // Explicit null when no file uploaded
+           return null;
      }
 
      public static function getImages(string $name, $instance_code = null, $app_id = null, $instance_id = null)
      {
-          $data = Images::select('img_path')
+           $data = Images::select('img_path')
                ->where('name', $name)
                ->when($instance_code != '', function ($q) use ($instance_code) {
                     $q->where('instance_code', $instance_code);
@@ -120,7 +134,7 @@ class ItsHelper
                })
                ->first();
 
-          return $data->img_path;
+           return $data ? $data->img_path : null;
      }
 
      public static function createSlug(string $name, string $table_name)

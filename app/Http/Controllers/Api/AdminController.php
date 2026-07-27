@@ -132,10 +132,13 @@ class AdminController extends Controller
                          $q->where('name', 'like', "%$request->keyword%");
                     })
                     ->when($request->keyword_match, function ($q) use ($request) {
-                         $q->where('name', '=', $request->keyword);
+                         $q->where('name', '=', $request->keyword_match);
                     })
                     ->when($request->app_id, function ($q) use ($request) {
                          $q->where('app_id', '=', $request->app_id);
+                    })
+                    ->when($request->instance_code, function ($q) use ($request) {
+                         $q->where('instance_code', '=', $request->instance_code);
                     })
                     ->get();
 

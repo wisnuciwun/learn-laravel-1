@@ -119,11 +119,22 @@ class HelloController extends Controller
           $instanceId = $userData->instance->id ?? null;
 
           $validated = $request->validate([
-               'domain' => 'required|string|max:255',
+               'domain' => ['required', 'string', 'max:255', 'regex:/^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i'],
           ]);
 
           try {
                $domain = trim(strtolower($validated['domain']));
+
+               $existing = Settings::where('name', 'hello_app_custom_domain')
+                    ->where('value', $domain)
+                    ->where('instance_code', '!=', $instanceCode)
+                    ->first();
+               if ($existing) {
+                    return response()->json([
+                         'success' => false,
+                         'message' => 'Domain already registered to another instance',
+                    ], 422);
+               }
 
                // upsert settings
                $setting = Settings::updateOrCreate(

@@ -19,6 +19,13 @@ return [
 
     'allowed_methods' => ['*'],
 
+    // Wildcard is safe here because supports_credentials is false (no
+    // cookies are used - auth is an app-managed token passed explicitly by
+    // the client, not an ambient browser credential), and tenant custom
+    // domains are unbounded/user-registered, so a static allowlist would
+    // need to be updated every time someone adds a new custom domain.
+    'allowed_origins' => ['*'],
+
     'allowed_origins_patterns' => [],
 
     'allowed_headers' => ['*'],

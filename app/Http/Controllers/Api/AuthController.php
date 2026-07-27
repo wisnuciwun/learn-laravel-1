@@ -2,14 +2,18 @@
 namespace App\Http\Controllers\Api;
 
 use App\Helpers\ItsHelper;
+use App\Mail\ResetPasswordMail;
 use App\Models\Fianut\Apps;
 use App\Models\Fianut\Instances;
 use App\Models\Fianut\InstanceSettings;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Fianut\User;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
 
@@ -207,6 +211,101 @@ class AuthController extends Controller
             'message' => 'Login successful',
             'user' => $user,
             'token' => $token,
+        ]);
+    }
+
+    public function forgotPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors()->all(),
+            ], 422);
+        }
+
+        $user = User::where('email', $request->email)->first();
+
+        if ($user) {
+            $rawToken = Str::random(64);
+
+            DB::table('password_reset_tokens')->updateOrInsert(
+                ['email' => $user->email],
+                [
+                    'token' => Hash::make($rawToken),
+                    'created_at' => now(),
+                ]
+            );
+
+            $resetUrl = rtrim(config('app.frontend_url'), '/') . '/reset-password?token=' . $rawToken . '&email=' . urlencode($user->email);
+
+            Mail::to($user->email)->send(new ResetPasswordMail($resetUrl));
+        }
+
+        // Always return a generic response so we don't leak whether an email is registered.
+        return response()->json([
+            'success' => true,
+            'message' => 'Jika email terdaftar, link reset password telah dikirim.',
+        ]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'token' => 'required|string',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors()->all(),
+            ], 422);
+        }
+
+        $record = DB::table('password_reset_tokens')->where('email', $request->email)->first();
+
+        if (!$record || !Hash::check($request->token, $record->token)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Link reset password tidak valid atau sudah kadaluarsa.',
+            ], 400);
+        }
+
+        if (Carbon::parse($record->created_at)->addHours(24)->isPast()) {
+            DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Link reset password tidak valid atau sudah kadaluarsa.',
+            ], 400);
+        }
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Link reset password tidak valid atau sudah kadaluarsa.',
+            ], 400);
+        }
+
+        $user->password = $request->password;
+        // Invalidate any active login session so the new password takes effect immediately.
+        $user->token = '';
+        $user->save();
+
+        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Password berhasil direset, silakan login dengan password baru.',
         ]);
     }
 

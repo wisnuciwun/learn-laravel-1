@@ -1172,16 +1172,8 @@ $dataToSave = array_filter([
                                'confirm_payment' => $confirmPayment,
                           ]);
 
-                          // Extend privilege period
-                          $dataInstancePriviledges = InstancePriviledges::where('instance_code', $dataTransaction->instance_code)
-                               ->where('app_id', $dataTransaction->app_id)
-                               ->get();
-
-                          $dataInstancePriviledges->each(function ($item) {
-                               $item->update([
-                                    'expired_at' => Carbon::parse($item->expired_at ?? now())->addDays(30)
-                               ]);
-                          });
+                           // Privilege extension is handled by AppPayments model observer
+                           // to avoid duplicating expired_at updates here.
 
                           // Referral bonus
                           $dataOwnerUser = User::select('name', 'referred_by')

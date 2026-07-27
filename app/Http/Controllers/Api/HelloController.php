@@ -123,7 +123,7 @@ class HelloController extends Controller
           ]);
 
           try {
-               $domain = trim(strtolower($validated['domain']));
+               $domain = $this->normalizeDomain($validated['domain']);
 
                $existing = Settings::where('name', 'hello_app_custom_domain')
                     ->where('value', $domain)
@@ -168,7 +168,7 @@ class HelloController extends Controller
       */
      public function resolveCustomDomain(Request $request)
      {
-          $domain = trim(strtolower($request->query('domain') ?? ''));
+          $domain = $this->normalizeDomain($request->query('domain') ?? '');
           if (!$domain) {
                return response()->json(['success' => false, 'message' => 'Domain required'], 400);
           }
@@ -207,6 +207,18 @@ class HelloController extends Controller
           } catch (\Throwable $th) {
                return response()->json(['success' => false, 'message' => $th->getMessage()], 500);
           }
+     }
+
+     /**
+      * Normalize a hostname for custom-domain matching: lowercase, trim, and
+      * strip a leading "www." so the apex and www variants of a domain
+      * resolve/register to the same value regardless of which one a
+      * visitor's DNS/host redirect actually sends.
+      */
+     private function normalizeDomain(string $domain): string
+     {
+          $domain = trim(strtolower($domain));
+          return preg_replace('/^www\./', '', $domain);
      }
 
      public function templateList(Request $request)

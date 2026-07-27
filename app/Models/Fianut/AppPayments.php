@@ -34,24 +34,18 @@ class AppPayments extends Model
             $current = $payment->confirm_payment;
 
             if (($original != 1) && ($current == 1)) {
-                // Only extend privileges once per transaction_id. When multiple
-                // AppPayments share the same transaction, AdminController will
-                // update them in a DB transaction; the first confirmed payment
-                // should trigger the extension, subsequent ones should not.
-                $confirmedCount = self::where('transaction_id', $payment->transaction_id)
-                    ->where('confirm_payment', 1)
-                    ->count();
+                // This event only fires once per payment row transitioning to
+                // confirmed, so each row's own (instance_code, app_id) privilege
+                // is extended exactly once regardless of how many other rows
+                // share the same transaction_id.
+                $privs = InstancePriviledges::where('instance_code', $payment->instance_code)
+                    ->where('app_id', $payment->app_id)
+                    ->get();
 
-                if ($confirmedCount === 1) {
-                    $privs = InstancePriviledges::where('instance_code', $payment->instance_code)
-                        ->where('app_id', $payment->app_id)
-                        ->get();
-
-                    foreach ($privs as $p) {
-                        $p->update([
-                            'expired_at' => Carbon::parse($p->expired_at ?? now())->addDays(30),
-                        ]);
-                    }
+                foreach ($privs as $p) {
+                    $p->update([
+                        'expired_at' => Carbon::parse($p->expired_at ?? now())->addDays(30),
+                    ]);
                 }
             }
         });

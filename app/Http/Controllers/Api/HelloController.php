@@ -8,6 +8,7 @@ use App\Models\Fianut\Images;
 use App\Models\Fianut\Instances;
 use App\Models\Fianut\InstanceSettings;
 use App\Models\Fianut\Texts;
+use App\Models\Fianut\Settings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Fianut\User;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 use App\Http\Controllers\Controller;
 
 class HelloController extends Controller
@@ -57,6 +59,33 @@ class HelloController extends Controller
                          $q->where('instance_code', $request->instance_code);
                     })
                     ->select('slug', 'instance_code', 'hello_template_id', 'title', 'slogan', 'promotion', 'third_party_links', 'img_heading', 'phone', 'closing_text', 'img_instance_logo')->first();
+
+               // If no instance found, return 404
+               if (!$dataInstanceSetting) {
+                    return response()->json([
+                         'success' => false,
+                         'message' => 'Instance not found',
+                    ], 404);
+               }
+
+               // Enforce subscription/privilege expiry: if the Hello app privilege for this instance is expired, deny access
+               $app = Apps::where('name', 'Hello')->first();
+               $appId = $app ? $app->id : 1; // fallback to 1 if not found
+               $priv = \App\Models\Fianut\InstancePriviledges::where('instance_code', $dataInstanceSetting->instance_code)
+                    ->where('app_id', $appId)
+                    ->first();
+
+               if ($priv && $priv->expired_at) {
+                    $expiredAt = Carbon::parse($priv->expired_at);
+                    if ($expiredAt->isPast()) {
+                         // Subscription expired — deny access to public showcase
+                         return response()->json([
+                              'success' => false,
+                              'message' => 'This page is no longer available (module subscription expired).',
+                         ], 403);
+                    }
+               }
+
                $dataInstance = Instances::where('instance_code', $dataInstanceSetting->instance_code)->select('address')->first();
                $res = Texts::where('name', 'app_hello_template')->where('id', $dataInstanceSetting->hello_template_id)->first();
                $dataImgClosing = ItsHelper::getImages('hello_img_closing', $dataInstanceSetting->instance_code);
@@ -76,6 +105,96 @@ class HelloController extends Controller
                     'success' => false,
                     'message' => $th->getMessage(),
                ], 500);
+          }
+     }
+
+     /**
+      * Register a custom domain for the Hello app for the current instance.
+      * Stores record in settings table with name = 'hello_app_custom_domain' and value = domain name.
+      */
+     public function registerCustomDomain(Request $request)
+     {
+          $userData = ItsHelper::verifyToken($request->token);
+          $instanceCode = $userData->instance_code;
+          $instanceId = $userData->instance->id ?? null;
+
+          $validated = $request->validate([
+               'domain' => 'required|string|max:255',
+          ]);
+
+          try {
+               $domain = trim(strtolower($validated['domain']));
+
+               // upsert settings
+               $setting = Settings::updateOrCreate(
+                    [
+                         'name' => 'hello_app_custom_domain',
+                         'instance_code' => $instanceCode,
+                    ],
+                    [
+                         'value' => $domain,
+                         'instance_id' => $instanceId,
+                         'app_id' => Apps::where('name', 'Hello')->value('id') ?? 1,
+                    ]
+               );
+
+               return response()->json([
+                    'success' => true,
+                    'message' => 'Custom domain registered',
+                    'data' => $setting,
+               ], 200);
+          } catch (\Throwable $th) {
+               return response()->json([
+                    'success' => false,
+                    'message' => $th->getMessage(),
+               ], 500);
+          }
+     }
+
+     /**
+      * Resolve a custom domain to instance info. Public endpoint.
+      * GET /hello/custom-domain/resolve?domain=example.com
+      */
+     public function resolveCustomDomain(Request $request)
+     {
+          $domain = trim(strtolower($request->query('domain') ?? ''));
+          if (!$domain) {
+               return response()->json(['success' => false, 'message' => 'Domain required'], 400);
+          }
+          try {
+               $setting = Settings::where('name', 'hello_app_custom_domain')
+                    ->where('value', $domain)
+                    ->first();
+
+               if (!$setting) {
+                    return response()->json(['success' => false, 'message' => 'Not found'], 404);
+               }
+
+               $instanceCode = $setting->instance_code;
+               $instanceSetting = InstanceSettings::where('instance_code', $instanceCode)->first();
+               if (!$instanceSetting) {
+                    return response()->json(['success' => false, 'message' => 'Instance not found'], 404);
+               }
+
+               // Check privilege not expired (Hello app)
+               $appId = Apps::where('name', 'Hello')->value('id') ?? 1;
+               $priv = \App\Models\Fianut\InstancePriviledges::where('instance_code', $instanceCode)
+                    ->where('app_id', $appId)
+                    ->first();
+               if ($priv && $priv->expired_at && Carbon::parse($priv->expired_at)->isPast()) {
+                    return response()->json(['success' => false, 'message' => 'Domain mapped instance subscription expired'], 403);
+               }
+
+               return response()->json([
+                    'success' => true,
+                    'message' => 'Resolved',
+                    'data' => [
+                         'instance_code' => $instanceCode,
+                         'slug' => $instanceSetting->slug,
+                    ],
+               ], 200);
+          } catch (\Throwable $th) {
+               return response()->json(['success' => false, 'message' => $th->getMessage()], 500);
           }
      }
 
@@ -129,9 +248,7 @@ class HelloController extends Controller
                     'instance_code' => $validatedData['instance_code'],
                     'phone' => $validatedData['phone'],
                     'closing_text' => $request->closing_text,
-                    // 'sort_by' => $request->img_heading,
                ];
-
 
                $data = InstanceSettings::where('instance_code', $request->instance_code)->first();
 
@@ -150,27 +267,20 @@ class HelloController extends Controller
                     $dataToSave['img_heading'] = $image;
                }
 
-               // save image bulk
                $imagePaths = [];
                if ($request->hasFile('img_closing')) {
-                    // 1. Find existing image record
                     $existingImage = Images::where('name', 'hello_img_closing')
                          ->where('instance_code', $request->instance_code)
                          ->first();
 
-                    // 2. If exists, delete old files from storage
                     if ($existingImage) {
                          $oldPaths = explode(',', $existingImage->img_path);
                          foreach ($oldPaths as $oldPath) {
                               Storage::delete($oldPath);
                          }
-
-                         // Option A: Update the existing record later
-                         // Option B: Delete and re-create (you choose one)
                          $existingImage->delete();
                     }
 
-                    // 3. Save new files
                     foreach ($request->file('img_closing') as $image) {
                          $path = $image->store('public/fianut/client');
                          $imagePaths[] = $path;
@@ -178,7 +288,6 @@ class HelloController extends Controller
 
                     $implodedImagePaths = implode(',', $imagePaths);
 
-                    // 4. Save the new DB record
                     Images::create([
                          'name' => 'hello_img_closing',
                          'instance_code' => $request->instance_code,

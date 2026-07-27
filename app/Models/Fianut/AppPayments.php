@@ -43,8 +43,16 @@ class AppPayments extends Model
                     ->get();
 
                 foreach ($privs as $p) {
+                    // Extend from the current expiry only if the privilege is
+                    // still active; if it already lapsed, the new 30-day
+                    // period starts from now instead of compounding onto a
+                    // stale past date.
+                    $base = $p->expired_at && Carbon::parse($p->expired_at)->isFuture()
+                        ? Carbon::parse($p->expired_at)
+                        : now();
+
                     $p->update([
-                        'expired_at' => Carbon::parse($p->expired_at ?? now())->addDays(30),
+                        'expired_at' => $base->addDays(30),
                     ]);
                 }
             }

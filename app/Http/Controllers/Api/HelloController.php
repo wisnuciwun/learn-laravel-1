@@ -123,43 +123,56 @@ class HelloController extends Controller
           ]);
 
           try {
-               $domain = $this->normalizeDomain($validated['domain']);
-
-               $existing = Settings::where('name', 'hello_app_custom_domain')
-                    ->where('value', $domain)
-                    ->where('instance_code', '!=', $instanceCode)
-                    ->first();
-               if ($existing) {
-                    return response()->json([
-                         'success' => false,
-                         'message' => 'Domain already registered to another instance',
-                    ], 422);
-               }
-
-               // upsert settings
-               $setting = Settings::updateOrCreate(
-                    [
-                         'name' => 'hello_app_custom_domain',
-                         'instance_code' => $instanceCode,
-                    ],
-                    [
-                         'value' => $domain,
-                         'instance_id' => $instanceId,
-                         'app_id' => Apps::where('name', 'Hello')->value('id') ?? 1,
-                    ]
-               );
+               $setting = $this->saveCustomDomain($validated['domain'], $instanceCode, $instanceId);
 
                return response()->json([
                     'success' => true,
                     'message' => 'Custom domain registered',
                     'data' => $setting,
                ], 200);
+          } catch (\InvalidArgumentException $e) {
+               return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+               ], 422);
           } catch (\Throwable $th) {
                return response()->json([
                     'success' => false,
                     'message' => $th->getMessage(),
                ], 500);
           }
+     }
+
+     /**
+      * Normalize, validate uniqueness, and upsert the custom domain setting
+      * for an instance. Shared by registerCustomDomain and manageLandingPage
+      * so the landing page save can register a domain in the same request.
+      *
+      * @throws \InvalidArgumentException if the domain belongs to another instance
+      */
+     private function saveCustomDomain(string $rawDomain, string $instanceCode, ?int $instanceId): Settings
+     {
+          $domain = $this->normalizeDomain($rawDomain);
+
+          $existing = Settings::where('name', 'hello_app_custom_domain')
+               ->where('value', $domain)
+               ->where('instance_code', '!=', $instanceCode)
+               ->first();
+          if ($existing) {
+               throw new \InvalidArgumentException('Domain already registered to another instance');
+          }
+
+          return Settings::updateOrCreate(
+               [
+                    'name' => 'hello_app_custom_domain',
+                    'instance_code' => $instanceCode,
+               ],
+               [
+                    'value' => $domain,
+                    'instance_id' => $instanceId,
+                    'app_id' => Apps::where('name', 'Hello')->value('id') ?? 1,
+               ]
+          );
      }
 
      /**
@@ -258,10 +271,19 @@ class HelloController extends Controller
                'instance_code' => 'required',
                'title' => 'required|string|max:100',
                'hello_template_id' => 'required',
-               'phone' => 'required'
+               'phone' => 'required',
+               'custom_domain' => ['nullable', 'string', 'max:255', 'regex:/^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i'],
           ]);
 
           try {
+               if (!empty($validatedData['custom_domain'])) {
+                    $this->saveCustomDomain(
+                         $validatedData['custom_domain'],
+                         $validatedData['instance_code'],
+                         $userData->instance->id ?? null
+                    );
+               }
+
                $dataToSave = [
                     'title' => $validatedData['title'],
                     'slogan' => $request->slogan,
@@ -329,6 +351,11 @@ class HelloController extends Controller
                     'message' => $errors ?: "Successfully saved landing page changes",
                     'data' => $data,
                ], $success ? 200 : 400);
+          } catch (\InvalidArgumentException $e) {
+               return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+               ], 422);
           } catch (\Throwable $th) {
                return response()->json([
                     'success' => false,

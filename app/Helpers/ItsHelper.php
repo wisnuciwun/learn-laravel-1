@@ -11,8 +11,12 @@ use Illuminate\Support\Str;
 
 class ItsHelper
 {
-    public static function verifyToken(string $token)
+    public static function verifyToken(?string $token)
     {
+           if (!$token) {
+                abort(401, 'Hi, I need token please');
+           }
+
            // ensure token belongs to an active user and load the instance relation
            $verified = User::with(['instance'])
                 ->whereNotNull('token')
@@ -27,8 +31,12 @@ class ItsHelper
           return $verified;
      }
 
-    public static function verifyAsAdmin(string $token): void
+    public static function verifyAsAdmin(?string $token): void
     {
+           if (!$token) {
+                abort(401, 'Admin privileges required');
+           }
+
            // Verify the token and ensure the user has an Admin role via user priviledges
            $verified = User::where('token', $token)
                 ->whereNotNull('token')

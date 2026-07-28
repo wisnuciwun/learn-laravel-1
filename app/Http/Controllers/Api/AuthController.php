@@ -296,7 +296,7 @@ class AuthController extends Controller
             ], 400);
         }
 
-        $user->password = $request->password;
+        $user->password = Hash::make($request->password);
         // Invalidate any active login session so the new password takes effect immediately.
         $user->token = '';
         $user->save();

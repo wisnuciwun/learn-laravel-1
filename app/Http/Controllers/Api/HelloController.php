@@ -58,7 +58,7 @@ class HelloController extends Controller
                     ->when($request->instance_code != '', function ($q) use ($request) {
                          $q->where('instance_code', $request->instance_code);
                     })
-                    ->select('slug', 'instance_code', 'hello_template_id', 'title', 'slogan', 'promotion', 'third_party_links', 'img_heading', 'phone', 'closing_text', 'img_instance_logo')->first();
+                    ->select('slug', 'instance_code', 'hello_template_id', 'title', 'slogan', 'promotion', 'third_party_links', 'img_heading', 'phone', 'closing_text', 'img_instance_logo', 'google_maps_link')->first();
 
                // If no instance found, return 404
                if (!$dataInstanceSetting) {
@@ -273,6 +273,7 @@ class HelloController extends Controller
                'hello_template_id' => 'required',
                'phone' => 'required',
                'custom_domain' => ['nullable', 'string', 'max:255', 'regex:/^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i'],
+               'google_maps_link' => ['nullable', 'string', 'max:2048'],
           ]);
 
           try {
@@ -293,6 +294,7 @@ class HelloController extends Controller
                     'instance_code' => $validatedData['instance_code'],
                     'phone' => $validatedData['phone'],
                     'closing_text' => $request->closing_text,
+                    'google_maps_link' => $validatedData['google_maps_link'] ?? null,
                ];
 
                $data = InstanceSettings::where('instance_code', $request->instance_code)->first();

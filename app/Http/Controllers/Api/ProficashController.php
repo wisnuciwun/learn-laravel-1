@@ -37,43 +37,36 @@ class ProficashController extends Controller
 
           try {
                $dataUser = User::select('name', 'sallary')->where('instance_code', $request->instance_code)->where('is_owner', 0)->get();
-               $dataTransactionIn = TransactionsIn::with('inventory:id,base_price,operational_price')->select('id', 'inventory_id', 'price', 'quantity', 'name')
-                    ->whereIn('instance_id', $userData->instance->pluck('id')->toArray())
-                    ->when($request->start_date && $request->end_date, function ($q) use ($request) {
-                         $q->whereBetween('created_at', [
-                              $request->start_date . " 00:00:00",
-                              $request->end_date . ' 23:59:59'
-                         ]);
-                    })
-                    ->when(!$request->start_date && !$request->end_date, function ($q) {
-                         $q->whereBetween('created_at', [
-                              Carbon::now()->firstOfMonth(),
-                              Carbon::now()->endOfMonth()
-                         ]);
-                    })
-                    ->get();
-               $dataTransactionOut = TransactionsOut::select('price', 'quantity', 'instance_id', 'name')
-                    ->whereIn('instance_id', $userData->instance->pluck('id')->toArray())
-                    ->when($request->start_date && $request->end_date, function ($q) use ($request) {
-                         $q->whereBetween('created_at', [
-                              $request->start_date . " 00:00:00",
-                              $request->end_date . ' 23:59:59'
-                         ]);
-                    })
-                    ->when(!$request->start_date && !$request->end_date, function ($q) {
-                         $q->whereBetween('created_at', [
-                              Carbon::now()->firstOfMonth(),
-                              Carbon::now()->endOfMonth()
-                         ]);
-                    })
-                    ->get();
+                // Normalize date filters: allow partial start/end and fallback to current month
+                $start = $request->start_date ?: Carbon::now()->firstOfMonth()->toDateString();
+                $end = $request->end_date ?: Carbon::now()->endOfMonth()->toDateString();
 
-               $sales = $dataTransactionIn->sum(function ($item) {
-                    return $item->price * $item->quantity;
-               });
-               $modal = $dataTransactionIn->sum(function ($item) {
-                    return optional($item->inventory)->base_price + optional($item->inventory)->operational_price;
-               });
+                $dataTransactionIn = TransactionsIn::with('inventory:id,base_price,operational_price')
+                     ->select('id', 'inventory_id', 'price', 'quantity', 'name')
+                     ->whereIn('instance_id', $userData->instance->pluck('id')->toArray())
+                     ->whereBetween('created_at', [
+                          $start . " 00:00:00",
+                          $end . ' 23:59:59'
+                     ])
+                     ->get();
+                $dataTransactionOut = TransactionsOut::select('price', 'quantity', 'instance_id', 'name')
+                     ->whereIn('instance_id', $userData->instance->pluck('id')->toArray())
+                     ->whereBetween('created_at', [
+                          $start . " 00:00:00",
+                          $end . ' 23:59:59'
+                     ])
+                     ->get();
+
+                $sales = $dataTransactionIn->sum(function ($item) {
+                     return $item->price * $item->quantity;
+                });
+
+                // Modal (cost) should account for quantity: (base_price + operational_price) * quantity
+                $modal = $dataTransactionIn->sum(function ($item) {
+                     $base = optional($item->inventory)->base_price ?? 0;
+                     $oper = optional($item->inventory)->operational_price ?? 0;
+                     return ($base + $oper) * ($item->quantity ?? 0);
+                });
                $employee_sallary = $dataUser->sum('sallary');
                $profit = $sales - $modal - $employee_sallary;
 

@@ -116,7 +116,7 @@ class ItsHelper
                }
 
                // Delete the old image if it exists
-               if ($replace) {
+               if ($replace && !empty($existing_img_path)) {
                     Storage::delete($existing_img_path);
                }
 

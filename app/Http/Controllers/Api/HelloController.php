@@ -58,7 +58,7 @@ class HelloController extends Controller
                     ->when($request->instance_code != '', function ($q) use ($request) {
                          $q->where('instance_code', $request->instance_code);
                     })
-                    ->select('slug', 'instance_code', 'hello_template_id', 'title', 'slogan', 'promotion', 'third_party_links', 'img_heading', 'phone', 'closing_text', 'img_instance_logo', 'google_maps_link')->first();
+                    ->select('slug', 'instance_code', 'hello_template_id', 'title', 'slogan', 'promotion', 'third_party_links', 'img_heading', 'phone', 'closing_text', 'img_instance_logo', 'google_maps_link', 'jam_buka', 'jam_tutup')->first();
 
                // If no instance found, return 404
                if (!$dataInstanceSetting) {
@@ -67,6 +67,9 @@ class HelloController extends Controller
                          'message' => 'Instance not found',
                     ], 404);
                }
+
+               $dataInstanceSetting->jam_buka = $dataInstanceSetting->jam_buka ?: '09:00';
+               $dataInstanceSetting->jam_tutup = $dataInstanceSetting->jam_tutup ?: '17:00';
 
                // Enforce subscription/privilege expiry: if the Hello app privilege for this instance is expired, deny access
                $app = Apps::where('name', 'Hello')->first();
@@ -274,6 +277,9 @@ class HelloController extends Controller
                'phone' => 'required',
                'custom_domain' => ['nullable', 'string', 'max:255', 'regex:/^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i'],
                'google_maps_link' => ['nullable', 'string', 'max:2048'],
+               'jam_buka' => ['nullable', 'date_format:H:i'],
+               'jam_tutup' => ['nullable', 'date_format:H:i'],
+               'img_closing.*' => ['nullable', 'file', 'mimes:jpg,jpeg,png,mp4,mov,webm', 'max:20480'],
           ]);
 
           try {
@@ -295,6 +301,8 @@ class HelloController extends Controller
                     'phone' => $validatedData['phone'],
                     'closing_text' => $request->closing_text,
                     'google_maps_link' => $validatedData['google_maps_link'] ?? null,
+                    'jam_buka' => $validatedData['jam_buka'] ?? null,
+                    'jam_tutup' => $validatedData['jam_tutup'] ?? null,
                ];
 
                $data = InstanceSettings::where('instance_code', $request->instance_code)->first();

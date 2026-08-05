@@ -305,6 +305,8 @@ class HelloController extends Controller
                'jam_buka' => ['nullable', 'date_format:H:i'],
                'jam_tutup' => ['nullable', 'date_format:H:i'],
                'img_closing.*' => ['nullable', 'file', 'mimes:jpg,jpeg,png,mp4,mov,webm', 'max:20480'],
+               'remove_img_heading' => ['nullable', 'boolean'],
+               'remove_closing_images.*' => ['nullable', 'string'],
           ]);
 
           try {
@@ -350,34 +352,56 @@ class HelloController extends Controller
                     }
 
                     $dataToSave['img_heading'] = $image;
+               } elseif ($request->boolean('remove_img_heading') && !empty($data->img_heading)) {
+                    Storage::delete($data->img_heading);
+                    $dataToSave['img_heading'] = null;
                }
 
-               $imagePaths = [];
-               if ($request->hasFile('img_closing')) {
+               $removeClosingPaths = $request->input('remove_closing_images', []);
+               if (!is_array($removeClosingPaths)) {
+                    $removeClosingPaths = [];
+               }
+
+               if ($request->hasFile('img_closing') || !empty($removeClosingPaths)) {
                     $existingImage = Images::where('name', 'hello_img_closing')
                          ->where('instance_code', $request->instance_code)
                          ->first();
+                    $existingPaths = $existingImage ? explode(',', $existingImage->img_path) : [];
+
+                    foreach ($removeClosingPaths as $removePath) {
+                         if (in_array($removePath, $existingPaths, true)) {
+                              Storage::delete($removePath);
+                         }
+                    }
+                    $keptPaths = array_values(array_diff($existingPaths, $removeClosingPaths));
+
+                    $newPaths = [];
+                    if ($request->hasFile('img_closing')) {
+                         foreach ($request->file('img_closing') as $image) {
+                              $newPaths[] = $image->store('public/fianut/client');
+                         }
+                    }
+
+                    $finalPaths = array_merge($keptPaths, $newPaths);
+
+                    if (count($finalPaths) > 4) {
+                         return response()->json([
+                              'success' => false,
+                              'message' => 'Maksimal 4 foto/video untuk foto penutup',
+                         ], 422);
+                    }
 
                     if ($existingImage) {
-                         $oldPaths = explode(',', $existingImage->img_path);
-                         foreach ($oldPaths as $oldPath) {
-                              Storage::delete($oldPath);
-                         }
                          $existingImage->delete();
                     }
 
-                    foreach ($request->file('img_closing') as $image) {
-                         $path = $image->store('public/fianut/client');
-                         $imagePaths[] = $path;
+                    if (!empty($finalPaths)) {
+                         Images::create([
+                              'name' => 'hello_img_closing',
+                              'instance_code' => $request->instance_code,
+                              'img_path' => implode(',', $finalPaths),
+                         ]);
                     }
-
-                    $implodedImagePaths = implode(',', $imagePaths);
-
-                    Images::create([
-                         'name' => 'hello_img_closing',
-                         'instance_code' => $request->instance_code,
-                         'img_path' => $implodedImagePaths,
-                    ]);
                }
 
                if ($data) {

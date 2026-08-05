@@ -58,7 +58,7 @@ class HelloController extends Controller
                     ->when($request->instance_code != '', function ($q) use ($request) {
                          $q->where('instance_code', $request->instance_code);
                     })
-                    ->select('slug', 'instance_code', 'hello_template_id', 'title', 'slogan', 'promotion', 'third_party_links', 'img_heading', 'phone', 'closing_text', 'img_instance_logo', 'google_maps_link', 'jam_buka', 'jam_tutup')->first();
+                    ->select('slug', 'instance_code', 'hello_template_id', 'title', 'slogan', 'promotion', 'third_party_links', 'img_heading', 'phone', 'closing_text', 'img_instance_logo', 'google_maps_link')->first();
 
                // If no instance found, return 404
                if (!$dataInstanceSetting) {
@@ -68,8 +68,12 @@ class HelloController extends Controller
                     ], 404);
                }
 
-               $dataInstanceSetting->jam_buka = $dataInstanceSetting->jam_buka ?: '09:00';
-               $dataInstanceSetting->jam_tutup = $dataInstanceSetting->jam_tutup ?: '17:00';
+               $jamSettings = Settings::whereIn('name', ['hello_jam_buka', 'hello_jam_tutup'])
+                    ->where('instance_code', $dataInstanceSetting->instance_code)
+                    ->pluck('value', 'name');
+
+               $dataInstanceSetting->jam_buka = $jamSettings->get('hello_jam_buka') ?: '09:00';
+               $dataInstanceSetting->jam_tutup = $jamSettings->get('hello_jam_tutup') ?: '17:00';
 
                // Enforce subscription/privilege expiry: if the Hello app privilege for this instance is expired, deny access
                $app = Apps::where('name', 'Hello')->first();
@@ -176,6 +180,27 @@ class HelloController extends Controller
                     'app_id' => Apps::where('name', 'Hello')->value('id') ?? 1,
                ]
           );
+     }
+
+     /**
+      * Upsert (or clear, when null) the "hello_jam_buka"/"hello_jam_tutup"
+      * generic settings rows for an instance. A null value deletes the row
+      * so the public showcase falls back to its default hours.
+      */
+     private function saveOperatingHours(?string $jamBuka, ?string $jamTutup, string $instanceCode, ?int $instanceId): void
+     {
+          $appId = Apps::where('name', 'Hello')->value('id') ?? 1;
+
+          foreach (['hello_jam_buka' => $jamBuka, 'hello_jam_tutup' => $jamTutup] as $name => $value) {
+               if ($value) {
+                    Settings::updateOrCreate(
+                         ['name' => $name, 'instance_code' => $instanceCode],
+                         ['value' => $value, 'instance_id' => $instanceId, 'app_id' => $appId]
+                    );
+               } else {
+                    Settings::where('name', $name)->where('instance_code', $instanceCode)->delete();
+               }
+          }
      }
 
      /**
@@ -291,6 +316,13 @@ class HelloController extends Controller
                     );
                }
 
+               $this->saveOperatingHours(
+                    $validatedData['jam_buka'] ?? null,
+                    $validatedData['jam_tutup'] ?? null,
+                    $validatedData['instance_code'],
+                    $userData->instance->id ?? null
+               );
+
                $dataToSave = [
                     'title' => $validatedData['title'],
                     'slogan' => $request->slogan,
@@ -301,8 +333,6 @@ class HelloController extends Controller
                     'phone' => $validatedData['phone'],
                     'closing_text' => $request->closing_text,
                     'google_maps_link' => $validatedData['google_maps_link'] ?? null,
-                    'jam_buka' => $validatedData['jam_buka'] ?? null,
-                    'jam_tutup' => $validatedData['jam_tutup'] ?? null,
                ];
 
                $data = InstanceSettings::where('instance_code', $request->instance_code)->first();

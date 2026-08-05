@@ -66,6 +66,7 @@ class InstanceController extends Controller
 
                $dataRole = UserPriviledges::with(['role'])->where('user_id', $userId)->select('id', 'role_id')->first();
                $dataInstanceSettings = InstanceSettings::where('instance_code', $instanceCode)->first();
+               $dataClosingImage = ItsHelper::getImages('hello_img_closing', $instanceCode);
 
                return response()->json([
                     'success' => true,
@@ -76,6 +77,7 @@ class InstanceController extends Controller
                          'instance_settings' => $dataInstanceSettings,
                          'instance_priviledge' => $dataInstancePriviledge,
                          'role' => $dataRole,
+                         'closing_image' => $dataClosingImage,
                     ],
                ], 200);
           } catch (\Throwable $th) {
